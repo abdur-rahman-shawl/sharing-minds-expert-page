@@ -155,17 +155,17 @@
 
   .animate-gradient-xy {
     background-size: 400% 400%;
-    animation: gradient-xy 8s ease-in-out infinite;
+    animation: gradient-xy 5s ease-in-out infinite;
   }
 
   .animate-gradient-slow {
-    background-size: 300% 300%;
-    animation: gradient-slow 12s ease-in-out infinite;
+    background-size: 320% 320%;
+    animation: gradient-slow 8s ease-in-out infinite;
   }
 
   .animate-gradient-diagonal {
-    background-size: 200% 200%;
-    animation: gradient-diagonal 15s linear infinite;
+    background-size: 260% 260%;
+    animation: gradient-diagonal 10s linear infinite;
   }
 
   .animate-float {
@@ -188,11 +188,11 @@
     }
     33% {
       border-radius: 60% 40% 35% 65% / 55% 60% 40% 45%;
-      transform: translate3d(60px, -50px, 0) scale(1.12);
+      transform: translate3d(120px, -100px, 0) scale(1.2);
     }
     66% {
       border-radius: 42% 58% 67% 33% / 48% 38% 62% 52%;
-      transform: translate3d(-50px, 45px, 0) scale(0.94);
+      transform: translate3d(-110px, 90px, 0) scale(0.9);
     }
     100% {
       border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
@@ -205,11 +205,11 @@
   }
 
   .animate-blob {
-    animation: blobMorph 14s ease-in-out infinite;
+    animation: blobMorph 9s ease-in-out infinite;
   }
 
   .animate-blob-slower {
-    animation-duration: 22s;
+    animation-duration: 12s;
   }
 
   .animate-delay-5s { animation-delay: 5s; }

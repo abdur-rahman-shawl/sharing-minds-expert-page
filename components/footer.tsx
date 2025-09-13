@@ -5,16 +5,16 @@ export function Footer() {
     <footer className="bg-gray-50 border-t border-gray-200 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <nav className="flex flex-wrap justify-center gap-8 text-sm">
-          <Link href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
             Homepage
           </Link>
-          <Link href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          <Link href="/service" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
             Service
           </Link>
-          <Link href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          <Link href="/about" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
             About Us
           </Link>
-          <Link href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          <Link href="/contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
             Contact
           </Link>
         </nav>

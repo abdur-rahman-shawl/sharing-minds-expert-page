@@ -1,0 +1,41 @@
+  @keyframes blobMorph {
+    0% {
+      border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      border-radius: 60% 40% 35% 65% / 55% 60% 40% 45%;
+      transform: translate3d(60px, -50px, 0) scale(1.12);
+    }
+    66% {
+      border-radius: 42% 58% 67% 33% / 48% 38% 62% 52%;
+      transform: translate3d(-50px, 45px, 0) scale(0.94);
+    }
+    100% {
+      border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  .blob-shape {
+    border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
+  }
+
+  .animate-blob {
+    animation: blobMorph 9s ease-in-out infinite;
+  }
+
+  .animate-blob-slower {
+    animation-duration: 12s;
+  }
+
+  .animate-delay-5s { animation-delay: 5s; }
+  .animate-delay-10s { animation-delay: 10s; }
+
+  /* Adding scroll-triggered animation keyframes and utilities */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
