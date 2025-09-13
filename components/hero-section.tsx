@@ -15,7 +15,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen px-4 overflow-hidden flex items-center">
+    <section className="relative min-h-screen px-4 overflow-hidden flex items-center -mt-20">
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-xy"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40 animate-gradient-slow"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-bl from-transparent via-purple-50/30 to-blue-100/30 animate-gradient-diagonal"></div>

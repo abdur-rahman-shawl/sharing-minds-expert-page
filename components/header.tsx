@@ -2,24 +2,29 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === "/"
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onScroll = () => setScrolled(window.scrollY > 24)
     onScroll()
     window.addEventListener("scroll", onScroll)
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  const containerClass = cn(
+    "sticky top-0 z-50 transition-colors duration-300",
+    isHome && !scrolled ? "bg-transparent" : "bg-white/80 backdrop-blur-md shadow-sm",
+  )
+
   return (
-    <header
-      className={`sticky top-0 z-50 transition-colors duration-300 ${
-        scrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-white/40 backdrop-blur-md"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-5">
+    <header className={containerClass}>
+      <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="relative">
             <svg viewBox="0 0 40 20" className="w-10 h-5 text-blue-600" fill="currentColor" aria-hidden="true">

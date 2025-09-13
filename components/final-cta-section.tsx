@@ -14,26 +14,26 @@ export function FinalCTASection() {
         <div
           className="pointer-events-none absolute inset-0 -z-20 opacity-[0.03]"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='2' fill='%23000000' /%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='2' fill='%231d4ed8' /%3E%3C/svg%3E")`,
           }}
         />
         {/* Radial spotlight backdrop */}
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(800px_300px_at_50%_30%,rgba(15,23,42,0.08),transparent)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(800px_300px_at_50%_30%,rgba(59,130,246,0.08),transparent)]" />
 
         <div
           className={`relative overflow-hidden rounded-3xl p-12 bg-white border border-black/5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.25)] animate-on-scroll will-change-opacity ${
             sectionVisible ? "animate-fade-in-slow animate-delay-200" : ""
           }`}
         >
-          {/* Decorative diagonal background */}
+          {/* Decorative diagonal background with accent hues */}
           <svg
             className="pointer-events-none absolute inset-0 -z-10 w-full h-full"
             viewBox="0 0 1200 400"
             preserveAspectRatio="none"
             aria-hidden="true"
           >
-            <polygon points="0,260 1200,140 1200,400 0,400" fill="rgba(100,116,139,0.08)" />
-            <polygon points="0,340 720,230 1200,280 1200,400 0,400" fill="rgba(100,116,139,0.06)" />
+            <polygon points="0,260 1200,140 1200,400 0,400" fill="rgba(59,130,246,0.12)" />
+            <polygon points="0,340 720,230 1200,280 1200,400 0,400" fill="rgba(99,102,241,0.10)" />
           </svg>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-12 text-balance leading-tight text-center">
             Join SharingMinds as a Mentor/Expert Today.
