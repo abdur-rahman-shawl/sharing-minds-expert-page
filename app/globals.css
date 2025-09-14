@@ -39,11 +39,15 @@
   }
   /* Removed automatic background/foreground application to prevent dark mode conflicts */
   body {
+    font-family: var(--font-open-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   html {
     /* Smooth anchor/programmatic scrolling (browser-controlled duration) */
     scroll-behavior: smooth;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-montserrat);
   }
 }
 

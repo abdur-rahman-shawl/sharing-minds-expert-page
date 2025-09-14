@@ -1,11 +1,21 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Montserrat, Open_Sans } from "next/font/google"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
-const inter = Inter({ subsets: ["latin"] })
+const open_sans = Open_Sans({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-open-sans',
+})
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-montserrat',
+})
 
 export const metadata: Metadata = {
   title: "SharingMinds - Join as an Expert",
@@ -19,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-white text-gray-900`}>
+    <html lang="en" className={`${open_sans.variable} ${montserrat.variable}`}>
+      <body className={`bg-white text-gray-900`}>
         <Header />
         <main className="pt-20">{children}</main>
         <Footer />
