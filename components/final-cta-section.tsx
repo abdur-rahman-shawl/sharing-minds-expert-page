@@ -2,32 +2,25 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
+// Final CTA card styled to match the provided reference image
 export function FinalCTASection() {
-  const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation(0.1)
-
   return (
-    <section ref={sectionRef} className="bg-gradient-to-br from-gray-50 to-white py-32 px-4">
-      <div className="max-w-4xl mx-auto relative">
-        {/* Subtle pattern band (low contrast) */}
-        <div
-          className="pointer-events-none absolute inset-0 -z-20 opacity-[0.03]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='2' fill='%231d4ed8' /%3E%3C/svg%3E")`,
-          }}
-        />
-        {/* Radial spotlight backdrop */}
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(800px_300px_at_50%_30%,rgba(59,130,246,0.08),transparent)]" />
+    <section className="relative py-20 px-4 bg-[#eaf4fb]" aria-labelledby="mentor-cta-heading">
+      {/* dotted pattern on the top-right of the section */}
+      <div
+        className="pointer-events-none absolute right-6 md:right-16 top-4 md:top-6 h-24 w-40 opacity-40 -z-10"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.25) 1px, transparent 1px)",
+          backgroundSize: "14px 14px",
+        }}
+      />
 
-        <div
-          className={`relative overflow-hidden rounded-3xl p-12 bg-white border border-black/5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.25)] animate-on-scroll will-change-opacity ${
-            sectionVisible ? "animate-fade-in-slow animate-delay-200" : ""
-          }`}
-        >
-          {/* Decorative diagonal background with accent hues */}
+      <div className="max-w-6xl mx-auto">
+        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-slate-300/60 bg-[linear-gradient(180deg,#f5fbff,white_30%)] p-6 sm:p-10 md:p-12 shadow-[0_10px_30px_-10px_rgba(2,6,23,0.15)] min-h-[300px] md:min-h-[clamp(360px,36vw,460px)] grid place-items-center">
+          {/* decorative diagonal shapes inside card (persistently visible) */}
           <svg
-            className="pointer-events-none absolute inset-0 -z-10 w-full h-full"
+            className="pointer-events-none absolute inset-0 z-0 h-full w-full"
             viewBox="0 0 1200 400"
             preserveAspectRatio="none"
             aria-hidden="true"
@@ -35,38 +28,30 @@ export function FinalCTASection() {
             <polygon points="0,260 1200,140 1200,400 0,400" fill="rgba(59,130,246,0.12)" />
             <polygon points="0,340 720,230 1200,280 1200,400 0,400" fill="rgba(99,102,241,0.10)" />
           </svg>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-12 text-balance leading-tight text-center">
-            Join SharingMinds as a Mentor/Expert Today.
-          </h2>
 
-          <div className={`mb-12`}>
-            <blockquote className="text-lg text-gray-700 leading-relaxed italic text-center mb-8">
-              "SharingMinds is a fantastic mentorship platform that has enabled me to share my knowledge and experience
-              with aspiring students. The dashboard is user-friendly and efficient, making the mentoring process smooth
-              and enjoyable."
-            </blockquote>
-            <div className="flex items-center justify-center gap-3">
-              <img
-                src="/placeholder.svg?key=nathan"
-                alt="Nathan Lopez"
-                loading="lazy"
-                className="w-12 h-12 rounded-full object-cover"
+          <div className="relative z-10 w-full">
+            <h2
+              id="mentor-cta-heading"
+              className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900"
+            >
+              Join SharingMinds as a Mentor Today.
+            </h2>
+
+            <p className="mt-6 text-center text-[17px] leading-relaxed text-slate-700 italic max-w-3xl mx-auto">
+              "SharingMinds Mentor Onboarding has enabled me early access of tools and priority founder mentor status." –
+              Amit Sawant
+            </p>
+
+            <div className="mt-10 mx-auto max-w-xl flex flex-col sm:flex-row items-stretch gap-3">
+              <Input
+                type="email"
+                placeholder="Enter your email to sign up as a mentor"
+                className="h-12 bg-white border-slate-300 placeholder-slate-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
               />
-              <div className="text-left">
-                <p className="font-semibold text-gray-900">Nathan Lopez</p>
-                <p className="text-gray-500 text-sm">Study Abroad Counsellor</p>
-              </div>
+              <Button className="h-12 px-5 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
+                Sign Up as a Mentor
+              </Button>
             </div>
-          </div>
-
-          <div className={`flex flex-col sm:flex-row gap-3 max-w-lg mx-auto`}>
-            <Input
-              placeholder="Enter your email..."
-              className="flex-1 h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300"
-            />
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 font-medium hover:-translate-y-px hover:opacity-90 transition-[transform,opacity,background] duration-200">
-              Sign Up as a Mentor
-            </Button>
           </div>
         </div>
       </div>

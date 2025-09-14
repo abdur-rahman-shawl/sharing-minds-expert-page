@@ -32,7 +32,7 @@ export function Header() {
             </svg>
           </div>
           <div>
-            <span className="block text-xl font-bold text-gray-900 tracking-tight">sharingminds</span>
+            <span className="block text-xl font-bold text-gray-900 tracking-tight">SharingMinds</span>
             <span className="block text-xs text-gray-500 -mt-0.5">a human intelligence network</span>
           </div>
         </Link>

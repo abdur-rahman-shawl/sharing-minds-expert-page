@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Briefcase, Users, Video, Calendar } from "lucide-react"
+import { FinalCTASection } from "@/components/final-cta-section"
 
 export const metadata: Metadata = {
   title: "Service • SharingMinds",
@@ -63,16 +63,7 @@ export default function ServicePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-10">
-          <h2 className="text-2xl md:text-3xl font-semibold">Ready to get started?</h2>
-          <p className="mt-3 text-gray-600">Create your profile and connect with the right mentor today.</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Create Account</Button>
-            <Button variant="outline">Browse Experts</Button>
-          </div>
-        </div>
-      </section>
+      <FinalCTASection />
 
     </div>
   )
