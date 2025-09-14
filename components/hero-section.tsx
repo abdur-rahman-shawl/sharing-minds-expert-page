@@ -1,12 +1,20 @@
-"use client"
+'use client'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Star } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 export function HeroSection() {
   const [reveal, setReveal] = useState(false)
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  }
 
   // Gentle delayed reveal for hero content
   useEffect(() => {
@@ -33,9 +41,7 @@ export function HeroSection() {
       {/* Navigation is provided globally via layout header */}
 
       <div
-        className={`max-w-6xl mx-auto text-center relative z-10 animate-on-scroll will-change-opacity ${
-          reveal ? "animate-fade-in" : ""
-        }`}
+        className={`max-w-6xl mx-auto text-center relative z-10 animate-on-scroll will-change-opacity ${reveal ? "animate-fade-in" : ""}`}
       >
         <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 text-balance">
           Join SharingMinds as an Expert
@@ -46,15 +52,19 @@ export function HeroSection() {
         </p>
         <p className="text-gray-500 mb-12 italic">"Lead with experience, empowers with guidance"</p>
 
-        <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-12">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-12">
           <Input
+            type="email"
             placeholder="Enter your email to sign up as a mentor"
             className="flex-1 h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 font-medium">
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 font-medium">
             Sign Up as a Mentor
           </Button>
-        </div>
+        </form>
 
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="flex items-center gap-2">

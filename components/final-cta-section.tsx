@@ -1,10 +1,20 @@
-"use client"
+'use client'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 // Final CTA card styled to match the provided reference image
 export function FinalCTASection() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  }
+
   return (
     <section className="relative py-20 px-4 bg-[#eaf4fb]" aria-labelledby="mentor-cta-heading">
       {/* dotted pattern on the top-right of the section */}
@@ -42,16 +52,19 @@ export function FinalCTASection() {
               Amit Sawant
             </p>
 
-            <div className="mt-10 mx-auto max-w-xl flex flex-col sm:flex-row items-stretch gap-3">
+            <form onSubmit={handleSubmit} className="mt-10 mx-auto max-w-xl flex flex-col sm:flex-row items-stretch gap-3">
               <Input
                 type="email"
                 placeholder="Enter your email to sign up as a mentor"
                 className="h-12 bg-white border-slate-300 placeholder-slate-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <Button className="h-12 px-5 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
+              <Button type="submit" className="h-12 px-5 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
                 Sign Up as a Mentor
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

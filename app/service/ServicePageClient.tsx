@@ -2,31 +2,15 @@
 import { CheckCircle2, Layers, Sparkles, CalendarClock } from "lucide-react"
 import { FinalCTASection } from "@/components/final-cta-section"
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
 export default function ServicePageClient() {
-  const [visibleItems, setVisibleItems] = useState<number[]>([])
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = Number.parseInt(entry.target.getAttribute("data-index") || "0")
-            setVisibleItems((prev) => [...prev, index])
-          }
-        })
-      },
-      { threshold: 0.2 },
-    )
-
-    itemRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref)
-    })
-
-    return () => observer.disconnect()
-  }, [])
+  const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
+  const { ref: dashboardRef, isVisible: dashboardVisible } = useScrollAnimation(0.2)
+  const { ref: descriptionRef, isVisible: descriptionVisible } = useScrollAnimation(0.2)
+  const { ref: featuresRef, isVisible: featuresVisible } = useScrollAnimation(0.1)
+  const { ref: whyChooseRef, isVisible: whyChooseVisible } = useScrollAnimation(0.1)
+  const { ref: faqRef, isVisible: faqVisible } = useScrollAnimation(0.1)
 
   const features = [
     {
@@ -52,10 +36,43 @@ export default function ServicePageClient() {
     },
   ]
 
+  const featureCardRefs = features.map(() => useScrollAnimation(0.2))
+
+  const whyChooseItems = [
+    "Verified experts only",
+    "Outcome‑oriented sessions",
+    "Flexible scheduling",
+    "Transparent pricing",
+    "Private & secure",
+    "Follow‑ups & notes",
+  ]
+  const whyChooseCardRefs = whyChooseItems.map(() => useScrollAnimation(0.1))
+
+  const faqItems = [
+    {
+      q: "How are mentors vetted?",
+      a: "Every expert goes through profile verification, domain checks, and trial sessions before joining.",
+    },
+    {
+      q: "Can I reschedule a session?",
+      a: "Yes — with flexible rescheduling and timezone support via calendar integrations.",
+    },
+    {
+      q: "Do you support ongoing mentorship?",
+      a: "Absolutely. You can book recurring sessions and continue where you left off.",
+    },
+  ]
+  const faqCardRefs = faqItems.map(() => useScrollAnimation(0.1))
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       {/* Hero - Mentorship Made Easy */}
-      <section className="relative py-24 px-4 overflow-hidden">
+      <section
+        ref={heroRef}
+        className={`relative py-24 px-4 overflow-hidden animate-on-scroll will-change-opacity ${
+          heroVisible ? "animate-fade-in-slow" : ""
+        }`}
+      >
         <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" />
         <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40" />
         <div className="max-w-6xl mx-auto text-center">
@@ -72,7 +89,12 @@ export default function ServicePageClient() {
       </section>
 
       {/* Dashboard Preview */}
-      <section className="py-12 px-4">
+      <section
+        ref={dashboardRef}
+        className={`py-12 px-4 animate-on-scroll will-change-opacity ${
+          dashboardVisible ? "animate-fade-in-up" : ""
+        }`}
+      >
         <div className="max-w-6xl mx-auto">
           <div className="relative rounded-2xl border bg-white shadow-lg overflow-hidden">
             <Image
@@ -87,7 +109,12 @@ export default function ServicePageClient() {
       </section>
 
       {/* Description */}
-      <section className="py-12 px-4">
+      <section
+        ref={descriptionRef}
+        className={`py-12 px-4 animate-on-scroll will-change-opacity ${
+          descriptionVisible ? "animate-fade-in" : ""
+        }`}
+      >
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-gray-600 leading-relaxed">
             SharingMinds Mentor Onboarding software provides a seamless experience for mentors to create profiles,
@@ -97,153 +124,98 @@ export default function ServicePageClient() {
       </section>
 
       {/* Feature Cards */}
-      <section className="py-16 px-4">
+      <section
+        ref={featuresRef}
+        className="py-16 px-4"
+      >
         <div className="max-w-6xl mx-auto space-y-20">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              ref={(el) => {
-                itemRefs.current[index] = el
-              }}
-              data-index={index}
-              className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-12 items-center transition-all duration-700 ${
-                visibleItems.includes(index) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              <div className="flex-1">
-                <div className="relative h-80 lg:h-96 rounded-2xl overflow-hidden shadow-lg">
-                  <Image
-                    src={feature.image || "/placeholder.svg"}
-                    alt={feature.alt}
-                    width={600}
-                    height={400}
-                    className="w-full h-full object-cover"
-                  />
+          {features.map((feature, index) => {
+            const { ref, isVisible } = featureCardRefs[index]
+            return (
+              <div
+                key={index}
+                ref={ref}
+                className={`flex flex-col ${
+                  index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+                } gap-12 items-center animate-on-scroll will-change-opacity ${
+                  isVisible ? "animate-fade-in-up" : ""
+                }`}
+              >
+                <div className="flex-1">
+                  <div className="relative h-80 lg:h-96 rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src={feature.image || "/placeholder.svg"}
+                      alt={feature.alt}
+                      width={600}
+                      height={400}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 space-y-6">
+                  <h3 className="text-2xl lg:text-3xl font-bold tracking-tight">{feature.title}</h3>
+                  <p className="text-lg text-gray-600 leading-relaxed">{feature.description}</p>
                 </div>
               </div>
-              <div className="flex-1 space-y-6">
-                <h3 className="text-2xl lg:text-3xl font-bold tracking-tight">{feature.title}</h3>
-                <p className="text-lg text-gray-600 leading-relaxed">{feature.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">How It Works</h2>
-            <p className="mt-4 text-gray-600">A simple flow to find the right mentor and get quality time.</p>
-            <ul className="mt-8 space-y-6">
-              <li className="flex items-start gap-4">
-                <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Sparkles className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-semibold">Tell us your goals</p>
-                  <p className="text-gray-600">Share your background, challenges, and what you want to achieve.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-4">
-                <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Layers className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-semibold">Match and book</p>
-                  <p className="text-gray-600">We recommend mentors; pick a time that works via calendar sync.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-4">
-                <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <CalendarClock className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-semibold">Meet and grow</p>
-                  <p className="text-gray-600">
-                    Actionable advice on live video with notes, next steps, and follow‑ups.
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-tr from-blue-50 to-indigo-50 p-10">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(800px_300px_at_50%_30%,rgba(59,130,246,0.4),transparent)]" />
-            <div className="relative grid grid-cols-2 gap-6">
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-                <p className="font-semibold">Average rating</p>
-                <p className="text-3xl font-bold mt-2">4.9/5</p>
-                <p className="text-sm text-gray-500 mt-1">from verified mentees</p>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-                <p className="font-semibold">Sessions booked</p>
-                <p className="text-3xl font-bold mt-2">12k+</p>
-                <p className="text-sm text-gray-500 mt-1">across 40+ countries</p>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-                <p className="font-semibold">Time to first call</p>
-                <p className="text-3xl font-bold mt-2">
-                  <span className="align-middle">24</span>h
-                </p>
-                <p className="text-sm text-gray-500 mt-1">on average</p>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-                <p className="font-semibold">Expert network</p>
-                <p className="text-3xl font-bold mt-2">1,000+</p>
-                <p className="text-sm text-gray-500 mt-1">verified mentors</p>
-              </div>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </section>
 
       {/* Why choose SharingMinds */}
-      <section className="py-16 px-4">
+      <section
+        ref={whyChooseRef}
+        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+          whyChooseVisible ? "animate-fade-in" : ""
+        }`}
+      >
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center">Why Choose SharingMinds</h2>
           <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              "Verified experts only",
-              "Outcome‑oriented sessions",
-              "Flexible scheduling",
-              "Transparent pricing",
-              "Private & secure",
-              "Follow‑ups & notes",
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-3 rounded-xl border border-slate-200 p-5 bg-white">
-                <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5" />
-                <p className="font-medium text-gray-800">{item}</p>
-              </div>
-            ))}
+            {whyChooseItems.map((item, index) => {
+              const { ref, isVisible } = whyChooseCardRefs[index]
+              return (
+                <div
+                  key={item}
+                  ref={ref}
+                  className={`flex items-start gap-3 rounded-xl border border-slate-200 p-5 bg-white animate-on-scroll will-change-opacity ${
+                    isVisible ? `animate-fade-in-up animate-delay-${index * 100}` : ""
+                  }`}
+                >
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <p className="font-medium text-gray-800">{item}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-16 px-4">
+      <section
+        ref={faqRef}
+        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+          faqVisible ? "animate-fade-in" : ""
+        }`}
+      >
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-semibold text-center">Frequently Asked Questions</h2>
           <div className="mt-8 space-y-4">
-            {[
-              {
-                q: "How are mentors vetted?",
-                a: "Every expert goes through profile verification, domain checks, and trial sessions before joining.",
-              },
-              {
-                q: "Can I reschedule a session?",
-                a: "Yes — with flexible rescheduling and timezone support via calendar integrations.",
-              },
-              {
-                q: "Do you support ongoing mentorship?",
-                a: "Absolutely. You can book recurring sessions and continue where you left off.",
-              },
-            ].map((item) => (
-              <div key={item.q} className="rounded-xl border border-slate-200 p-5 bg-white">
-                <p className="font-medium">{item.q}</p>
-                <p className="text-gray-600 mt-2">{item.a}</p>
-              </div>
-            ))}
+            {faqItems.map((item, index) => {
+              const { ref, isVisible } = faqCardRefs[index]
+              return (
+                <div
+                  key={item.q}
+                  ref={ref}
+                  className={`rounded-xl border border-slate-200 p-5 bg-white animate-on-scroll will-change-opacity ${
+                    isVisible ? `animate-fade-in-up animate-delay-${index * 100}` : ""
+                  }`}
+                >
+                  <p className="font-medium">{item.q}</p>
+                  <p className="text-gray-600 mt-2">{item.a}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
