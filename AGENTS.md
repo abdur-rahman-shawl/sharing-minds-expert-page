@@ -39,4 +39,3 @@
 
 ## Agent-Specific Notes
 - Follow these conventions across the repo; keep changes scoped and avoid unrelated refactors. Update this file if structure or tooling changes.
-

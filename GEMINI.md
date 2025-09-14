@@ -1,4 +1,3 @@
-
 # Project Overview
 
 This is a Next.js project for a landing page called "SharingMinds". It's designed to attract experts to join as mentors. The project is built with TypeScript and styled with Tailwind CSS. It uses a component-based architecture with a significant number of UI components from `radix-ui` and `lucide-react`.
