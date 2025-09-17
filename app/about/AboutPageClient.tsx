@@ -1,16 +1,31 @@
 'use client'
-import { HeartHandshake, Target, Users2 } from "lucide-react"
+import { HeartHandshake, Target, Users2, CheckCircle2 } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { FcGoogle } from "react-icons/fc"
+import { signIn, signOut, useSession } from "@/lib/auth-client"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export default function AboutPageClient() {
   const router = useRouter()
   const [email, setEmail] = useState("")
+  const { data: session, isPending } = useSession()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn.social({
+        provider: 'google'
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    }
   }
 
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
@@ -267,19 +282,73 @@ export default function AboutPageClient() {
             </blockquote>
 
             {/* Email Signup */}
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email to sign up as a mentor"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
-                Sign Up as a Mentor
-              </button>
-            </form>
+            {isPending ? (
+              <div className="max-w-md mx-auto">
+                <Card className="animate-pulse">
+                  <CardContent className="p-8">
+                    <div className="h-12 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : session?.user ? (
+              <div className="max-w-md mx-auto">
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <p className="text-gray-700">
+                        Signed in as <span className="font-medium">{session.user.name || session.user.email}</span>
+                      </p>
+                    </div>
+                    <Button
+                      onClick={async () => {
+                        await signOut()
+                        router.refresh()
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-600 hover:text-gray-900"
+                    >
+                      Sign out
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-md mx-auto space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <input
+                    type="email"
+                    placeholder="Enter your email to sign up as a mentor"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
+                    Sign Up as a Mentor
+                  </button>
+                </form>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-gradient-to-br from-blue-50 to-purple-50 px-2 text-gray-500">Or continue with</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleGoogleSignIn}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                >
+                  <FcGoogle className="h-5 w-5" />
+                  Sign Up with Google
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

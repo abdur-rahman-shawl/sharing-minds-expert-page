@@ -80,7 +80,7 @@
     }
   }
   @keyframes gradient-xy {
-    0% {
+    0%, 100% {
       background-position: 0% 0%;
     }
     25% {
@@ -92,32 +92,23 @@
     75% {
       background-position: 0% 100%;
     }
-    100% {
-      background-position: 0% 0%;
-    }
   }
 
   @keyframes gradient-slow {
-    0% {
+    0%, 100% {
       background-position: 0% 50%;
     }
     50% {
       background-position: 100% 50%;
     }
-    100% {
-      background-position: 0% 50%;
-    }
   }
 
   @keyframes gradient-diagonal {
-    0% {
+    0%, 100% {
       background-position: 0% 0%;
     }
     50% {
       background-position: 100% 100%;
-    }
-    100% {
-      background-position: 0% 0%;
     }
   }
 
@@ -159,17 +150,17 @@
 
   .animate-gradient-xy {
     background-size: 400% 400%;
-    animation: gradient-xy 5s ease-in-out infinite;
+    animation: gradient-xy 20s cubic-bezier(0.4, 0.0, 0.6, 1.0) infinite;
   }
 
   .animate-gradient-slow {
-    background-size: 320% 320%;
-    animation: gradient-slow 8s ease-in-out infinite;
+    background-size: 200% 200%;
+    animation: gradient-slow 15s cubic-bezier(0.4, 0.0, 0.6, 1.0) infinite;
   }
 
   .animate-gradient-diagonal {
-    background-size: 260% 260%;
-    animation: gradient-diagonal 10s linear infinite;
+    background-size: 200% 200%;
+    animation: gradient-diagonal 25s cubic-bezier(0.4, 0.0, 0.6, 1.0) infinite;
   }
 
   .animate-float {
@@ -186,21 +177,17 @@
 
   /* Fluid blob animation for hero background */
   @keyframes blobMorph {
-    0% {
+    0%, 100% {
       border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
       transform: translate3d(0, 0, 0) scale(1);
     }
     33% {
       border-radius: 60% 40% 35% 65% / 55% 60% 40% 45%;
-      transform: translate3d(120px, -100px, 0) scale(1.2);
+      transform: translate3d(50px, -50px, 0) scale(1.1);
     }
     66% {
       border-radius: 42% 58% 67% 33% / 48% 38% 62% 52%;
-      transform: translate3d(-110px, 90px, 0) scale(0.9);
-    }
-    100% {
-      border-radius: 33% 67% 58% 42% / 41% 39% 61% 59%;
-      transform: translate3d(0, 0, 0) scale(1);
+      transform: translate3d(-50px, 50px, 0) scale(0.95);
     }
   }
 
@@ -209,11 +196,11 @@
   }
 
   .animate-blob {
-    animation: blobMorph 9s ease-in-out infinite;
+    animation: blobMorph 20s cubic-bezier(0.4, 0.0, 0.6, 1.0) infinite;
   }
 
   .animate-blob-slower {
-    animation-duration: 12s;
+    animation-duration: 25s;
   }
 
   .animate-delay-5s { animation-delay: 5s; }
@@ -354,5 +341,37 @@
 
   .will-change-opacity {
     will-change: opacity;
+  }
+
+  /* Shimmer animation for premium effect */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-200%) skewX(-12deg);
+    }
+    100% {
+      transform: translateX(200%) skewX(-12deg);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradient-text {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient-text {
+    background-size: 200% 200%;
+    animation: gradient-text 4s ease infinite;
   }
 }

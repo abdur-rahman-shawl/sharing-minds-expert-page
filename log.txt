@@ -1,0 +1,75 @@
+PS C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page> npm run build
+
+> my-v0-project@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.16
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+ ✓ Collecting page data    
+   Generating static pages (2/16)  [=   ]Error in states API: B [Error]: Dynamic server usage: Route /api/locations/states couldn't be rendered statically because it used `nextUrl.searchParams`. See more 
+info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:21777)
+    at Object.get (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:28809)
+    at u (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\app\api\locations\states\route.js:1:751)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:37016
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:122:103 {
+  description: "Route /api/locations/states couldn't be rendered statically because it used `nextUrl.searchParams`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error in cities API: B [Error]: Dynamic server usage: Route /api/locations/cities couldn't be rendered statically because it used `nextUrl.searchParams`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:21777)
+    at Object.get (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:28809)
+    at u (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\app\api\locations\cities\route.js:1:749)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:37016
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:122:103 {
+  description: "Route /api/locations/cities couldn't be rendered statically because it used `nextUrl.searchParams`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error in mentor status check: B [Error]: Dynamic server usage: Route /api/mentors/status couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:21777)
+    at Object.get (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:29137)
+    at p (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\app\api\mentors\status\route.js:1:1050)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:37016
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\server\lib\trace\tracer.js:122:103 {
+  description: "Route /api/mentors/status couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/verify-email". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at l (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\chunks\346.js:1:11726)
+    at c (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\chunks\346.js:1:22666)
+    at d (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\.next\server\app\verify-email\page.js:1:2264)
+    at nj (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46251)
+    at nM (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47571)
+    at nN (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64546)
+    at nI (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47010)
+    at nM (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47717)
+    at nM (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61546)
+    at nN (C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64546)
+
+Error occurred prerendering page "/verify-email". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ ✓ Generating static pages (16/16)
+
+> Export encountered errors on following paths:
+        /verify-email/page: /verify-email
+PS C:\Users\Raf\Desktop\Projects\YM\sharing-minds-expert-page> 

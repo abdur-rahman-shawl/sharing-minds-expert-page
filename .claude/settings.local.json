@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Raf/Desktop/Projects/YM/young-minds-landing-page/**)",
+      "Bash(npm install:*)",
+      "Bash(npm search:*)",
+      "WebFetch(domain:www.better-auth.com)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

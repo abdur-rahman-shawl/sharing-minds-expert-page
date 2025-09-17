@@ -1,195 +1,866 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { User } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useSession, signIn } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
+import { FcGoogle } from "react-icons/fc"
+import { ArrowLeft, User, UserCheck, CheckCircle, Clock, XCircle } from "lucide-react"
+import { mentorApplicationSchema } from "@/lib/validations/mentor"
+import { z } from "zod"
+import { useMentorStatus } from "@/hooks/use-mentor-status"
 
 export default function RegistrationForm() {
-  const [areasOfExpertise, setAreasOfExpertise] = useState("")
+  const [showMentorForm, setShowMentorForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<z.ZodError | null>(null)
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
+  const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
-  return (
-    <div className="bg-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Become an Expert</h1>
-          <p className="mt-2 text-sm text-gray-500">Help shape the next generation by sharing your expertise</p>
-          <p className="mt-4 text-sm text-gray-600">Signed in as <span className="font-medium">rko812551@gmail.com</span></p>
-        </div>
+  const [countries, setCountries] = useState<{ id: number; name: string }[]>([])
+  const [states, setStates] = useState<{ id: number; name: string }[]>([])
+  const [cities, setCities] = useState<{ id: number; name: string }[]>([])
+  const [locationsLoading, setLocationsLoading] = useState({
+    countries: false,
+    states: false,
+    cities: false,
+  })
 
-        <div className="mt-12 border border-gray-200 rounded-lg p-8">
-          <h2 className="text-xl font-semibold text-gray-900">Expert Application Form</h2>
-          <p className="mt-1 text-sm text-gray-600">Tell us about your professional background and expertise</p>
+  const [mentorFormData, setMentorFormData] = useState<{
+    fullName: string
+    email: string
+    phone: string
+    countryId: string
+    stateId: string
+    cityId: string
+    title: string
+    company: string
+    industry: string
+    experience: string
+    expertise: string
+    about: string
+    linkedinUrl: string
+    profilePicture: File | null
+    resume: File | null
+    termsAccepted: boolean
+    availability: string
+  }>({
+    fullName: "",
+    email: "",
+    phone: "",
+    countryId: "",
+    stateId: "",
+    cityId: "",
+    title: "",
+    company: "",
+    industry: "",
+    experience: "",
+    expertise: "",
+    about: "",
+    linkedinUrl: "",
+    profilePicture: null,
+    resume: null,
+    termsAccepted: false,
+    availability: "",
+  })
 
-          <form className="mt-8 space-y-8">
-            <div className="flex flex-col items-center space-y-2">
-              <Label htmlFor="profile-picture">Profile Picture *</Label>
-              <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-400" />
+  // Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      setLocationsLoading(prev => ({ ...prev, countries: true }))
+      try {
+        const response = await fetch('/api/locations/countries')
+        const data = await response.json()
+        setCountries(data)
+        // Automatically select India if it exists
+        const india = data.find((c: { name: string }) => c.name === 'India')
+        if (india) {
+          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString() }))
+        }
+      } catch (error) {
+        console.error("Failed to fetch countries", error)
+      } finally {
+        setLocationsLoading(prev => ({ ...prev, countries: false }))
+      }
+    }
+    fetchCountries()
+  }, [])
+
+  // Fetch states when country changes
+  useEffect(() => {
+    if (mentorFormData.countryId) {
+      const fetchStates = async () => {
+        setLocationsLoading(prev => ({ ...prev, states: true }))
+        setStates([])
+        setCities([])
+        setMentorFormData(prev => ({ ...prev, stateId: "", cityId: "" }))
+        try {
+          const response = await fetch(`/api/locations/states?countryId=${mentorFormData.countryId}`)
+          const data = await response.json()
+          setStates(data)
+        } catch (error) {
+          console.error("Failed to fetch states", error)
+        } finally {
+          setLocationsLoading(prev => ({ ...prev, states: false }))
+        }
+      }
+      fetchStates()
+    }
+  }, [mentorFormData.countryId])
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (mentorFormData.stateId) {
+      const fetchCities = async () => {
+        setLocationsLoading(prev => ({ ...prev, cities: true }))
+        setCities([])
+        setMentorFormData(prev => ({ ...prev, cityId: "" }))
+        try {
+          const response = await fetch(`/api/locations/cities?stateId=${mentorFormData.stateId}`)
+          const data = await response.json()
+          setCities(data)
+        } catch (error) {
+          console.error("Failed to fetch cities", error)
+        } finally {
+          setLocationsLoading(prev => ({ ...prev, cities: false }))
+        }
+      }
+      fetchCities()
+    }
+  }, [mentorFormData.stateId])
+
+  // OTP handling
+  const [otp, setOtp] = useState("")
+  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
+  const [otpError, setOtpError] = useState<string | null>(null)
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mentorFormData.email)
+
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setMentorFormData(prev => ({ ...prev, profilePicture: file }))
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      setProfilePicturePreview(null)
+    }
+  }
+
+  const handleSendOtp = async () => {
+    try {
+      setOtpError(null)
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: mentorFormData.email }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send OTP")
+      }
+
+      console.log("OTP sent successfully to:", mentorFormData.email)
+      if (data.otp) {
+        console.log("Development OTP:", data.otp) // Remove in production!
+      }
+      setShowOtpInput(true)
+      startCountdown()
+    } catch (err) {
+      console.error("Error sending OTP:", err)
+      setOtpError(err instanceof Error ? err.message : "Failed to send OTP")
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    if (!otp) return alert("Please enter the OTP")
+    let email = mentorFormData.email
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        setIsEmailVerified(true)
+        setShowOtpInput(false)
+        setOtpError(null)
+        console.log("OTP verified successfully")
+      } else {
+        setOtpError(data.error || "Invalid or expired OTP. Please try again.")
+      }
+    } catch (err) {
+      setOtpError("An unexpected error occurred. Please try again.")
+      console.error("Error verifying OTP:", err)
+    }
+  }
+
+  const [countdown, setCountdown] = useState(10)
+  const [isCountingDown, setIsCountingDown] = useState(false)
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (isCountingDown && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(prev => prev - 1)
+      }, 1000)
+    } else if (countdown === 0) {
+      setIsCountingDown(false)
+    }
+    return () => clearTimeout(timer)
+  }, [isCountingDown, countdown])
+
+  const startCountdown = () => {
+    setCountdown(30)
+    setIsCountingDown(true)
+  }
+
+  const handleResendOtp = async () => {
+    if (!isCountingDown) {
+      setOtpError(null)
+      try {
+        const res = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: mentorFormData.email }),
+        })
+
+        const data = await res.json()
+
+        if (data.success) {
+          console.log("OTP resent successfully to:", mentorFormData.email)
+          if (data.otp) {
+            console.log("Development OTP:", data.otp) // Remove in production!
+          }
+          startCountdown()
+        } else {
+          alert(data.error || "Failed to resend OTP")
+        }
+      } catch (err) {
+        console.error("Error resending OTP:", err)
+      }
+    }
+  }
+
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+
+  // Check if user signed in with Google and auto-verify email
+  useEffect(() => {
+    if (session?.user) {
+      // Pre-fill email and name from session
+      if (session.user.email && !mentorFormData.email) {
+        setMentorFormData(prev => ({
+          ...prev,
+          email: session.user.email || '',
+          fullName: session.user.name || prev.fullName
+        }))
+        // Auto-verify if signed in with Google
+        // Google emails are already verified
+        setIsEmailVerified(true)
+      }
+      setShowMentorForm(true)
+    }
+  }, [session])
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true)
+    try {
+      await signIn.social({
+        provider: 'google',
+        callbackURL: '/registration'
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleMentorFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setErrors(null)
+
+    try {
+      if (!session?.user?.id) {
+        alert('Please log in before submitting the form')
+        setIsLoading(false)
+        return
+      }
+
+      const validatedData = mentorApplicationSchema.parse({
+        ...mentorFormData,
+        country: mentorFormData.countryId,
+        state: mentorFormData.stateId,
+        city: mentorFormData.cityId,
+      })
+
+      const formData = new FormData()
+      formData.append('userId', session.user.id)
+      formData.append('fullName', validatedData.fullName)
+      formData.append('email', validatedData.email)
+      formData.append('phone', validatedData.phone)
+      formData.append('countryId', validatedData.country)
+      formData.append('stateId', validatedData.state)
+      formData.append('cityId', validatedData.city)
+      formData.append('title', validatedData.title)
+      formData.append('company', validatedData.company)
+      formData.append('industry', validatedData.industry)
+      formData.append('expertise', validatedData.expertise)
+      formData.append('experience', validatedData.experience)
+      formData.append('about', validatedData.about || '')
+      formData.append('linkedinUrl', validatedData.linkedinUrl)
+      formData.append('availability', validatedData.availability)
+      formData.append('profilePicture', validatedData.profilePicture)
+      formData.append('resume', validatedData.resume)
+
+      const res = await fetch('/api/mentors/apply', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      })
+      const result = await res.json()
+
+      if (!result.success) {
+        alert('Failed to submit application: ' + result.error)
+        setIsLoading(false)
+        return
+      }
+
+      alert('Application submitted successfully! We will review your application and get back to you soon.')
+      router.push('/')
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(error)
+        const firstError = error.errors[0]
+        alert(`Validation error: ${firstError.path.join('.')} - ${firstError.message}`)
+      } else {
+        alert('Something went wrong while submitting your application.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Check if user is already a mentor
+  if (!mentorStatusLoading && isMentor && mentor) {
+    const verificationBadge = {
+      'VERIFIED': { icon: CheckCircle, color: 'text-green-600', text: 'Verified' },
+      'IN_PROGRESS': { icon: Clock, color: 'text-yellow-600', text: 'Verification in Progress' },
+      'REJECTED': { icon: XCircle, color: 'text-red-600', text: 'Verification Rejected' },
+      'YET_TO_APPLY': { icon: Clock, color: 'text-gray-600', text: 'Pending Application' },
+      'REVERIFICATION': { icon: Clock, color: 'text-orange-600', text: 'Re-verification Required' }
+    }[mentor.verificationStatus] || { icon: Clock, color: 'text-gray-600', text: 'Unknown Status' }
+
+    const StatusIcon = verificationBadge.icon
+
+    return (
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/")}
+              className="absolute top-8 left-8"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+
+            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+            <h2 className="text-3xl font-bold text-gray-900">
+              You're Already Registered!
+            </h2>
+            <p className="mt-2 text-lg text-gray-600">
+              Thank you for being a mentor on SharingMinds
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Mentor Profile</CardTitle>
+              <CardDescription>
+                You registered on {new Date(mentor.registeredAt).toLocaleDateString()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label className="text-sm text-gray-500">Name</Label>
+                <p className="text-lg font-medium">{mentor.fullName}</p>
               </div>
-              <Button variant="link" size="sm">Upload Picture</Button>
-              <Input id="profile-picture" type="file" className="hidden" />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="full-name">Full Name *</Label>
-                <Input id="full-name" placeholder="Your Name" />
+              <div>
+                <Label className="text-sm text-gray-500">Email</Label>
+                <p className="text-lg">{mentor.email}</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <div className="flex items-center gap-2">
-                  <Input id="email" type="email" placeholder="you@example.com" />
-                  <Button variant="outline">Verify</Button>
+
+              <div>
+                <Label className="text-sm text-gray-500">Verification Status</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <StatusIcon className={`h-5 w-5 ${verificationBadge.color}`} />
+                  <span className={`font-medium ${verificationBadge.color}`}>
+                    {verificationBadge.text}
+                  </span>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone-number">Phone Number *</Label>
-              <Input id="phone-number" placeholder="+91-XXXXXXXXXX" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="resume">Resume *</Label>
-              <Input id="resume" type="file" />
-              <p className="text-xs text-gray-500">Upload your resume in PDF, DOC, or DOCX format (max 10MB)</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="country">Country *</Label>
-                <Select defaultValue="india">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="india">India</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="pt-4 space-y-3">
+                <Button
+                  onClick={() => router.push('/')}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Go to Home
+                </Button>
+                {mentor.verificationStatus === 'VERIFIED' && (
+                  <Button
+                    onClick={() => router.push('/dashboard')}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    Go to Mentor Dashboard
+                  </Button>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="state">State *</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select State..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* Add states here */}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City *</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select City..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* Add cities here */}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="job-title">Current Job Title *</Label>
-                <Input id="job-title" placeholder="e.g., Senior Software Engineer" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company">Current Company/Organization *</Label>
-                <Input id="company" placeholder="Your Company Name" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="industry">Primary Industry *</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your industry..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* Add industries here */}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="experience">Years of Professional Experience *</Label>
-                <Input id="experience" placeholder="e.g., 5" />
-                <p className="text-xs text-gray-500">Minimum 2 years of experience required to be a mentor.</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="expertise">Areas of Expertise *</Label>
-              <Textarea
-                id="expertise"
-                placeholder="List skills you can mentor in (e.g., Python, Digital Marketing, Leadership, Career Transitions). Minimum 100 characters, maximum 500 characters."
-                value={areasOfExpertise}
-                onChange={(e) => setAreasOfExpertise(e.target.value)}
-                maxLength={500}
-                rows={4}
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <p>Minimum 100 characters. Be specific! This helps mentees find you. Use commas to separate multiple areas.</p>
-                <span>{areasOfExpertise.length}/500</span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="availability">Preferred Mentorship Availability *</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {/* Add availability options here */}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="linkedin">LinkedIn Profile URL *</Label>
-              <Input id="linkedin" placeholder="https://linkedin.com/in/yourprofile" />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" />
-              <Dialog>
-                <Label htmlFor="terms" className="text-sm font-normal">
-                  I agree to the <DialogTrigger asChild><a href="#" className="text-blue-600 hover:underline">Terms and Conditions</a></DialogTrigger> (placeholder)
-                </Label>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Terms and Conditions</DialogTitle>
-                    <DialogDescription>
-                      This is a placeholder for the terms and conditions. Replace this with your actual terms and conditions.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="prose">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-                  <DialogFooter>
-                    <Button>Close</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="text-center">
-                <Button type="submit" size="lg">Submit Application</Button>
-            </div>
-
-          </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // Show loading state while checking mentor status
+  if (mentorStatusLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking registration status...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show the registration form for non-mentors
+  return (
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/")}
+              className="absolute top-8 left-8"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+
+            <h2 className="text-3xl font-bold text-gray-900">
+              Expert Registration
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Help shape the next generation by sharing your expertise
+            </p>
+            {session?.user && (
+              <Badge variant="outline" className="mt-2">
+                Signed in as {session.user.email}
+              </Badge>
+            )}
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Expert Application Form</CardTitle>
+              <CardDescription>
+                Tell us about your professional background and expertise
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!session?.user && (
+                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800 mb-3">
+                    Sign in with Google to skip email verification and auto-fill your information
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading || isPending}
+                    className="w-full flex items-center justify-center gap-2"
+                    variant="outline"
+                  >
+                    <FcGoogle className="h-5 w-5" />
+                    {isLoading || isPending ? "Signing in..." : "Sign in with Google"}
+                  </Button>
+                </div>
+              )}
+              <form onSubmit={handleMentorFormSubmit} className="space-y-6" encType="multipart/form-data">
+                {/* Profile Picture */}
+                <div className="flex flex-col items-center space-y-2">
+                  <Label htmlFor="profilePicture">Profile Picture <span className="text-red-500">*</span></Label>
+                  <label htmlFor="profilePicture" className="cursor-pointer">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={profilePicturePreview || undefined} alt="Profile Picture" />
+                      <AvatarFallback>
+                        <User className="h-12 w-12" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </label>
+                  <input
+                    id="profilePicture"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    required
+                    className="hidden"
+                  />
+                  <Button type="button" onClick={() => document.getElementById('profilePicture')?.click()} variant="ghost">
+                    Upload Picture
+                  </Button>
+                </div>
+
+                {/* Personal Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fullName">Full Name <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="fullName"
+                      value={mentorFormData.fullName}
+                      onChange={e => setMentorFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                      placeholder="Your Name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        id="email"
+                        type="email"
+                        value={mentorFormData.email}
+                        onChange={e => {
+                          // Only allow email change if not a Google user
+                          if (!session?.user) {
+                            setMentorFormData(prev => ({ ...prev, email: e.target.value }))
+                            setIsEmailVerified(false)
+                            setOtp("")
+                          }
+                        }}
+                        placeholder="you@example.com"
+                        required
+                        disabled={session?.user?.email ? true : isEmailVerified}
+                        readOnly={session?.user?.email ? true : false}
+                      />
+                      {!session?.user && (
+                        <Button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={!isValidEmail || isEmailVerified}
+                        >
+                          {isEmailVerified ? "Verified" : "Verify"}
+                        </Button>
+                      )}
+                      {session?.user && (
+                        <Badge variant="outline" className="text-green-600">
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+                    {showOtpInput && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="text"
+                            placeholder="Enter 6-digit OTP"
+                            value={otp}
+                            onChange={(e) => {
+                              setOtp(e.target.value)
+                              setOtpError(null)
+                            }}
+                            maxLength={6}
+                          />
+                          <Button
+                            type="button"
+                            onClick={handleVerifyOtp}
+                            disabled={otp.length !== 6}
+                          >
+                            Confirm OTP
+                          </Button>
+                        </div>
+                        {otpError && <p className="text-sm text-red-500 mt-1">{otpError}</p>}
+                        <p className="text-xs text-gray-500 text-center">
+                          Didn&apos;t receive the OTP?{' '}
+                          {isCountingDown ? (
+                            `Resend in ${countdown}s`
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleResendOtp}
+                              className="underline font-medium text-blue-600 hover:text-blue-700"
+                            >
+                              Resend OTP
+                            </button>
+                          )}
+                        </p>
+                      </div>
+                    )}
+                    {isEmailVerified && <p className="text-sm text-green-500 mt-1">Email verified successfully.</p>}
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={mentorFormData.phone}
+                      onChange={e => setMentorFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Enter your phone number"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Resume */}
+                <div>
+                  <Label htmlFor="resume">Resume <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={e => setMentorFormData(prev => ({ ...prev, resume: e.target.files?.[0] || null }))}
+                    required
+                  />
+                  <span className="text-xs text-gray-500">Upload your resume in PDF, DOC, or DOCX format (max 10MB)</span>
+                </div>
+
+                {/* Location */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
+                    <Select
+                      value={mentorFormData.countryId}
+                      onValueChange={value => setMentorFormData(prev => ({ ...prev, countryId: value }))}
+                      required
+                      disabled={locationsLoading.countries}
+                    >
+                      <SelectTrigger id="country">
+                        <SelectValue placeholder="Select Country..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map(country => (
+                          <SelectItem key={country.id} value={country.id.toString()}>{country.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
+                    <Select
+                      value={mentorFormData.stateId}
+                      onValueChange={value => setMentorFormData(prev => ({ ...prev, stateId: value }))}
+                      required
+                      disabled={locationsLoading.states || states.length === 0}
+                    >
+                      <SelectTrigger id="state">
+                        <SelectValue placeholder={locationsLoading.states ? "Loading..." : "Select State..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map(state => (
+                          <SelectItem key={state.id} value={state.id.toString()}>{state.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
+                    <Select
+                      value={mentorFormData.cityId}
+                      onValueChange={value => setMentorFormData(prev => ({ ...prev, cityId: value }))}
+                      required
+                      disabled={locationsLoading.cities || cities.length === 0}
+                    >
+                      <SelectTrigger id="city">
+                        <SelectValue placeholder={locationsLoading.cities ? "Loading..." : "Select City..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map(city => (
+                          <SelectItem key={city.id} value={city.id.toString()}>{city.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Professional Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title">Current Job Title <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="title"
+                      value={mentorFormData.title}
+                      onChange={e => setMentorFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g., Senior Software Engineer"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="company">Current Company/Organization <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="company"
+                      value={mentorFormData.company}
+                      onChange={e => setMentorFormData(prev => ({ ...prev, company: e.target.value }))}
+                      placeholder="Your Company Name"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Industry and Experience */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="industry">Primary Industry <span className="text-red-500">*</span></Label>
+                    <Select
+                      value={mentorFormData.industry}
+                      onValueChange={value => setMentorFormData(prev => ({ ...prev, industry: value }))}
+                      required
+                    >
+                      <SelectTrigger id="industry">
+                        <SelectValue placeholder="Select your industry..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ITSoftware">IT & Software</SelectItem>
+                        <SelectItem value="Marketing">Marketing & Advertising</SelectItem>
+                        <SelectItem value="Finance">Finance & Banking</SelectItem>
+                        <SelectItem value="Education">Education</SelectItem>
+                        <SelectItem value="Healthcare">Healthcare</SelectItem>
+                        <SelectItem value="Entrepreneurship">Entrepreneurship & Startup</SelectItem>
+                        <SelectItem value="Design">Design (UI/UX, Graphic)</SelectItem>
+                        <SelectItem value="Sales">Sales</SelectItem>
+                        <SelectItem value="HR">Human Resources</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="experience">Years of Professional Experience <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="experience"
+                      type="number"
+                      min="2"
+                      value={mentorFormData.experience}
+                      onChange={e => setMentorFormData(prev => ({ ...prev, experience: e.target.value }))}
+                      placeholder="e.g., 5"
+                      required
+                    />
+                    <span className="text-xs text-gray-500">Minimum 2 years of experience required to be a mentor.</span>
+                  </div>
+                </div>
+
+                {/* Expertise */}
+                <div>
+                  <Label htmlFor="expertise">Areas of Expertise <span className="text-red-500">*</span></Label>
+                  <Textarea
+                    id="expertise"
+                    value={mentorFormData.expertise}
+                    onChange={e => setMentorFormData(prev => ({ ...prev, expertise: e.target.value }))}
+                    placeholder="List skills you can mentor in (e.g., Python, Digital Marketing, Leadership, Career Transitions). Minimum 100 characters, maximum 500 characters."
+                    required
+                    maxLength={500}
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Minimum 100 characters. Be specific! This helps mentees find you.</span>
+                    <span>{mentorFormData.expertise.length} / 500</span>
+                  </div>
+                </div>
+
+                {/* About */}
+                <div>
+                  <Label htmlFor="about">About You (Optional)</Label>
+                  <Textarea
+                    id="about"
+                    value={mentorFormData.about}
+                    onChange={e => setMentorFormData(prev => ({ ...prev, about: e.target.value }))}
+                    placeholder="Tell us about yourself, your journey, and what motivates you to mentor others..."
+                    rows={4}
+                  />
+                </div>
+
+                {/* Availability */}
+                <div>
+                  <Label htmlFor="availability">Preferred Mentorship Availability <span className="text-red-500">*</span></Label>
+                  <Select
+                    value={mentorFormData.availability || ''}
+                    onValueChange={value => setMentorFormData(prev => ({ ...prev, availability: value }))}
+                    required
+                  >
+                    <SelectTrigger id="availability">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Weekly">Weekly (e.g., 1 hour/week)</SelectItem>
+                      <SelectItem value="BiWeekly">Bi-weekly (e.g., 1 hour/bi-week)</SelectItem>
+                      <SelectItem value="Monthly">Monthly (e.g., 1 hour/month)</SelectItem>
+                      <SelectItem value="AsNeeded">As needed (flexible)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* LinkedIn */}
+                <div>
+                  <Label htmlFor="linkedinUrl">LinkedIn Profile URL <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="linkedinUrl"
+                    type="text"
+                    value={mentorFormData.linkedinUrl}
+                    onChange={e => setMentorFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    required
+                  />
+                </div>
+
+                {/* Terms */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="termsAccepted"
+                    checked={mentorFormData.termsAccepted}
+                    onCheckedChange={checked => setMentorFormData(prev => ({ ...prev, termsAccepted: !!checked }))}
+                    required
+                  />
+                  <Label htmlFor="termsAccepted" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    I agree to the Terms and Conditions
+                  </Label>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={isLoading || (!session?.user && !isEmailVerified) || !mentorFormData.termsAccepted}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {isLoading ? "Submitting..." : "Register as Expert"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
 }
