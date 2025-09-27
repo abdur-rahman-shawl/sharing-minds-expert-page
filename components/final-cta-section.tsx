@@ -1,29 +1,26 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { FcGoogle } from "react-icons/fc"
-import { signIn, signOut, useSession } from "@/lib/auth-client"
+import { signIn, useSession } from "@/lib/auth-client"
 import { CheckCircle2 } from "lucide-react"
 
 // Final CTA card styled to match the provided reference image
 export function FinalCTASection() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
   const { data: session, isPending } = useSession()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  const handleBecomeMentor = () => {
+    router.push('/registration')
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
-        provider: 'google'
+        provider: 'google',
+        callbackURL: '/registration'
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -63,7 +60,7 @@ export function FinalCTASection() {
             </h2>
 
             <p className="mt-6 text-center text-[17px] leading-relaxed text-slate-700 italic max-w-3xl mx-auto">
-              "SharingMinds Mentor Onboarding has enabled me early access of tools and priority founder mentor status." –
+              "SharingMinds Mentor Onboarding has enabled me early access of tools and priority founder mentor status." -
               Amit Sawant
             </p>
 
@@ -78,8 +75,8 @@ export function FinalCTASection() {
               </div>
             ) : session?.user ? (
               <div className="mt-10 mx-auto max-w-xl">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-slate-200 p-4">
-                  <div className="flex items-center justify-between">
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-slate-200 p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                       <p className="text-slate-700">
@@ -87,34 +84,22 @@ export function FinalCTASection() {
                       </p>
                     </div>
                     <Button
-                      onClick={async () => {
-                        await signOut()
-                        router.refresh()
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-600 hover:text-slate-900"
+                      onClick={handleBecomeMentor}
+                      className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
                     >
-                      Sign out
+                      Become a Mentor
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="mt-10 mx-auto max-w-xl space-y-4">
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch gap-3">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email to sign up as a mentor"
-                    className="h-12 bg-white border-slate-300 placeholder-slate-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <Button type="submit" className="h-12 px-5 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
-                    Sign Up as a Mentor
-                  </Button>
-                </form>
+                <Button
+                  onClick={handleBecomeMentor}
+                  className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                >
+                  Become a Mentor
+                </Button>
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">

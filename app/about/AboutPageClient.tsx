@@ -2,26 +2,24 @@
 import { HeartHandshake, Target, Users2, CheckCircle2 } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { FcGoogle } from "react-icons/fc"
-import { signIn, signOut, useSession } from "@/lib/auth-client"
+import { signIn, useSession } from "@/lib/auth-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export default function AboutPageClient() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
   const { data: session, isPending } = useSession()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  const handleBecomeMentor = () => {
+    router.push('/registration')
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
-        provider: 'google'
+        provider: 'google',
+        callbackURL: '/registration'
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -294,42 +292,30 @@ export default function AboutPageClient() {
             ) : session?.user ? (
               <div className="max-w-md mx-auto">
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                       <p className="text-gray-700">
-                        Signed in as <span className="font-medium">{session.user.name || session.user.email}</span>
+                        You're signed in as <span className="font-medium">{session.user.name || session.user.email}</span>
                       </p>
                     </div>
                     <Button
-                      onClick={async () => {
-                        await signOut()
-                        router.refresh()
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-600 hover:text-gray-900"
+                      onClick={handleBecomeMentor}
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
                     >
-                      Sign out
+                      Become a Mentor
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="max-w-md mx-auto space-y-4">
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <input
-                    type="email"
-                    placeholder="Enter your email to sign up as a mentor"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
-                    Sign Up as a Mentor
-                  </button>
-                </form>
+                <Button
+                  onClick={handleBecomeMentor}
+                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Become a Mentor
+                </Button>
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -340,13 +326,14 @@ export default function AboutPageClient() {
                   </div>
                 </div>
 
-                <button
+                <Button
                   onClick={handleGoogleSignIn}
+                  variant="outline"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   <FcGoogle className="h-5 w-5" />
                   Sign Up with Google
-                </button>
+                </Button>
               </div>
             )}
           </div>
