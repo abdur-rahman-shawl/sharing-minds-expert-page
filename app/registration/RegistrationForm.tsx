@@ -372,7 +372,7 @@ export default function RegistrationForm() {
     const StatusIcon = verificationBadge.icon
 
     return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <Button
@@ -459,7 +459,7 @@ export default function RegistrationForm() {
 
   // Show the registration form for non-mentors
   return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <Button
