@@ -1,0 +1,122 @@
+SHARING MINDS EMAIL AUTH REPLICATION GUIDE
+==========================================
+
+Purpose
+- Mirror the email/password signup, OTP verification, and login behaviour from the main SharingMinds app in a new onboarding surface that shares the same database and auth infrastructure.
+
+Key Source References
+- app/auth/signup/SignUpPageClient.tsx:1-155
+- app/auth/signin/SignInPageClient.tsx:1-124
+- app/auth/verify-email/page.tsx:1-145
+- app/become-expert/page.tsx:1-230
+- app/api/auth/[...better-auth]/route.ts:1-9
+- app/api/auth/send-otp/route.ts:1-18
+- app/api/auth/verify-otp/route.ts:1-36
+- app/api/auth/session-with-roles/route.ts:1-104
+- lib/auth.ts:1-80
+- lib/auth-client.ts:1-11
+- lib/otp.ts:1-49
+- lib/db/index.ts:1-46
+- lib/db/schema/email-verifications.ts:1-9
+- lib/db/schema/auth.ts:1-52
+- lib/db/schema/users.ts:1-32
+- contexts/auth-context.tsx:1-220
+- hooks/queries/use-session-query.ts:1-99
+- app/layout.tsx:1-38
+- middleware.ts:1-155
+- components/auth/password-input.tsx:1-63
+- components/ui/input-otp.tsx:1-62
+- lib/validations/auth.ts:1-21
+- next.config.mjs:1-17
+- package.json:1-107
+
+1. Runtime Dependencies
+- Next.js 15, React 19, React DOM 19 (package.json:17-88).
+- better-auth + better-auth/react client for auth flows (package.json:57-58).
+- drizzle-orm + postgres for DB access (package.json:64-74).
+- nodemailer for OTP email delivery (package.json:73).
+- react-hook-form + @hookform/resolvers + zod for form + validation (package.json:23,78,88).
+- @tanstack/react-query for session fetching (package.json:52-53).
+- input-otp, lucide-react for OTP UI (package.json:68-69).
+- tailwind + shadcn components for styling (optional for new app but needed if reusing UI).
+Ensure these packages exist in the new app or reuse the shared codebase.
+
+2. Environment Variables
+Configure identical secrets for both apps:
+- DATABASE_URL for Postgres (lib/db/index.ts:25-34).
+- BETTER_AUTH_SECRET + BETTER_AUTH_URL (BetterAuth server config; next.config.mjs:12-14 exposes URL to client).
+- NEXT_PUBLIC_BETTER_AUTH_URL (client base URL; lib/auth-client.ts:9-10).
+- GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (required because better-auth config enables Google; lib/auth.ts:22-29).
+- GMAIL_APP_USER / GMAIL_APP_PASSWORD for nodemailer SMTP (lib/otp.ts:20-40).
+- Any existing Supabase or auxiliary envs if reused.
+Replicate .env.local without copying secrets directly; use secure vault.
+
+3. Database Schema & Migrations
+- Ensure the onboarding app points to the same Postgres instance and schema.
+- Critical tables:
+  * users (lib/db/schema/users.ts:4-29), storing BetterAuth-compatible user records.
+  * auth_accounts, auth_sessions, auth_verifications (lib/db/schema/auth.ts:15-52) for BetterAuth.
+  * email_verifications OTP store (lib/db/schema/email-verifications.ts:3-8, created via migration 0017_woozy_hedge_knight.sql).
+  * roles, user_roles for auto role assignment (lib/db/schema/roles.ts, lib/db/schema/user-roles.ts).
+  * Mentor profile tables for session enrichment (if new app needs them).
+- Run the same Drizzle migrations (pnpm db:migrate) or share compiled SQL to avoid drift.
+
+4. Server-Side Modules To Mirror
+- Database connection bootstrap (lib/db/index.ts:1-46).
+- BetterAuth configuration (lib/auth.ts:1-80), including drizzle adapter and session hooks that auto-assign the mentee role.
+- Client-side auth helper (lib/auth-client.ts:1-11) for calling BetterAuth endpoints.
+- OTP service (lib/otp.ts:1-49) which writes OTPs to email_verifications and emails codes through Gmail.
+- Session query utilities (lib/db/user-helpers.ts:1-174) for fetching roles.
+- React Query hooks for session management (hooks/queries/use-session-query.ts:1-99).
+If the new app cannot share these files through a package, copy them verbatim and keep them in sync.
+
+5. API Surface
+Expose the same routes in the onboarding deployment:
+- /api/auth/[...better-auth] (app/api/auth/[...better-auth]/route.ts:1-9) must forward GET/POST to auth.handler.
+- /api/auth/send-otp (app/api/auth/send-otp/route.ts:1-18) to trigger sendVerificationOtp.
+- /api/auth/verify-otp (app/api/auth/verify-otp/route.ts:1-36) to validate & consume OTP entries.
+- /api/auth/session-with-roles (app/api/auth/session-with-roles/route.ts:1-104) to hydrate the client with session, role, and mentor profile metadata.
+Ensure middleware rules (middleware.ts:5-155) are mirrored if you need route protection in the new app.
+
+6. Client Architecture Requirements
+- Wrap the React tree with QueryProvider and AuthProvider as in app/layout.tsx:23-32 and providers/query-provider.tsx:1-49.
+- AuthContext (contexts/auth-context.tsx:1-220) centralises sign-in/out, session refresh, and exposes role flags; reuse it to keep behaviour consistent.
+- React Query hook useSessionWithRolesQuery must call the /api/auth/session-with-roles endpoint to keep UI in sync.
+
+7. UI Forms & Components
+- Sign-up form (app/auth/signup/SignUpPageClient.tsx:1-155) uses client.signUp.email and redirects to verify-email with the encoded email.
+- Sign-in form (app/auth/signin/SignInPageClient.tsx:1-123) calls useAuth().signIn('email', credentials) and handles redirects.
+- Email verification page (app/auth/verify-email/page.tsx:1-145) posts to /api/auth/verify-otp and supports OTP resend via /api/auth/send-otp.
+- Mentor onboarding form reuses OTP logic (app/become-expert/page.tsx:73-214).
+- Shared UI utilities:
+  * components/auth/password-input.tsx:1-63 for inline password rules.
+  * components/ui/input-otp.tsx:1-62 if you need multi-slot OTP entry.
+  * components/auth/AuthHeader.tsx:1-46 for consistent page header.
+
+8. End-to-End Flow Summary
+1. User submits signup form -> client.signUp.email creates BetterAuth user + hashed password (app/auth/signup/SignUpPageClient.tsx:43-53).
+2. App redirects to verify-email page carrying the email param (app/auth/signup/SignUpPageClient.tsx:59).
+3. Verify-email page allows OTP entry; hitting submit calls /api/auth/verify-otp (app/auth/verify-email/page.tsx:25-45).
+4. OTP verification deletes the matching row from email_verifications if valid and unexpired (app/api/auth/verify-otp/route.ts:17-31) - no DB flag is toggled, so any consumer logic should check for absence of pending OTPs if needed.
+5. Successful verification redirects users to /auth/signin to log in (app/auth/verify-email/page.tsx:44-46).
+6. Sign-in form calls useAuth().signIn('email', credentials); AuthContext then refreshes the session cache via React Query (contexts/auth-context.tsx:120-145,139-141).
+7. Upon session creation, BetterAuth's hook auto-assigns the mentee role if none exists (lib/auth.ts:35-73); subsequent calls to /api/auth/session-with-roles return the enriched payload for the UI (app/api/auth/session-with-roles/route.ts:27-94).
+
+9. Implementation Checklist For The New App
+- Install/align dependency versions listed above.
+- Point to the same Postgres database and run migrations to guarantee schema parity.
+- Mirror environment variables and ensure both runtime and build-time configs expose BETTER_AUTH_URL consistently.
+- Reuse lib/db, lib/auth, lib/otp, contexts/auth-context, and API route handlers; exporting them from a shared workspace is preferable to duplication.
+- Mount QueryProvider + AuthProvider in the root layout to guarantee session context works.
+- Replicate the /auth/signup, /auth/verify-email, and /auth/signin pages with identical submission handlers.
+- Add the OTP send/verify endpoints and ensure nodemailer credentials work in the new deployment environment.
+- Validate route protection or middleware if the new surface exposes protected pages.
+
+10. Testing & Verification
+- Create a fresh user through the new signup form; confirm OTP email arrives and /api/auth/email_verifications row is created then cleared.
+- Attempt login with wrong password to ensure BetterAuth returns an error and the UI surfaces it.
+- Verify that after sign-in the mentee role is auto-assigned by inspecting user_roles.
+- Confirm useSessionWithRolesQuery returns consistent data across both apps by hitting /api/auth/session-with-roles.
+- Run pnpm lint and pnpm build to ensure mirrored code compiles; smoke-test both apps against the same DB to catch schema drift.
+
+Keep this document updated if auth code changes; sharing the auth modules through a workspace package is recommended to avoid divergence.

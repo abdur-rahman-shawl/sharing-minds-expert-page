@@ -19,16 +19,22 @@ export function HeroSection() {
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
   const handleRegisterClick = () => {
-    router.push('/registration')
+    if (session?.user) {
+      router.push('/registration')
+      return
+    }
+
+    router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
-        provider: 'google'
+        provider: 'google',
+        callbackURL: '/registration'
       })
     } catch (error) {
-      console.error("Sign in error:", error)
+      console.error('Sign in error:', error)
     }
   }
 

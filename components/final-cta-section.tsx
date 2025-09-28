@@ -13,7 +13,12 @@ export function FinalCTASection() {
   const { data: session, isPending } = useSession()
 
   const handleBecomeMentor = () => {
-    router.push('/registration')
+    if (session?.user) {
+      router.push('/registration')
+      return
+    }
+
+    router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
   }
 
   const handleGoogleSignIn = async () => {
