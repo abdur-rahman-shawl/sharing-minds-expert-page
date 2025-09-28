@@ -31,13 +31,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${openSans.variable} ${montserrat.variable}`} suppressHydrationWarning>
-      <body className="bg-white text-gray-900">
+      <body className="bg-slate-50 text-gray-900">
         <ErrorBoundary>
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <AuthProvider>
                 <Header />
-                <main className="pt-20">{children}</main>
+                <main className="flex-1 pt-10">{children}</main>
                 <Footer />
               </AuthProvider>
             </ThemeProvider>

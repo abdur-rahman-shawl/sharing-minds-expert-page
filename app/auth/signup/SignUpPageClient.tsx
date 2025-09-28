@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
 import { signUpSchema } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/auth/password-input'
-import AuthHeader from '@/components/auth/AuthHeader'
 import { createAuthClient } from 'better-auth/react'
 
 const client = createAuthClient()
@@ -65,10 +64,8 @@ export default function SignUpPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <AuthHeader />
-      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+    <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-md space-y-8">
           <div className="text-center">
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">Create your Account</h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Join our community of mentors and mentees</p>
@@ -143,7 +140,6 @@ export default function SignUpPageClient() {
               </Link>
             </p>
           </div>
-        </div>
       </div>
     </div>
   )
