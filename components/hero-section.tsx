@@ -24,7 +24,7 @@ export function HeroSection() {
       return
     }
 
-    router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
+    router.push(`/auth/login?callbackUrl=${encodeURIComponent('/registration')}`)
   }
 
   const handleGoogleSignIn = async () => {
