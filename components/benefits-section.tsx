@@ -27,38 +27,38 @@ export function BenefitsSection() {
       title: "Professional Mentor Profile",
       description:
         "Easily create a professional mentor profile to showcase your expertise and experience to potential mentees.",
-      image: "/professional-man-working-on-laptop.jpg",
+      image: "/profesional-mentor-profile.jpeg",
     },
     {
       title: "Connect with Mentees",
       description:
         "Engage and connect with mentees looking for guidance and support in your specific industry or domain.",
-      image: "/colorful-diverse-people-silhouettes-networking.jpg",
+      image: "/connect-with-mentees.jpeg",
     },
     {
       title: "Payment for Expertise",
       description:
         "You are paid for your knowledge, wisdom, and experience. We can provide a significant income source of up to 500 dollars a month, making it a viable primary source of income.",
-      image: "/laptop-with-financial-charts-and-graphs-on-screen.jpg",
+      image: "/payment-for-expertise.jpeg",
     },
     {
       title: "Match Making",
       description:
         "Allow the platform to find the best possible match with our algorithm, empowering your participants to find the right mentor and mentee, and we'll give them a helping hand with manual matchmaking.",
-      image: "/meditation-figure-with-colorful-chakra-background.jpg",
+      image: "/Algo2.gif",
     },
     {
       title: "Efficient Mentor Data Export",
       description:
         "Effortlessly export mentor data through the admin panel, ensuring seamless management and comprehensive insights.",
-      image: "/person-working-on-computer-with-design-software-in.jpg",
+      image: "/Data Export.gif",
     },
     {
       title: "Success Metrics",
       description:
         "Sentiment makes it easy to capture regular feedback needed to understand individual performance and get insights on your live dashboard metrics benchmarking and analytics on overview of your whole program.",
       features: ["Real-time reporting", "Feedback and progress tracking", "Dashboard analytics", "Monthly reporting"],
-      image: "/business-team-collaboration-with-charts-and-analyt.jpg",
+      image: "/RTR1.gif",
     },
   ]
 

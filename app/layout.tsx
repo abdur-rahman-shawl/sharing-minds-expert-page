@@ -7,6 +7,7 @@ import { Footer } from '@/components/footer'
 import { QueryProvider } from '@/providers/query-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/contexts/auth-context'
+import { AppLayout } from '@/app/AppLayout'
 import { ErrorBoundary } from '@/components/common/error-boundary'
 
 const openSans = Open_Sans({
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <AuthProvider>
-                <main className="flex-1">{children}</main>
+                <AppLayout>{children}</AppLayout>
               </AuthProvider>
             </ThemeProvider>
           </QueryProvider>

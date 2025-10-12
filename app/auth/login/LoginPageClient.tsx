@@ -57,7 +57,7 @@ function SignInForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <Label htmlFor="email">Email Address</Label>
-        <Input id="email" type="email" {...form.register('email')} />
+        <Input id="email" type="email" {...form.register('email')} className="rounded-lg" />
         {form.formState.errors.email && (
           <p className="text-sm text-red-500 mt-1">{form.formState.errors.email.message}</p>
         )}
@@ -65,7 +65,7 @@ function SignInForm() {
       <div>
         <Label htmlFor="password">Password</Label>
         <div className="relative">
-          <Input id="password" type={showPassword ? 'text' : 'password'} {...form.register('password')} />
+          <Input id="password" type={showPassword ? 'text' : 'password'} {...form.register('password')} className="rounded-lg" />
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
@@ -134,21 +134,21 @@ function SignUpForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <Label htmlFor="name">Full Name</Label>
-        <Input id="name" type="text" {...form.register('name')} />
+        <Input id="name" type="text" {...form.register('name')} className="rounded-lg" />
         {form.formState.errors.name && (
           <p className="text-sm text-red-500 mt-1">{form.formState.errors.name.message}</p>
         )}
       </div>
       <div>
         <Label htmlFor="email">Email Address</Label>
-        <Input id="email" type="email" {...form.register('email')} />
+        <Input id="email" type="email" {...form.register('email')} className="rounded-lg" />
         {form.formState.errors.email && (
           <p className="text-sm text-red-500 mt-1">{form.formState.errors.email.message}</p>
         )}
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" {...form.register('password')} />
+        <Input id="password" type="password" {...form.register('password')} className="rounded-lg" />
         {form.formState.errors.password && (
           <p className="text-sm text-red-500 mt-1">{form.formState.errors.password.message}</p>
         )}
@@ -156,12 +156,12 @@ function SignUpForm() {
       <div>
         <Label htmlFor="confirmPassword">Confirm Password</Label>
         <div className="relative">
-          <Input
-            id="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
-            {...form.register('confirmPassword')}
-          />
-          <button
+                            <Input
+                              id="confirmPassword"
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              {...form.register('confirmPassword')}
+                              className="rounded-lg"
+                            />          <button
             type="button"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
             className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
@@ -205,22 +205,24 @@ export default function LoginPageClient() {
     <div className="flex min-h-screen">
       <div className="flex flex-col justify-center items-center w-1/2 bg-white p-8">
         <div className="w-full max-w-md">
-          <Link href="/" className="flex items-center justify-center gap-3 mb-8" aria-label="SharingMinds home">
+          <Link href="/" className="flex items-center justify-center gap-3 mb-12" aria-label="SharingMinds home">
             <Image
               src="/sharing-minds-logo.png"
               alt="SharingMinds logo"
-              width={200}
-              height={62.5}
-              className="h-14 w-auto"
+              width={400}
+              height={125}
+              className="h-40 w-auto"
             />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4 text-center">
             <span className="block">Unlock your potential.</span>
-            <span className="block text-2xl text-gray-600">Transforming minds into institutions</span>
+          </h1>
+          <h1 className="text-5xl font-bold text-gray-900 mb-4 text-center">
+            <span className="block text-3xl text-gray-600">Transforming minds into institutions</span>
           </h1>
           
           <div className="space-y-4 mt-6">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+            <Button variant="outline" className="w-full py-3 transform hover:scale-105 transition-transform duration-200 shadow-md hover:shadow-lg" onClick={handleGoogleSignIn}>
               <FcGoogle className="mr-2 h-5 w-5" />
               Continue with Google
             </Button>
