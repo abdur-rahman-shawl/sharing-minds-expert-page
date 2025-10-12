@@ -36,9 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <AuthProvider>
-                <Header />
-                <main className="flex-1 pt-10">{children}</main>
-                <Footer />
+                <main className="flex-1">{children}</main>
               </AuthProvider>
             </ThemeProvider>
           </QueryProvider>
