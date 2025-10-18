@@ -91,12 +91,12 @@ export function BenefitsSection() {
                   cardVisible ? `animate-fade-in-slow animate-delay-${Math.min(index * 100 + 200, 400)}` : ""
                 }`}
               >
-                <div className="mb-6 overflow-hidden rounded-xl">
+                <div className="mb-6 overflow-hidden rounded-xl relative" style={{ paddingBottom: '75%' }}>
                   <img
                     src={benefit.image || "/placeholder.svg"}
                     alt={benefit.title}
                     loading="lazy"
-                    className="w-full h-64 object-cover shadow-sm group-hover:shadow-md transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                    className="absolute top-0 left-0 w-full h-full object-cover shadow-sm group-hover:shadow-md transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                   />
                 </div>
                 <div>

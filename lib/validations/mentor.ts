@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+const MAX_RESUME_SIZE = 5 * 1024 * 1024 // 5MB
+
 export const mentorApplicationSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
@@ -10,7 +12,10 @@ export const mentorApplicationSchema = z.object({
   title: z.string().min(2, 'Job title must be at least 2 characters'),
   company: z.string().min(2, 'Company name must be at least 2 characters'),
   industry: z.string().min(1, 'Industry is required'),
-  expertise: z.string().min(100, 'Expertise must be at least 100 characters').max(500, 'Expertise must not exceed 500 characters'),
+  expertise: z.string()
+    .min(1, 'Expertise is required')
+    .max(500, 'Expertise must not exceed 500 characters')
+    .refine(value => value.split(',').length >= 5, 'Please list at least 5 areas of expertise, separated by commas.'),
   experience: z.string().refine((val) => {
     const num = parseInt(val)
     return !isNaN(num) && num >= 2
@@ -19,7 +24,9 @@ export const mentorApplicationSchema = z.object({
   linkedinUrl: z.string().url('Invalid LinkedIn URL').regex(/linkedin\.com/, 'Must be a LinkedIn URL'),
   availability: z.string().min(1, 'Availability is required'),
   profilePicture: z.instanceof(File, { message: 'Profile picture is required' }),
-  resume: z.instanceof(File, { message: 'Resume is required' }),
+  resume: z.instanceof(File)
+    .optional()
+    .refine(file => !file || file.size <= MAX_RESUME_SIZE, `Resume must be less than 5MB`),
   termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions')
 })
 

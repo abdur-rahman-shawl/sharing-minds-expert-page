@@ -11,7 +11,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {!isAuthPage && <Header />}
-      <main className="flex-1 pt-10">{children}</main>
+      <main className={`flex-1 ${!isAuthPage ? 'pt-10' : ''}`}>{children}</main>
       {!isAuthPage && <Footer />}
     </>
   )

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { uploadProfilePicture, uploadResume } from '@/lib/storage'
+import { sendApplicationReceivedEmail } from '@/lib/emails'
 
 export async function POST(request: NextRequest) {
   console.log('🚀 === MENTOR APPLICATION API CALLED ===')
@@ -212,6 +213,17 @@ export async function POST(request: NextRequest) {
       } else {
         console.log('✅ Mentor role assigned')
       }
+    }
+
+    // Send application received email
+    console.log('📧 Step 7: Sending application received email...')
+    try {
+      await sendApplicationReceivedEmail(email, fullName)
+      console.log('✅ Application received email sent successfully')
+    } catch (emailError) {
+      console.error('❌ Failed to send application received email:', emailError)
+      // We don't want to fail the whole request if the email fails
+      // but we should log it.
     }
 
     console.log('🎉 === MENTOR APPLICATION COMPLETED SUCCESSFULLY ===')

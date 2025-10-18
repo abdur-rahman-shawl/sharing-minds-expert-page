@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
@@ -25,7 +26,7 @@ export default function RegistrationForm() {
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
-  const [countries, setCountries] = useState<{ id: number; name: string }[]>([])
+  const [countries, setCountries] = useState<{ id: number; name: string; phone_code: string }[]>([])
   const [states, setStates] = useState<{ id: number; name: string }[]>([])
   const [cities, setCities] = useState<{ id: number; name: string }[]>([])
   const [locationsLoading, setLocationsLoading] = useState({
@@ -38,6 +39,7 @@ export default function RegistrationForm() {
     fullName: string
     email: string
     phone: string
+    phoneCountryCode: string
     countryId: string
     stateId: string
     cityId: string
@@ -56,6 +58,7 @@ export default function RegistrationForm() {
     fullName: "",
     email: "",
     phone: "",
+    phoneCountryCode: "",
     countryId: "",
     stateId: "",
     cityId: "",
@@ -83,7 +86,7 @@ export default function RegistrationForm() {
         // Automatically select India if it exists
         const india = data.find((c: { name: string }) => c.name === 'India')
         if (india) {
-          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString() }))
+          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString(), phoneCountryCode: india.phone_code }))
         }
       } catch (error) {
         console.error("Failed to fetch countries", error)
@@ -310,6 +313,7 @@ export default function RegistrationForm() {
         country: mentorFormData.countryId,
         state: mentorFormData.stateId,
         city: mentorFormData.cityId,
+        phone: `+${mentorFormData.phoneCountryCode}-${mentorFormData.phone}`,
       })
 
       const formData = new FormData()
@@ -329,7 +333,9 @@ export default function RegistrationForm() {
       formData.append('linkedinUrl', validatedData.linkedinUrl)
       formData.append('availability', validatedData.availability)
       formData.append('profilePicture', validatedData.profilePicture)
-      formData.append('resume', validatedData.resume)
+      if (validatedData.resume) {
+        formData.append('resume', validatedData.resume)
+      }
 
       const res = await fetch('/api/mentors/apply', {
         method: 'POST',
@@ -624,9 +630,23 @@ export default function RegistrationForm() {
                 </div>
 
                 {/* Phone */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                <div>
+                  <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      value={mentorFormData.phoneCountryCode}
+                      onValueChange={value => setMentorFormData(prev => ({ ...prev, phoneCountryCode: value }))}
+                      required
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Code" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map(country => (
+                          country.phone_code ? <SelectItem key={country.id} value={country.phone_code}>+{country.phone_code}</SelectItem> : <SelectItem value="91">+91</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       id="phone"
                       type="tel"
@@ -638,17 +658,17 @@ export default function RegistrationForm() {
                   </div>
                 </div>
 
-                {/* Resume */}
+                {/* LinkedIn */}
                 <div>
-                  <Label htmlFor="resume">Resume <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="linkedinUrl">LinkedIn Profile URL <span className="text-red-500">*</span></Label>
                   <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={e => setMentorFormData(prev => ({ ...prev, resume: e.target.files?.[0] || null }))}
+                    id="linkedinUrl"
+                    type="text"
+                    value={mentorFormData.linkedinUrl}
+                    onChange={e => setMentorFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+                    placeholder="https://linkedin.com/in/yourprofile"
                     required
                   />
-                  <span className="text-xs text-gray-500">Upload your resume in PDF, DOC, or DOCX format (max 10MB)</span>
                 </div>
 
                 {/* Location */}
@@ -781,12 +801,12 @@ export default function RegistrationForm() {
                     id="expertise"
                     value={mentorFormData.expertise}
                     onChange={e => setMentorFormData(prev => ({ ...prev, expertise: e.target.value }))}
-                    placeholder="List skills you can mentor in (e.g., Python, Digital Marketing, Leadership, Career Transitions). Minimum 100 characters, maximum 500 characters."
+                    placeholder="List at least 5 skills you can mentor in, separated by commas (e.g., Python, Digital Marketing, Leadership)."
                     required
                     maxLength={500}
                   />
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Minimum 100 characters. Be specific! This helps mentees find you.</span>
+                    <span>Minimum 5 skills, comma-separated.</span>
                     <span>{mentorFormData.expertise.length} / 500</span>
                   </div>
                 </div>
@@ -823,17 +843,16 @@ export default function RegistrationForm() {
                   </Select>
                 </div>
 
-                {/* LinkedIn */}
+                {/* Resume */}
                 <div>
-                  <Label htmlFor="linkedinUrl">LinkedIn Profile URL <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="resume">Resume (Optional)</Label>
                   <Input
-                    id="linkedinUrl"
-                    type="text"
-                    value={mentorFormData.linkedinUrl}
-                    onChange={e => setMentorFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                    required
+                    id="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={e => setMentorFormData(prev => ({ ...prev, resume: e.target.files?.[0] || null }))}
                   />
+                  <span className="text-xs text-gray-500">Upload your resume in PDF, DOC, or DOCX format (max 5MB)</span>
                 </div>
 
                 {/* Terms */}
@@ -845,7 +864,18 @@ export default function RegistrationForm() {
                     required
                   />
                   <Label htmlFor="termsAccepted" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    I agree to the Terms and Conditions
+                    I agree to the
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="link" className="p-0 h-auto ml-1">Terms & Conditions</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Terms & Conditions</DialogTitle>
+                        </DialogHeader>
+                        <p>Placeholder for Terms & Conditions.</p>
+                      </DialogContent>
+                    </Dialog>
                   </Label>
                 </div>
 
