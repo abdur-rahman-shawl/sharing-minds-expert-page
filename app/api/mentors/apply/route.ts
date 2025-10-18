@@ -40,14 +40,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!resume || resume.size === 0) {
-      console.error('❌ VALIDATION FAILED: No resume file provided')
-      return NextResponse.json(
-        { success: false, error: 'Resume file is required' },
-        { status: 400 }
-      )
-    }
-
     // Check if user exists
     console.log('🔍 Step 1: Checking if user exists...')
     const { data: user, error: userError } = await supabaseAdmin
@@ -101,16 +93,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    try {
-      const uploadResult = await uploadResume(resume, userId)
-      resumeUrl = uploadResult.url
-      console.log('✅ Resume uploaded')
-    } catch (uploadError) {
-      console.error('❌ Resume upload failed:', uploadError)
-      return NextResponse.json(
-        { success: false, error: `Failed to upload resume: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}` },
-        { status: 400 }
-      )
+    if (resume && resume.size > 0) {
+      try {
+        const uploadResult = await uploadResume(resume, userId)
+        resumeUrl = uploadResult.url
+        console.log('✅ Resume uploaded')
+      } catch (uploadError) {
+        console.error('❌ Resume upload failed:', uploadError)
+        return NextResponse.json(
+          { success: false, error: `Failed to upload resume: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}` },
+          { status: 400 }
+        )
+      }
     }
 
     // Get location names

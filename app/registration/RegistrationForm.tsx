@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import SuccessMessage from "@/components/common/SuccessMessage"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
@@ -24,6 +25,7 @@ export default function RegistrationForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<z.ZodError | null>(null)
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
   const [countries, setCountries] = useState<{ id: number; name: string; phone_code: string }[]>([])
@@ -350,13 +352,10 @@ export default function RegistrationForm() {
         return
       }
 
-      alert('Application submitted successfully! We will review your application and get back to you soon.')
-      router.push('/')
+      setShowSuccessMessage(true)
     } catch (error) {
       if (error instanceof z.ZodError) {
         setErrors(error)
-        const firstError = error.errors[0]
-        alert(`Validation error: ${firstError.path.join('.')} - ${firstError.message}`)
       } else {
         alert('Something went wrong while submitting your application.')
       }
@@ -364,6 +363,15 @@ export default function RegistrationForm() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (showSuccessMessage) {
+      const timer = setTimeout(() => {
+        router.push('/')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showSuccessMessage, router])
 
   // Check if user is already a mentor
   if (!mentorStatusLoading && isMentor && mentor) {
@@ -464,6 +472,10 @@ export default function RegistrationForm() {
   }
 
   // Show the registration form for non-mentors
+  if (showSuccessMessage) {
+    return <SuccessMessage message="Application submitted successfully! We will review your application and get back to you soon." />
+  }
+
   return (
       <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
@@ -538,6 +550,7 @@ export default function RegistrationForm() {
                   <Button type="button" onClick={() => document.getElementById('profilePicture')?.click()} variant="ghost">
                     Upload Picture
                   </Button>
+                  {errors?.errors.find(e => e.path[0] === 'profilePicture') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'profilePicture')?.message}</p>}
                 </div>
 
                 {/* Personal Information */}
@@ -551,6 +564,7 @@ export default function RegistrationForm() {
                       placeholder="Your Name"
                       required
                     />
+                    {errors?.errors.find(e => e.path[0] === 'fullName') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'fullName')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
@@ -587,6 +601,7 @@ export default function RegistrationForm() {
                         </Badge>
                       )}
                     </div>
+                    {errors?.errors.find(e => e.path[0] === 'email') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'email')?.message}</p>}
                     {showOtpInput && (
                       <div className="mt-2 space-y-2">
                         <div className="flex items-center space-x-2">
@@ -656,6 +671,7 @@ export default function RegistrationForm() {
                       required
                     />
                   </div>
+                  {errors?.errors.find(e => e.path[0] === 'phone') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'phone')?.message}</p>}
                 </div>
 
                 {/* LinkedIn */}
@@ -669,6 +685,7 @@ export default function RegistrationForm() {
                     placeholder="https://linkedin.com/in/yourprofile"
                     required
                   />
+                  {errors?.errors.find(e => e.path[0] === 'linkedinUrl') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'linkedinUrl')?.message}</p>}
                 </div>
 
                 {/* Location */}
@@ -690,6 +707,7 @@ export default function RegistrationForm() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors?.errors.find(e => e.path[0] === 'country') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'country')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
@@ -708,6 +726,7 @@ export default function RegistrationForm() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors?.errors.find(e => e.path[0] === 'state') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'state')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
@@ -726,6 +745,7 @@ export default function RegistrationForm() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors?.errors.find(e => e.path[0] === 'city') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'city')?.message}</p>}
                   </div>
                 </div>
 
@@ -740,6 +760,7 @@ export default function RegistrationForm() {
                       placeholder="e.g., Senior Software Engineer"
                       required
                     />
+                    {errors?.errors.find(e => e.path[0] === 'title') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'title')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="company">Current Company/Organization <span className="text-red-500">*</span></Label>
@@ -750,6 +771,7 @@ export default function RegistrationForm() {
                       placeholder="Your Company Name"
                       required
                     />
+                    {errors?.errors.find(e => e.path[0] === 'company') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'company')?.message}</p>}
                   </div>
                 </div>
 
@@ -778,6 +800,7 @@ export default function RegistrationForm() {
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors?.errors.find(e => e.path[0] === 'industry') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'industry')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="experience">Years of Professional Experience <span className="text-red-500">*</span></Label>
@@ -790,6 +813,7 @@ export default function RegistrationForm() {
                       placeholder="e.g., 5"
                       required
                     />
+                    {errors?.errors.find(e => e.path[0] === 'experience') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'experience')?.message}</p>}
                     <span className="text-xs text-gray-500">Minimum 2 years of experience required to be a mentor.</span>
                   </div>
                 </div>
@@ -805,6 +829,7 @@ export default function RegistrationForm() {
                     required
                     maxLength={500}
                   />
+                  {errors?.errors.find(e => e.path[0] === 'expertise') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'expertise')?.message}</p>}
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>Minimum 5 skills, comma-separated.</span>
                     <span>{mentorFormData.expertise.length} / 500</span>
@@ -841,6 +866,7 @@ export default function RegistrationForm() {
                       <SelectItem value="AsNeeded">As needed (flexible)</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors?.errors.find(e => e.path[0] === 'availability') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'availability')?.message}</p>}
                 </div>
 
                 {/* Resume */}
@@ -852,6 +878,7 @@ export default function RegistrationForm() {
                     accept=".pdf,.doc,.docx"
                     onChange={e => setMentorFormData(prev => ({ ...prev, resume: e.target.files?.[0] || null }))}
                   />
+                  {errors?.errors.find(e => e.path[0] === 'resume') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'resume')?.message}</p>}
                   <span className="text-xs text-gray-500">Upload your resume in PDF, DOC, or DOCX format (max 5MB)</span>
                 </div>
 
@@ -877,6 +904,7 @@ export default function RegistrationForm() {
                       </DialogContent>
                     </Dialog>
                   </Label>
+                  {errors?.errors.find(e => e.path[0] === 'termsAccepted') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'termsAccepted')?.message}</p>}
                 </div>
 
                 {/* Submit Button */}

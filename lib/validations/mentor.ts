@@ -23,10 +23,11 @@ export const mentorApplicationSchema = z.object({
   about: z.string().optional(),
   linkedinUrl: z.string().url('Invalid LinkedIn URL').regex(/linkedin\.com/, 'Must be a LinkedIn URL'),
   availability: z.string().min(1, 'Availability is required'),
-  profilePicture: z.instanceof(File, { message: 'Profile picture is required' }),
-  resume: z.instanceof(File)
-    .optional()
-    .refine(file => !file || file.size <= MAX_RESUME_SIZE, `Resume must be less than 5MB`),
+  profilePicture: z.any().refine(file => file instanceof File, 'Profile picture is required'),
+  resume: z.any()
+    .refine(file => !file || file instanceof File, "Resume must be a file")
+    .refine(file => !file || file.size <= MAX_RESUME_SIZE, `Resume must be less than 5MB`)
+    .optional(),
   termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions')
 })
 
