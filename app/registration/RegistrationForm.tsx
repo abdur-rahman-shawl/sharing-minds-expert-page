@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import SuccessMessage from "@/components/common/SuccessMessage"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
@@ -19,6 +21,13 @@ import { ArrowLeft, User, UserCheck, CheckCircle, Clock, XCircle } from "lucide-
 import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
+import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
+
+const createLegalConsentState = () =>
+  legalDocuments.reduce<Record<LegalDocumentId, boolean>>((acc, doc) => {
+    acc[doc.id] = false
+    return acc
+  }, {} as Record<LegalDocumentId, boolean>)
 
 export default function RegistrationForm() {
   const [showMentorForm, setShowMentorForm] = useState(false)
@@ -27,6 +36,8 @@ export default function RegistrationForm() {
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
+  const [legalConsents, setLegalConsents] = useState<Record<LegalDocumentId, boolean>>(() => createLegalConsentState())
+  const [activeLegalDocument, setActiveLegalDocument] = useState<LegalDocumentId>(legalDocuments[0].id)
 
   const [countries, setCountries] = useState<{ id: number; name: string; phone_code: string }[]>([])
   const [states, setStates] = useState<{ id: number; name: string }[]>([])
@@ -76,6 +87,20 @@ export default function RegistrationForm() {
     termsAccepted: false,
     availability: "",
   })
+
+  const allLegalConsentsProvided = legalDocuments.every(doc => legalConsents[doc.id])
+
+  useEffect(() => {
+    setMentorFormData(prev =>
+      prev.termsAccepted === allLegalConsentsProvided
+        ? prev
+        : { ...prev, termsAccepted: allLegalConsentsProvided },
+    )
+  }, [allLegalConsentsProvided])
+
+  const handleConsentChange = (docId: LegalDocumentId, checked: boolean | "indeterminate") => {
+    setLegalConsents(prev => ({ ...prev, [docId]: checked === true }))
+  }
 
   // Fetch countries on mount
   useEffect(() => {
@@ -475,6 +500,8 @@ export default function RegistrationForm() {
   if (showSuccessMessage) {
     return <SuccessMessage message="Application submitted successfully! We will review your application and get back to you soon." />
   }
+
+  const termsAcceptedError = errors?.errors.find(e => e.path[0] === 'termsAccepted')
 
   return (
       <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
@@ -883,28 +910,69 @@ export default function RegistrationForm() {
                 </div>
 
                 {/* Terms */}
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="termsAccepted"
-                    checked={mentorFormData.termsAccepted}
-                    onCheckedChange={checked => setMentorFormData(prev => ({ ...prev, termsAccepted: !!checked }))}
-                    required
-                  />
-                  <Label htmlFor="termsAccepted" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    I agree to the
+                <div className="space-y-3 rounded-lg border border-gray-200 p-4">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Terms & Policies</p>
+                      <p className="text-xs text-gray-500">
+                        Review each policy exactly as published and provide explicit consent below.
+                      </p>
+                    </div>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="link" className="p-0 h-auto ml-1">Terms & Conditions</Button>
+                        <Button variant="outline" className="h-8 whitespace-nowrap px-4">
+                          Review documents
+                        </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="max-w-4xl">
                         <DialogHeader>
-                          <DialogTitle>Terms & Conditions</DialogTitle>
+                          <DialogTitle>Terms, Policies & Conduct</DialogTitle>
+                          <DialogDescription>
+                            These documents are provided verbatim from our legal and compliance team. Please read them
+                            before confirming your consent.
+                          </DialogDescription>
                         </DialogHeader>
-                        <p>Placeholder for Terms & Conditions.</p>
+                        <Tabs value={activeLegalDocument} onValueChange={value => setActiveLegalDocument(value as LegalDocumentId)}>
+                          <TabsList className="w-full flex-wrap">
+                            {legalDocuments.map(doc => (
+                              <TabsTrigger key={doc.id} value={doc.id} className="flex-1 min-w-[160px]">
+                                {doc.label}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
+                          {legalDocuments.map(doc => (
+                            <TabsContent key={doc.id} value={doc.id}>
+                              <ScrollArea className="h-[60vh] rounded-md border p-4">
+                                <article className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                                  {doc.content}
+                                </article>
+                              </ScrollArea>
+                            </TabsContent>
+                          ))}
+                        </Tabs>
                       </DialogContent>
                     </Dialog>
-                  </Label>
-                  {errors?.errors.find(e => e.path[0] === 'termsAccepted') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'termsAccepted')?.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    {legalDocuments.map(doc => (
+                      <div key={doc.id} className="flex items-start space-x-3">
+                        <Checkbox
+                          id={`consent-${doc.id}`}
+                          checked={legalConsents[doc.id]}
+                          onCheckedChange={checked => handleConsentChange(doc.id, checked)}
+                        />
+                        <Label
+                          htmlFor={`consent-${doc.id}`}
+                          className="text-sm leading-snug text-gray-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I have read and consent to the {doc.label}.
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  {termsAcceptedError && (
+                    <p className="text-sm text-red-500">{termsAcceptedError.message}</p>
+                  )}
                 </div>
 
                 {/* Submit Button */}
