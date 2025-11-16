@@ -29,6 +29,34 @@ const createLegalConsentState = () =>
     return acc
   }, {} as Record<LegalDocumentId, boolean>)
 
+const splitLegalContent = (content: string) =>
+  content
+    .split(/\r?\n\r?\n/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean)
+
+type LegalParagraphVariant = 'title' | 'subtitle' | 'heading' | 'body' | 'contact'
+
+const classifyLegalParagraph = (paragraph: string, index: number): LegalParagraphVariant => {
+  const trimmed = paragraph.trim()
+  if (!trimmed) return 'body'
+  if (index === 0) return 'title'
+  if (trimmed.startsWith('Effective Date') || trimmed.startsWith('A Product')) return 'subtitle'
+  if (trimmed.startsWith('📧')) return 'contact'
+  if (trimmed === 'Our Commitment' || trimmed === 'Welcome to SharingMinds' || trimmed === 'Contact') return 'heading'
+  if (trimmed.includes('️⃣') || /^\d+\./.test(trimmed)) return 'heading'
+  if (!/[.!?]/.test(trimmed)) return 'heading'
+  return 'body'
+}
+
+const legalParagraphClasses: Record<LegalParagraphVariant, string> = {
+  title: 'text-xl font-semibold text-foreground',
+  subtitle: 'text-xs uppercase tracking-wide text-muted-foreground',
+  heading: 'pt-4 text-base font-semibold text-foreground',
+  body: 'text-sm leading-relaxed text-muted-foreground',
+  contact: 'text-sm font-semibold text-foreground',
+}
+
 export default function RegistrationForm() {
   const [showMentorForm, setShowMentorForm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -940,15 +968,33 @@ export default function RegistrationForm() {
                               </TabsTrigger>
                             ))}
                           </TabsList>
-                          {legalDocuments.map(doc => (
-                            <TabsContent key={doc.id} value={doc.id}>
-                              <ScrollArea className="h-[60vh] rounded-md border p-4">
-                                <article className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                                  {doc.content}
-                                </article>
-                              </ScrollArea>
-                            </TabsContent>
-                          ))}
+                          {legalDocuments.map(doc => {
+                            const paragraphs = splitLegalContent(doc.content)
+                            return (
+                              <TabsContent key={doc.id} value={doc.id}>
+                                <ScrollArea className="h-[60vh] rounded-md border p-4">
+                                  <div className="space-y-3">
+                                    {paragraphs.map((paragraph, index) => {
+                                      const variant = classifyLegalParagraph(paragraph, index)
+                                      const className = legalParagraphClasses[variant]
+                                      const lines = paragraph.replace(/\r/g, '').split('\n')
+
+                                      return (
+                                        <p key={`${doc.id}-${index}`} className={className}>
+                                          {lines.map((line, lineIndex) => (
+                                            <span key={`${doc.id}-${index}-${lineIndex}`}>
+                                              {line}
+                                              {lineIndex < lines.length - 1 && <br />}
+                                            </span>
+                                          ))}
+                                        </p>
+                                      )
+                                    })}
+                                  </div>
+                                </ScrollArea>
+                              </TabsContent>
+                            )
+                          })}
                         </Tabs>
                       </DialogContent>
                     </Dialog>
