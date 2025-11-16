@@ -24,41 +24,41 @@ export function BenefitsSection() {
 
   const benefits = [
     {
-      title: "Professional Mentor Profile",
+      title: "Build Your Professional Mentor Brand",
       description:
-        "Easily create a professional mentor profile to showcase your expertise and experience to potential mentees.",
+        "Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship impact data. Your mentor profile isn’t just a listing — it’s your digital portfolio of leadership and influence, helping you attract the right mentees and speaking opportunities.",
       image: "/profesional-mentor-profile.jpeg",
     },
     {
-      title: "Connect with Mentees",
+      title: "Connect with the Right Mentees",
       description:
-        "Engage and connect with mentees looking for guidance and support in your specific industry or domain.",
+        "Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs, and community discussions that transform casual connections into meaningful relationships.",
       image: "/connect-with-mentees.jpeg",
     },
     {
-      title: "Payment for Expertise",
+      title: "Monetize Your Expertise",
       description:
-        "You are paid for your knowledge, wisdom, and experience. We can provide a significant income source of up to 500 dollars a month, making it a viable primary source of income.",
+        "Get rewarded for the knowledge and experience you’ve built over years. Mentors on SharingMinds can earn up to $500 a month or more, depending on engagement and demand. Turn your mentoring time into a consistent income stream while continuing to do what you love — sharing wisdom that creates real-world impact",
       image: "/payment-for-expertise.jpeg",
     },
     {
-      title: "Match Making",
+      title: "Smarter Matchmaking through AI + Human Touch",
       description:
-        "Allow the platform to find the best possible match with our algorithm, empowering your participants to find the right mentor and mentee, and we'll give them a helping hand with manual matchmaking.",
-      image: "/Algo2.gif",
+        "Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a human layer of review to ensure quality, chemistry, and mutual fit. No wasted sessions. No mismatched expectations. Just meaningful collaboration.",
+      image: "/match-making.jpeg",
     },
     {
-      title: "Efficient Mentor Data Export",
+      title: "Seamless Data Access & Performance Tracking",
       description:
-        "Effortlessly export mentor data through the admin panel, ensuring seamless management and comprehensive insights.",
-      image: "/Data Export.gif",
+        "Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee progress, manage your bookings, and monitor your impact with clarity and convenience. Data-driven insights ensure you stay organized and always aware of your mentorship journey’s measurable outcomes.",
+      image: "/efficient-mentor-data.jpeg",
     },
     {
-      title: "Success Metrics",
+      title: "Measure Success, Amplify Impact",
       description:
-        "Sentiment makes it easy to capture regular feedback needed to understand individual performance and get insights on your live dashboard metrics benchmarking and analytics on overview of your whole program.",
-      features: ["Real-time reporting", "Feedback and progress tracking", "Dashboard analytics", "Monthly reporting"],
-      image: "/RTR1.gif",
+        "Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard. SharingMinds gives you actionable analytics to refine your mentoring approach, enhance outcomes, and celebrate growth milestones.",
+      features: ["Live feedback & sentiment tracking", "Dashboard analytics & benchmarking", "Real-time reporting & monthly summaries", "Continuous performance insights"],
+      image: "/success-metrics.jpeg",
     },
   ]
 

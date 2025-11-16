@@ -63,17 +63,26 @@ export default function AboutPageClient() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className={`relative py-24 px-4 animate-on-scroll will-change-opacity ${
-          heroVisible ? "animate-fade-in-slow" : ""
+        className={`relative bg-gradient-to-r from-gray-800 to-gray-900 text-white py-32 px-4 animate-on-scroll ${
+          heroVisible ? "animate-fade-in" : ""
         }`}
       >
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">About Us</h1>
-          <p className="text-lg text-gray-600 mb-4">Welcome to SharingMinds Mentor Onboarding!</p>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            We are at development stage of this robust platform, committed to empowering mentors and mentees through
-            meaningful connections and valuable experiences
+          <p className="text-lg text-gray-300 mb-8 max-w-3xl mx-auto">
+            Welcome to SharingMinds Mentor Onboarding!
           </p>
+          <div className="max-w-3xl mx-auto text-base text-gray-400 space-y-4">
+            <p>
+              We’re building SharingMinds — a collaborative platform designed to connect mentors, professionals, founders, and learners through purposeful interactions.
+            </p>
+            <p>
+              At this stage of development, our focus is on shaping a robust ecosystem that empowers mentors to share their knowledge, guide meaningful growth journeys, and create lasting impact for mentees.
+            </p>
+            <p>
+              Sign Up and join us in co-creating a community where experience meets curiosity, and every conversation adds value.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -93,7 +102,7 @@ export default function AboutPageClient() {
             </p>
             <div className="flex justify-center gap-2">
               {[...Array(5)].map((_, i) => (
-                <svg key={i} className="w-8 h-8 fill-white" viewBox="0 0 24 24">
+                <svg key={i} className="w-8 h-8 fill-yellow-400" viewBox="0 0 24 24">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
               ))}
