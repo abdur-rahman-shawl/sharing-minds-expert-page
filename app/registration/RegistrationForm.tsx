@@ -17,11 +17,12 @@ import SuccessMessage from "@/components/common/SuccessMessage"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
-import { ArrowLeft, User, UserCheck, CheckCircle, Clock, XCircle } from "lucide-react"
+import { ArrowLeft, User } from "lucide-react"
 import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
+import { VipInvitation } from "@/components/vip/vip-invitation"
 
 const createLegalConsentState = () =>
   legalDocuments.reduce<Record<LegalDocumentId, boolean>>((acc, doc) => {
@@ -428,87 +429,14 @@ export default function RegistrationForm() {
 
   // Check if user is already a mentor
   if (!mentorStatusLoading && isMentor && mentor) {
-    const verificationBadge = {
-      'VERIFIED': { icon: CheckCircle, color: 'text-green-600', text: 'Verified' },
-      'IN_PROGRESS': { icon: Clock, color: 'text-yellow-600', text: 'Verification in Progress' },
-      'REJECTED': { icon: XCircle, color: 'text-red-600', text: 'Verification Rejected' },
-      'YET_TO_APPLY': { icon: Clock, color: 'text-gray-600', text: 'Pending Application' },
-      'REVERIFICATION': { icon: Clock, color: 'text-orange-600', text: 'Re-verification Required' }
-    }[mentor.verificationStatus] || { icon: Clock, color: 'text-gray-600', text: 'Unknown Status' }
-
-    const StatusIcon = verificationBadge.icon
-
+    const canAccessDashboard = mentor.verificationStatus === 'VERIFIED'
     return (
-      <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => router.push("/")}
-              className="absolute top-8 left-8"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-3xl font-bold text-gray-900">
-              You're Already Registered!
-            </h2>
-            <p className="mt-2 text-lg text-gray-600">
-              Thank you for being a mentor on SharingMinds
-            </p>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Mentor Profile</CardTitle>
-              <CardDescription>
-                You registered on {new Date(mentor.registeredAt).toLocaleDateString()}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm text-gray-500">Name</Label>
-                <p className="text-lg font-medium">{mentor.fullName}</p>
-              </div>
-
-              <div>
-                <Label className="text-sm text-gray-500">Email</Label>
-                <p className="text-lg">{mentor.email}</p>
-              </div>
-
-              <div>
-                <Label className="text-sm text-gray-500">Verification Status</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <StatusIcon className={`h-5 w-5 ${verificationBadge.color}`} />
-                  <span className={`font-medium ${verificationBadge.color}`}>
-                    {verificationBadge.text}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-4 space-y-3">
-                <Button
-                  onClick={() => router.push('/')}
-                  className="w-full"
-                  variant="outline"
-                >
-                  Go to Home
-                </Button>
-                {mentor.verificationStatus === 'VERIFIED' && (
-                  <Button
-                    onClick={() => router.push('/dashboard')}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Go to Mentor Dashboard
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <VipInvitation
+        mentor={mentor}
+        onNavigateHome={() => router.push('/')}
+        canAccessDashboard={canAccessDashboard}
+        onNavigateDashboard={canAccessDashboard ? () => router.push('/dashboard') : undefined}
+      />
     )
   }
 
