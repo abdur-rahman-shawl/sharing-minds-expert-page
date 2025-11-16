@@ -25,38 +25,56 @@ export function BenefitsSection() {
   const benefits = [
     {
       title: "Build Your Professional Mentor Brand",
-      description:
-        "Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship impact data. Your mentor profile isn’t just a listing — it’s your digital portfolio of leadership and influence, helping you attract the right mentees and speaking opportunities.",
+      description: (
+        <>
+          Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship impact data. Your mentor profile isn’t just a listing — it’s your <strong>digital portfolio of leadership and influence</strong>, helping you attract the right mentees and speaking opportunities.
+        </>
+      ),
       image: "/profesional-mentor-profile.jpeg",
     },
     {
       title: "Connect with the Right Mentees",
-      description:
-        "Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs, and community discussions that transform casual connections into meaningful relationships.",
+      description: (
+        <>
+          Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs, and community discussions that <strong>transform casual connections into meaningful relationships.</strong>
+        </>
+      ),
       image: "/connect-with-mentees.jpeg",
     },
     {
       title: "Monetize Your Expertise",
-      description:
-        "Get rewarded for the knowledge and experience you’ve built over years. Mentors on SharingMinds can earn up to $500 a month or more, depending on engagement and demand. Turn your mentoring time into a consistent income stream while continuing to do what you love — sharing wisdom that creates real-world impact",
+      description: (
+        <>
+          Get rewarded for the knowledge and experience you’ve built over years. Mentors on SharingMinds can earn <strong>up to $500 a month or more</strong>, depending on engagement and demand. Turn your mentoring time into a consistent income stream while continuing to do what you love — <strong>sharing wisdom that creates real-world impact.</strong>
+        </>
+      ),
       image: "/payment-for-expertise.jpeg",
     },
     {
       title: "Smarter Matchmaking through AI + Human Touch",
-      description:
-        "Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a human layer of review to ensure quality, chemistry, and mutual fit. No wasted sessions. No mismatched expectations. Just meaningful collaboration.",
+      description: (
+        <>
+          Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a <strong>human layer of review</strong> to ensure quality, chemistry, and mutual fit. No wasted sessions. No mismatched expectations. Just meaningful collaboration.
+        </>
+      ),
       image: "/match-making.jpeg",
     },
     {
       title: "Seamless Data Access & Performance Tracking",
-      description:
-        "Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee progress, manage your bookings, and monitor your impact with clarity and convenience. Data-driven insights ensure you stay organized and always aware of your mentorship journey’s measurable outcomes.",
+      description: (
+        <>
+          Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee progress, manage your bookings, and monitor your impact with clarity and convenience. <strong>Data-driven insights</strong> ensure you stay organized and always aware of your mentorship journey’s measurable outcomes.
+        </>
+      ),
       image: "/efficient-mentor-data.jpeg",
     },
     {
       title: "Measure Success, Amplify Impact",
-      description:
-        "Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard. SharingMinds gives you actionable analytics to refine your mentoring approach, enhance outcomes, and celebrate growth milestones.",
+      description: (
+        <>
+          Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard. SharingMinds gives you <strong>actionable analytics</strong> to refine your mentoring approach, enhance outcomes, and celebrate growth milestones.
+        </>
+      ),
       features: ["Live feedback & sentiment tracking", "Dashboard analytics & benchmarking", "Real-time reporting & monthly summaries", "Continuous performance insights"],
       image: "/success-metrics.jpeg",
     },
@@ -76,7 +94,10 @@ export function BenefitsSection() {
             <br />
             with SharingMinds
           </h2>
-          <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto">Make a Difference as a Mentor</p>
+          <h3 className="text-2xl text-gray-700 font-semibold mb-4">Why Mentor with SharingMinds?</h3>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Empower others while accelerating your own professional growth. SharingMinds is designed for leaders, educators, and professionals who want to make their experience truly impactful — while being recognized, rewarded, and connected with a meaningful network.
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
