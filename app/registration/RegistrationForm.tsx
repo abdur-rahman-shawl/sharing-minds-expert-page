@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,16 +13,93 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command"
 import SuccessMessage from "@/components/common/SuccessMessage"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
-import { ArrowLeft, User } from "lucide-react"
+import { ArrowLeft, Check, ChevronsUpDown, User } from "lucide-react"
 import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
 import { VipInvitation } from "@/components/vip/vip-invitation"
+
+type SearchableOption = { value: string; label: string }
+
+function SearchableSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  searchPlaceholder = "Search...",
+  emptyMessage = "No option found.",
+  disabled = false,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: SearchableOption[]
+  placeholder: string
+  searchPlaceholder?: string
+  emptyMessage?: string
+  disabled?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+
+  const selectedLabel = useMemo(
+    () => options.find(option => option.value === value)?.label || "",
+    [options, value]
+  )
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+          disabled={disabled}
+        >
+          <span className="truncate text-left">{selectedLabel || placeholder}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandList>
+            <CommandEmpty>{emptyMessage}</CommandEmpty>
+            <CommandGroup>
+              {options.map(option => (
+                <CommandItem
+                  key={option.value}
+                  value={option.label}
+                  onSelect={() => {
+                    onChange(option.value)
+                    setOpen(false)
+                  }}
+                >
+                  <Check className={`mr-2 h-4 w-4 ${option.value === value ? 'opacity-100' : 'opacity-0'}`} />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 const createLegalConsentState = () =>
   legalDocuments.reduce<Record<LegalDocumentId, boolean>>((acc, doc) => {
@@ -67,8 +144,9 @@ export default function RegistrationForm() {
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
   const [legalConsents, setLegalConsents] = useState<Record<LegalDocumentId, boolean>>(() => createLegalConsentState())
   const [activeLegalDocument, setActiveLegalDocument] = useState<LegalDocumentId>(legalDocuments[0].id)
+  const [showOtherIndustryInput, setShowOtherIndustryInput] = useState(false)
 
-  const [countries, setCountries] = useState<{ id: number; name: string; phone_code: string }[]>([])
+  const [countries, setCountries] = useState<{ id: number; name: string; phone_code?: string | null; code?: string | null }[]>([])
   const [states, setStates] = useState<{ id: number; name: string }[]>([])
   const [cities, setCities] = useState<{ id: number; name: string }[]>([])
   const [locationsLoading, setLocationsLoading] = useState({
@@ -88,6 +166,7 @@ export default function RegistrationForm() {
     title: string
     company: string
     industry: string
+    otherIndustry: string
     experience: string
     expertise: string
     about: string
@@ -107,6 +186,7 @@ export default function RegistrationForm() {
     title: "",
     company: "",
     industry: "",
+    otherIndustry: "",
     experience: "",
     expertise: "",
     about: "",
@@ -117,6 +197,35 @@ export default function RegistrationForm() {
     availability: "",
   })
 
+  const countryOptions = useMemo<SearchableOption[]>(
+    () => countries.map(country => ({ value: country.id.toString(), label: country.name })),
+    [countries]
+  )
+
+  const phoneCodeOptions = useMemo<SearchableOption[]>(() => {
+    const codes = countries
+      .filter(country => country.phone_code)
+      .map(country => ({ value: country.phone_code, label: `+${country.phone_code} (${country.name})` }))
+
+    return codes.length > 0 ? codes : [{ value: '91', label: '+91 (India)' }]
+  }, [countries])
+
+  const stateOptions = useMemo<SearchableOption[]>(
+    () => states.map(state => ({ value: state.id.toString(), label: state.name })),
+    [states]
+  )
+
+  const cityOptions = useMemo<SearchableOption[]>(
+    () => cities.map(city => ({ value: city.id.toString(), label: city.name })),
+    [cities]
+  )
+
+  useEffect(() => {
+    if (!mentorFormData.phoneCountryCode && phoneCodeOptions.length > 0) {
+      setMentorFormData(prev => ({ ...prev, phoneCountryCode: phoneCodeOptions[0].value }))
+    }
+  }, [mentorFormData.phoneCountryCode, phoneCodeOptions])
+
   const allLegalConsentsProvided = legalDocuments.every(doc => legalConsents[doc.id])
 
   useEffect(() => {
@@ -126,6 +235,10 @@ export default function RegistrationForm() {
         : { ...prev, termsAccepted: allLegalConsentsProvided },
     )
   }, [allLegalConsentsProvided])
+
+  useEffect(() => {
+    setShowOtherIndustryInput(mentorFormData.industry === 'Other')
+  }, [mentorFormData.industry])
 
   const handleConsentChange = (docId: LegalDocumentId, checked: boolean | "indeterminate") => {
     setLegalConsents(prev => ({ ...prev, [docId]: checked === true }))
@@ -138,11 +251,17 @@ export default function RegistrationForm() {
       try {
         const response = await fetch('/api/locations/countries')
         const data = await response.json()
-        setCountries(data)
+        const countriesData = Array.isArray(data) ? data : []
+        if (!Array.isArray(data)) {
+          console.error('Unexpected countries payload. Expected an array but received:', data)
+        }
+        setCountries(countriesData)
         // Automatically select India if it exists
-        const india = data.find((c: { name: string }) => c.name === 'India')
+        const india = countriesData.find((c: { name: string }) => c.name === 'India')
         if (india) {
-          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString(), phoneCountryCode: india.phone_code }))
+          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString(), phoneCountryCode: india.phone_code || prev.phoneCountryCode || '91' }))
+        } else if (countriesData.length > 0 && countriesData[0].phone_code && !mentorFormData.phoneCountryCode) {
+          setMentorFormData(prev => ({ ...prev, phoneCountryCode: countriesData[0].phone_code }))
         }
       } catch (error) {
         console.error("Failed to fetch countries", error)
@@ -164,7 +283,11 @@ export default function RegistrationForm() {
         try {
           const response = await fetch(`/api/locations/states?countryId=${mentorFormData.countryId}`)
           const data = await response.json()
-          setStates(data)
+          const statesData = Array.isArray(data) ? data : []
+          if (!Array.isArray(data)) {
+            console.error('Unexpected states payload. Expected an array but received:', data)
+          }
+          setStates(statesData)
         } catch (error) {
           console.error("Failed to fetch states", error)
         } finally {
@@ -185,7 +308,11 @@ export default function RegistrationForm() {
         try {
           const response = await fetch(`/api/locations/cities?stateId=${mentorFormData.stateId}`)
           const data = await response.json()
-          setCities(data)
+          const citiesData = Array.isArray(data) ? data : []
+          if (!Array.isArray(data)) {
+            console.error('Unexpected cities payload. Expected an array but received:', data)
+          }
+          setCities(citiesData)
         } catch (error) {
           console.error("Failed to fetch cities", error)
         } finally {
@@ -364,8 +491,12 @@ export default function RegistrationForm() {
         return
       }
 
+      const preparedIndustry = mentorFormData.industry === 'Other' ? mentorFormData.otherIndustry : mentorFormData.industry
+
       const validatedData = mentorApplicationSchema.parse({
         ...mentorFormData,
+        industry: preparedIndustry,
+        otherIndustry: mentorFormData.otherIndustry,
         country: mentorFormData.countryId,
         state: mentorFormData.stateId,
         city: mentorFormData.cityId,
@@ -627,20 +758,17 @@ export default function RegistrationForm() {
                 <div>
                   <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
                   <div className="flex items-center space-x-2">
-                    <Select
-                      value={mentorFormData.phoneCountryCode}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, phoneCountryCode: value }))}
-                      required
-                    >
-                      <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="Code" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map(country => (
-                          country.phone_code ? <SelectItem key={country.id} value={country.phone_code}>+{country.phone_code}</SelectItem> : <SelectItem value="91">+91</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="w-48">
+                      <SearchableSelect
+                        value={mentorFormData.phoneCountryCode}
+                        onChange={value => setMentorFormData(prev => ({ ...prev, phoneCountryCode: value }))}
+                        options={phoneCodeOptions}
+                        placeholder="Select code"
+                        searchPlaceholder="Search codes..."
+                        emptyMessage="No code found."
+                        disabled={phoneCodeOptions.length === 0}
+                      />
+                    </div>
                     <Input
                       id="phone"
                       type="tel"
@@ -671,59 +799,50 @@ export default function RegistrationForm() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
-                    <Select
+                    <SearchableSelect
                       value={mentorFormData.countryId}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, countryId: value }))}
-                      required
+                      onChange={value => {
+                        const selected = countries.find(country => country.id.toString() === value)
+                        setMentorFormData(prev => ({
+                          ...prev,
+                          countryId: value,
+                          stateId: "",
+                          cityId: "",
+                          phoneCountryCode: selected?.phone_code || prev.phoneCountryCode
+                        }))
+                      }}
+                      options={countryOptions}
+                      placeholder="Select Country..."
+                      searchPlaceholder="Search countries..."
+                      emptyMessage="No country found."
                       disabled={locationsLoading.countries}
-                    >
-                      <SelectTrigger id="country">
-                        <SelectValue placeholder="Select Country..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map(country => (
-                          <SelectItem key={country.id} value={country.id.toString()}>{country.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                     {errors?.errors.find(e => e.path[0] === 'country') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'country')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
-                    <Select
+                    <SearchableSelect
                       value={mentorFormData.stateId}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, stateId: value }))}
-                      required
+                      onChange={value => setMentorFormData(prev => ({ ...prev, stateId: value, cityId: "" }))}
+                      options={stateOptions}
+                      placeholder={locationsLoading.states ? "Loading..." : "Select State..."}
+                      searchPlaceholder="Search states..."
+                      emptyMessage="No state found."
                       disabled={locationsLoading.states || states.length === 0}
-                    >
-                      <SelectTrigger id="state">
-                        <SelectValue placeholder={locationsLoading.states ? "Loading..." : "Select State..."} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {states.map(state => (
-                          <SelectItem key={state.id} value={state.id.toString()}>{state.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                     {errors?.errors.find(e => e.path[0] === 'state') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'state')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
-                    <Select
+                    <SearchableSelect
                       value={mentorFormData.cityId}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, cityId: value }))}
-                      required
+                      onChange={value => setMentorFormData(prev => ({ ...prev, cityId: value }))}
+                      options={cityOptions}
+                      placeholder={locationsLoading.cities ? "Loading..." : "Select City..."}
+                      searchPlaceholder="Search cities..."
+                      emptyMessage="No city found."
                       disabled={locationsLoading.cities || cities.length === 0}
-                    >
-                      <SelectTrigger id="city">
-                        <SelectValue placeholder={locationsLoading.cities ? "Loading..." : "Select City..."} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities.map(city => (
-                          <SelectItem key={city.id} value={city.id.toString()}>{city.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                     {errors?.errors.find(e => e.path[0] === 'city') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'city')?.message}</p>}
                   </div>
                 </div>
@@ -760,7 +879,14 @@ export default function RegistrationForm() {
                     <Label htmlFor="industry">Primary Industry <span className="text-red-500">*</span></Label>
                     <Select
                       value={mentorFormData.industry}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, industry: value }))}
+                      onValueChange={value => {
+                        setMentorFormData(prev => ({
+                          ...prev,
+                          industry: value,
+                          otherIndustry: value === 'Other' ? prev.otherIndustry : ''
+                        }))
+                        setShowOtherIndustryInput(value === 'Other')
+                      }}
                       required
                     >
                       <SelectTrigger id="industry">
@@ -780,6 +906,18 @@ export default function RegistrationForm() {
                       </SelectContent>
                     </Select>
                     {errors?.errors.find(e => e.path[0] === 'industry') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'industry')?.message}</p>}
+                    {showOtherIndustryInput && (
+                      <Input
+                        id="otherIndustry"
+                        type="text"
+                        value={mentorFormData.otherIndustry}
+                        onChange={e => setMentorFormData(prev => ({ ...prev, otherIndustry: e.target.value }))}
+                        placeholder="Please specify your industry"
+                        className="mt-2"
+                        required
+                      />
+                    )}
+                    {errors?.errors.find(e => e.path[0] === 'otherIndustry') && <p className="text-sm text-red-500 mt-1">{errors.errors.find(e => e.path[0] === 'otherIndustry')?.message}</p>}
                   </div>
                   <div>
                     <Label htmlFor="experience">Years of Professional Experience <span className="text-red-500">*</span></Label>
