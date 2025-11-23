@@ -202,8 +202,8 @@ export default function LoginPageClient() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="flex flex-col justify-center items-center w-1/2 bg-white p-8 overflow-y-auto">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 bg-white p-8 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center justify-center gap-3 mb-12" aria-label="SharingMinds home">
             <Image
@@ -251,7 +251,7 @@ export default function LoginPageClient() {
           </div>
         </div>
       </div>
-      <div className="w-1/2 relative">
+      <div className="hidden lg:block lg:w-1/2 relative">
         <Image
           src="/sign-in-banner.jpeg"
           alt="Connect. Learn. Grow."
