@@ -28,9 +28,10 @@ export function BenefitsSection() {
       description: (
         <>
           Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go
-          beyond the traditional bio �?" feature your verified testimonials, thought-leadership blogs, and mentorship
-          impact data. Your mentor profile isn�?Tt just a listing �?" it�?Ts your <strong>digital portfolio of leadership
-          and influence</strong>, helping you attract the right mentees and speaking opportunities.
+          beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship
+          impact data. Your mentor profile isn't just a listing — it's your{" "}
+          <strong>digital portfolio of leadership and influence</strong>, helping you attract the right mentees and
+          speaking opportunities.
         </>
       ),
       image: "/profesional-mentor-profile.jpeg",
@@ -39,9 +40,9 @@ export function BenefitsSection() {
       title: "Connect with the Right Mentees",
       description: (
         <>
-          Be discovered by mentees who are genuinely looking for your kind of guidance �?" from emerging professionals
-          and founders to career changers and students. Engage through personalized sessions, ongoing mentorship
-          programs, and community discussions that <strong>transform casual connections into meaningful relationships.</strong>
+          Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and
+          founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs,
+          and community discussions that <strong>transform casual connections into meaningful relationships.</strong>
         </>
       ),
       image: "/connect-with-mentees.jpeg",
@@ -50,9 +51,10 @@ export function BenefitsSection() {
       title: "Monetize Your Expertise",
       description: (
         <>
-          Get rewarded for the knowledge and experience you�?Tve built over years. Mentors on SharingMinds can earn{" "}
+          Get rewarded for the knowledge and experience you've built over years. Mentors on SharingMinds can earn{" "}
           <strong>up to $500 a month or more</strong>, depending on engagement and demand. Turn your mentoring time into
-          a consistent income stream while continuing to do what you love �?" <strong>sharing wisdom that creates real-world impact.</strong>
+          a consistent income stream while continuing to do what you love —{" "}
+          <strong>sharing wisdom that creates real-world impact.</strong>
         </>
       ),
       image: "/payment-for-expertise.jpeg",
@@ -62,7 +64,7 @@ export function BenefitsSection() {
       description: (
         <>
           Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies
-          goals, learning styles, and expertise areas to suggest ideal matches �?" while our team adds a{" "}
+          goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a{" "}
           <strong>human layer of review</strong> to ensure quality, chemistry, and mutual fit. No wasted sessions. No
           mismatched expectations. Just meaningful collaboration.
         </>
@@ -75,7 +77,7 @@ export function BenefitsSection() {
         <>
           Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee
           progress, manage your bookings, and monitor your impact with clarity and convenience.{" "}
-          <strong>Data-driven insights</strong> ensure you stay organized and always aware of your mentorship journey�?Ts
+          <strong>Data-driven insights</strong> ensure you stay organized and always aware of your mentorship journey's
           measurable outcomes.
         </>
       ),
@@ -85,7 +87,7 @@ export function BenefitsSection() {
       title: "Measure Success, Amplify Impact",
       description: (
         <>
-          Get real-time feedback, progress insights, and performance benchmarks �?" all in one intuitive dashboard.
+          Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard.
           SharingMinds gives you <strong>actionable analytics</strong> to refine your mentoring approach, enhance
           outcomes, and celebrate growth milestones.
         </>
@@ -117,7 +119,7 @@ export function BenefitsSection() {
           <h3 className="mb-4 text-xl font-semibold text-gray-700 sm:text-2xl">Why Mentor with SharingMinds?</h3>
           <p className="mx-auto max-w-3xl text-base text-gray-600 sm:text-lg">
             Empower others while accelerating your own professional growth. SharingMinds is designed for leaders,
-            educators, and professionals who want to make their experience truly impactful �?" while being recognized,
+            educators, and professionals who want to make their experience truly impactful — while being recognized,
             rewarded, and connected with a meaningful network.
           </p>
         </div>
