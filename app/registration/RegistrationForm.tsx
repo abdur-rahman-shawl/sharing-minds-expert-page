@@ -884,42 +884,44 @@ export default function RegistrationForm() {
                             before confirming your consent.
                           </DialogDescription>
                         </DialogHeader>
-                        <Tabs value={activeLegalDocument} onValueChange={value => setActiveLegalDocument(value as LegalDocumentId)}>
-                          <TabsList className="w-full flex-wrap">
-                            {legalDocuments.map(doc => (
-                              <TabsTrigger key={doc.id} value={doc.id} className="flex-1 min-w-[160px]">
-                                {doc.label}
-                              </TabsTrigger>
-                            ))}
-                          </TabsList>
-                          {legalDocuments.map(doc => {
-                            const paragraphs = splitLegalContent(doc.content)
-                            return (
-                              <TabsContent key={doc.id} value={doc.id}>
-                                <ScrollArea className="h-[60vh] rounded-md border p-4">
-                                  <div className="space-y-3">
-                                    {paragraphs.map((paragraph, index) => {
-                                      const variant = classifyLegalParagraph(paragraph, index)
-                                      const className = legalParagraphClasses[variant]
-                                      const lines = paragraph.replace(/\r/g, '').split('\n')
+                        <div className="@container">
+                          <Tabs value={activeLegalDocument} onValueChange={value => setActiveLegalDocument(value as LegalDocumentId)}>
+                            <TabsList className="grid h-auto w-full grid-cols-2 gap-2 @[640px]:grid-cols-4">
+                              {legalDocuments.map(doc => (
+                                <TabsTrigger key={doc.id} value={doc.id} className="whitespace-normal">
+                                  {doc.label}
+                                </TabsTrigger>
+                              ))}
+                            </TabsList>
+                            {legalDocuments.map(doc => {
+                              const paragraphs = splitLegalContent(doc.content)
+                              return (
+                                <TabsContent key={doc.id} value={doc.id}>
+                                  <ScrollArea className="h-[60vh] rounded-md border p-4">
+                                    <div className="space-y-3">
+                                      {paragraphs.map((paragraph, index) => {
+                                        const variant = classifyLegalParagraph(paragraph, index)
+                                        const className = legalParagraphClasses[variant]
+                                        const lines = paragraph.replace(/\r/g, '').split('\n')
 
-                                      return (
-                                        <p key={`${doc.id}-${index}`} className={className}>
-                                          {lines.map((line, lineIndex) => (
-                                            <span key={`${doc.id}-${index}-${lineIndex}`}>
-                                              {line}
-                                              {lineIndex < lines.length - 1 && <br />}
-                                            </span>
-                                          ))}
-                                        </p>
-                                      )
-                                    })}
-                                  </div>
-                                </ScrollArea>
-                              </TabsContent>
-                            )
-                          })}
-                        </Tabs>
+                                        return (
+                                          <p key={`${doc.id}-${index}`} className={className}>
+                                            {lines.map((line, lineIndex) => (
+                                              <span key={`${doc.id}-${index}-${lineIndex}`}>
+                                                {line}
+                                                {lineIndex < lines.length - 1 && <br />}
+                                              </span>
+                                            ))}
+                                          </p>
+                                        )
+                                      })}
+                                    </div>
+                                  </ScrollArea>
+                                </TabsContent>
+                              )
+                            })}
+                          </Tabs>
+                        </div>
                       </DialogContent>
                     </Dialog>
                   </div>
