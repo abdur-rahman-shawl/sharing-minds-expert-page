@@ -64,7 +64,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen px-4 overflow-hidden flex items-center -mt-10">
+    <section className="relative flex min-h-[calc(100vh-120px)] flex-col justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-xy"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40 animate-gradient-slow"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-bl from-transparent via-purple-50/30 to-blue-100/30 animate-gradient-diagonal"></div>
@@ -82,16 +82,16 @@ export function HeroSection() {
       {/* Navigation is provided globally via layout header */}
 
       <div
-        className={`max-w-6xl mx-auto text-center relative z-10 animate-on-scroll will-change-opacity ${reveal ? "animate-fade-in" : ""}`}
+        className={`relative z-10 mx-auto max-w-5xl text-center animate-on-scroll will-change-opacity ${reveal ? "animate-fade-in" : ""}`}
       >
-        <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 text-balance">
+        <h1 className="mb-6 text-4xl font-bold text-gray-900 text-balance sm:text-5xl lg:text-6xl">
           Join SharingMinds as an Expert
         </h1>
-        <p className="text-xl text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
+        <p className="mx-auto mb-4 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-xl">
           Empower minds by becoming a mentor. Create your profile, share expertise and connect 1 to 1 on video calls
           with mentees.
         </p>
-        <p className="text-gray-500 mb-12 italic">"Lead with experience, empowers with guidance"</p>
+        <p className="mb-10 text-sm italic text-gray-500 sm:mb-12 sm:text-base">"Lead with experience, empowers with guidance"</p>
 
         {/* Show loading state */}
         {isPending ? (
@@ -195,7 +195,7 @@ export function HeroSection() {
                       <Button
                         onClick={handleRegisterClick}
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto"
                       >
                         Become a Mentor
                       </Button>
@@ -204,7 +204,7 @@ export function HeroSection() {
                       onClick={handleSignOut}
                       variant="ghost"
                       size="sm"
-                      className="text-gray-600 hover:text-gray-900"
+                      className="w-full text-gray-600 hover:text-gray-900 sm:w-auto"
                     >
                       Sign out
                     </Button>

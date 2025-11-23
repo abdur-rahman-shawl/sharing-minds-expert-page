@@ -26,10 +26,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       {!hideChrome && <Header />}
-      <main className={`flex-1 ${!hideChrome ? 'pt-10' : ''}`}>{children}</main>
+      <main className={`flex-1 ${!hideChrome ? 'pt-20 sm:pt-24' : ''}`}>{children}</main>
       {!hideChrome && <Footer />}
-    </>
+    </div>
   )
 }

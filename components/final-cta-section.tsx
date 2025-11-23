@@ -33,7 +33,7 @@ export function FinalCTASection() {
   }
 
   return (
-    <section className="relative py-20 px-4 bg-[#eaf4fb]" aria-labelledby="mentor-cta-heading">
+    <section className="relative bg-[#eaf4fb] px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="mentor-cta-heading">
       {/* dotted pattern on the top-right of the section */}
       <div
         className="pointer-events-none absolute right-6 md:right-16 top-4 md:top-6 h-24 w-40 opacity-40 -z-10"
@@ -43,8 +43,8 @@ export function FinalCTASection() {
         }}
       />
 
-      <div className="max-w-6xl mx-auto">
-        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-slate-300/60 bg-[linear-gradient(180deg,#f5fbff,white_30%)] p-6 sm:p-10 md:p-12 shadow-[0_10px_30px_-10px_rgba(2,6,23,0.15)] min-h-[300px] md:min-h-[clamp(360px,36vw,460px)] grid place-items-center">
+      <div className="mx-auto max-w-6xl">
+        <div className="relative grid min-h-[300px] place-items-center overflow-hidden rounded-2xl border border-slate-300/60 bg-[linear-gradient(180deg,#f5fbff,white_30%)] p-6 shadow-[0_10px_30px_-10px_rgba(2,6,23,0.15)] md:min-h-[clamp(360px,36vw,460px)] md:rounded-3xl md:p-10 lg:p-12">
           {/* decorative diagonal shapes inside card (persistently visible) */}
           <svg
             className="pointer-events-none absolute inset-0 z-0 h-full w-full"

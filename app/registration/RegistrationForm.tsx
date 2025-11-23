@@ -460,32 +460,28 @@ export default function RegistrationForm() {
   const termsAcceptedError = errors?.errors.find(e => e.path[0] === 'termsAccepted')
 
   return (
-      <div className="px-4 pt-12 pb-16 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
+      <div className="px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+          <div className="text-center">
             <Button
               variant="ghost"
               onClick={() => router.push("/")}
-              className="absolute top-8 left-8"
+              className="mb-4 inline-flex items-center gap-2 text-gray-600 hover:text-blue-600"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
 
-            <h2 className="text-3xl font-bold text-gray-900">
-              Expert Registration
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Help shape the next generation by sharing your expertise
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900">Expert Registration</h2>
+            <p className="mt-2 text-sm text-gray-600">Help shape the next generation by sharing your expertise</p>
             {session?.user && (
-              <Badge variant="outline" className="mt-2">
+              <Badge variant="outline" className="mt-3">
                 Signed in as {session.user.email}
               </Badge>
             )}
           </div>
 
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Expert Application Form</CardTitle>
               <CardDescription>

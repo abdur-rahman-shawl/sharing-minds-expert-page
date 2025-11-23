@@ -69,7 +69,7 @@ export default function ServicePageClient() {
       {/* Hero - Mentorship Made Easy */}
       <section
         ref={heroRef}
-        className={`relative py-24 px-4 overflow-hidden animate-on-scroll will-change-opacity ${
+        className={`relative overflow-hidden px-4 py-20 animate-on-scroll will-change-opacity sm:px-6 sm:py-24 lg:px-8 ${
           heroVisible ? "animate-fade-in-slow" : ""
         }`}
       >
@@ -91,7 +91,7 @@ export default function ServicePageClient() {
       {/* Dashboard Preview */}
       <section
         ref={dashboardRef}
-        className={`py-12 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-12 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           dashboardVisible ? "animate-fade-in-up" : ""
         }`}
       >
@@ -111,7 +111,7 @@ export default function ServicePageClient() {
       {/* Description */}
       <section
         ref={descriptionRef}
-        className={`py-12 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-12 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           descriptionVisible ? "animate-fade-in" : ""
         }`}
       >
@@ -124,10 +124,7 @@ export default function ServicePageClient() {
       </section>
 
       {/* Feature Cards */}
-      <section
-        ref={featuresRef}
-        className="py-16 px-4"
-      >
+      <section ref={featuresRef} className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-20">
           {features.map((feature, index) => {
             const { ref, isVisible } = featureCardRefs[index]
@@ -135,14 +132,14 @@ export default function ServicePageClient() {
               <div
                 key={index}
                 ref={ref}
-                className={`flex flex-col ${
+                className={`flex flex-col items-center gap-8 lg:gap-12 ${
                   index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-                } gap-12 items-center animate-on-scroll will-change-opacity ${
+                } animate-on-scroll will-change-opacity ${
                   isVisible ? "animate-fade-in-up" : ""
                 }`}
               >
-                <div className="flex-1">
-                  <div className="relative h-80 lg:h-96 rounded-2xl overflow-hidden shadow-lg">
+                <div className="flex-1 w-full">
+                  <div className="relative h-64 overflow-hidden rounded-2xl shadow-lg sm:h-80 lg:h-96">
                     <Image
                       src={feature.image || "/placeholder.svg"}
                       alt={feature.alt}
@@ -165,7 +162,7 @@ export default function ServicePageClient() {
       {/* Why choose SharingMinds */}
       <section
         ref={whyChooseRef}
-        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           whyChooseVisible ? "animate-fade-in" : ""
         }`}
       >
@@ -194,7 +191,7 @@ export default function ServicePageClient() {
       {/* FAQ */}
       <section
         ref={faqRef}
-        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           faqVisible ? "animate-fade-in" : ""
         }`}
       >

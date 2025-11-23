@@ -63,7 +63,7 @@ export default function AboutPageClient() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className={`relative bg-gradient-to-r from-gray-800 to-gray-900 text-white py-32 px-4 animate-on-scroll ${
+        className={`relative bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-20 sm:px-6 sm:py-28 animate-on-scroll ${
           heroVisible ? "animate-fade-in" : ""
         }`}
       >
@@ -89,12 +89,12 @@ export default function AboutPageClient() {
       {/* Trusted Mentorship Platform */}
       <section
         ref={trustedRef}
-        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-12 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           trustedVisible ? "animate-fade-in-up" : ""
         }`}
       >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-slate-800 rounded-2xl p-12 text-center text-white">
+          <div className="bg-slate-800 rounded-2xl p-8 text-center text-white sm:p-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Trusted Mentorship Platform</h2>
             <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
               SharingMinds Mentor Onboarding is trusted by mentors and mentees alike for its professional and impactful
@@ -114,12 +114,12 @@ export default function AboutPageClient() {
       {/* Our Beliefs */}
       <section
         ref={beliefsRef}
-        className={`py-20 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           beliefsVisible ? "animate-fade-in" : ""
         }`}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
             {/* Content */}
             <div className="lg:col-span-5 flex flex-col justify-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Beliefs</h2>
@@ -140,7 +140,7 @@ export default function AboutPageClient() {
             </div>
 
             {/* Collage Images */}
-            <div className="lg:col-span-7 grid grid-cols-3 grid-rows-3 gap-4 h-[500px]">
+            <div className="lg:col-span-7 grid grid-cols-2 auto-rows-[140px] gap-3 sm:grid-cols-3 sm:auto-rows-[180px] lg:auto-rows-[1fr] lg:gap-4 lg:h-[500px]">
               <div className="col-span-2 row-span-2">
                 <img
                   src="/images/mentoring-session.jpg"
@@ -177,11 +177,11 @@ export default function AboutPageClient() {
       {/* Our Team */}
       <section
         ref={teamRef}
-        className={`py-20 bg-slate-800 text-white animate-on-scroll will-change-opacity ${
+        className={`bg-slate-800 px-4 py-16 text-white animate-on-scroll will-change-opacity sm:px-6 ${
           teamVisible ? "animate-fade-in" : ""
         }`}
       >
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold mb-8">Our Team</h2>
           <div className="space-y-6 text-gray-300">
             <p>
@@ -203,7 +203,7 @@ export default function AboutPageClient() {
       {/* Values */}
       <section
         ref={valuesRef}
-        className={`py-20 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           valuesVisible ? "animate-fade-in" : ""
         }`}
       >
@@ -235,15 +235,15 @@ export default function AboutPageClient() {
       {/* Mentor Signup Section */}
       <section
         ref={signupRef}
-        className={`py-16 px-4 animate-on-scroll will-change-opacity ${
+        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
           signupVisible ? "animate-fade-in-up" : ""
         }`}
       >
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-12 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center sm:p-12">
             {/* Profile Photos Grid */}
             <div className="mb-8">
-              <div className="flex justify-center gap-3 mb-3">
+              <div className="mb-3 flex flex-wrap justify-center gap-3">
                 {[
                   "/professional-mentor-headshot-1.jpg",
                   "/professional-mentor-headshot-2.jpg",
@@ -262,7 +262,7 @@ export default function AboutPageClient() {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 {[
                   "/professional-mentor-headshot-8.jpg",
                   "/professional-mentor-headshot-9.jpg",

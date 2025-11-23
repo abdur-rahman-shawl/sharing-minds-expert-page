@@ -8,7 +8,7 @@ export function TestimonialSection() {
   return (
     <section
       ref={sectionRef}
-      className="bg-gradient-to-br from-blue-600 to-blue-700 py-32 px-4 text-white relative overflow-hidden"
+      className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-700 px-4 py-20 text-white sm:px-6 sm:py-28"
     >
       <div className="absolute inset-0 opacity-10">
         <div
@@ -24,7 +24,7 @@ export function TestimonialSection() {
           sectionVisible ? "animate-fade-in-slow" : ""
         }`}
       >
-        <blockquote className="text-2xl md:text-4xl font-medium mb-12 leading-relaxed text-balance">
+        <blockquote className="mb-10 text-2xl font-medium leading-relaxed text-balance md:mb-12 md:text-4xl">
           "Being a mentor with SharingMinds has allowed me to make a real impact on the next generation startup
           founders"
         </blockquote>
