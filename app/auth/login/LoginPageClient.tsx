@@ -203,8 +203,8 @@ export default function LoginPageClient() {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 bg-white p-8 overflow-y-auto">
-        <div className="w-full max-w-md">
+      <div className="flex flex-col items-center w-full lg:w-1/2 bg-white p-8 overflow-y-auto">
+        <div className="w-full max-w-md pt-10">
           <Link href="/" className="flex items-center justify-center gap-3 mb-12" aria-label="SharingMinds home">
             <Image
               src="/sharing-minds-logo.png"
