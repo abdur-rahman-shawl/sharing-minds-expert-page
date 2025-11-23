@@ -202,8 +202,8 @@ export default function LoginPageClient() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      <div className="flex flex-col justify-center items-center w-1/2 bg-white p-8">
+    <div className="flex h-screen overflow-hidden">
+      <div className="flex flex-col justify-center items-center w-1/2 bg-white p-8 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center justify-center gap-3 mb-12" aria-label="SharingMinds home">
             <Image
