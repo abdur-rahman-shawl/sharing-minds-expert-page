@@ -14,14 +14,14 @@ export default function ContactPageClient() {
     <div className="min-h-screen bg-white text-gray-900">
       <section
         ref={heroRef}
-        className={`relative overflow-hidden px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 sm:py-20 ${
+        className={`relative overflow-hidden px-4 pt-10 pb-14 animate-on-scroll will-change-opacity sm:px-6 sm:pt-14 sm:pb-20 ${
           heroVisible ? "animate-fade-in-slow" : ""
         }`}
       >
         <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" />
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">Contact</h1>
-          <p className="mt-4 text-base text-gray-600 sm:text-lg">We�?Td love to hear from you. Send us a message.</p>
+          <p className="mt-4 text-base text-gray-600 sm:text-lg">We&apos;d love to hear from you. Send us a message.</p>
         </div>
       </section>
 
@@ -71,7 +71,7 @@ export default function ContactPageClient() {
                   support@sharingminds.example
                 </a>
               </p>
-              <p>Hours: Mon�?"Fri, 9:00�?"18:00 IST</p>
+              <p>Hours: Mon-Fri, 9:00-18:00 IST</p>
             </div>
           </div>
         </div>

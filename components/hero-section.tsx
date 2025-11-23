@@ -64,7 +64,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative flex min-h-[calc(100vh-120px)] flex-col justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+    <section className="relative mt-[-48px] flex min-h-[calc(100vh-120px)] flex-col justify-center overflow-hidden px-4 py-16 sm:mt-[-64px] sm:px-6 sm:py-24 lg:px-10 lg:py-32">
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-xy"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40 animate-gradient-slow"></div>
       <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-bl from-transparent via-purple-50/30 to-blue-100/30 animate-gradient-diagonal"></div>
