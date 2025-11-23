@@ -81,8 +81,8 @@ function SignInForm() {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? 'Signing In...' : 'Sign In'}
+      <Button type="submit" disabled={isLoading} className="w-full btn-luxe h-12">
+        {isLoading ? 'Signing In...' : 'Sign In to Founding Cohort'}
       </Button>
     </form>
   )
@@ -176,8 +176,8 @@ function SignUpForm() {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? 'Creating Account...' : 'Create Account'}
+      <Button type="submit" disabled={isLoading} className="w-full btn-luxe h-12">
+        {isLoading ? 'Creating Account...' : 'Request Founding Access'}
       </Button>
     </form>
   )
@@ -222,7 +222,7 @@ export default function LoginPageClient() {
           </h1>
           
           <div className="space-y-4 mt-6">
-            <Button variant="outline" className="w-full py-3 transform hover:scale-105 transition-transform duration-200 shadow-md hover:shadow-lg" onClick={handleGoogleSignIn}>
+            <Button variant="outline" className="w-full py-3 btn-ghost-luxe bg-gradient-to-r from-black/30 to-black/10 text-amber-50 border-amber-200/40 hover:scale-[1.01]" onClick={handleGoogleSignIn}>
               <FcGoogle className="mr-2 h-5 w-5" />
               Continue with Google
             </Button>

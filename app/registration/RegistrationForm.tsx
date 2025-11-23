@@ -1089,9 +1089,9 @@ export default function RegistrationForm() {
                 <Button
                   type="submit"
                   disabled={isLoading || (!session?.user && !isEmailVerified) || !mentorFormData.termsAccepted}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full btn-luxe h-12 text-base disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "Submitting..." : "Register as Expert"}
+                  {isLoading ? "Submitting..." : "Submit Founding Mentor Application"}
                 </Button>
               </form>
             </CardContent>

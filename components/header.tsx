@@ -70,16 +70,16 @@ export function Header() {
           {isPending ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-gray-200" />
           ) : session?.user ? (
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="btn-ghost-luxe bg-gradient-to-r from-black/40 to-black/20 text-amber-50 border-amber-300/40">
               Sign out
             </Button>
           ) : (
-            <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex">
+            <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex btn-ghost-luxe bg-gradient-to-r from-black/30 to-black/10 text-amber-50 border-amber-300/40">
               <Link href="/auth/login">Sign in</Link>
             </Button>
           )}
-          <Button asChild size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
-            <Link href="/registration">Become a mentor</Link>
+          <Button asChild size="sm" className="btn-luxe px-5 py-2 text-xs sm:text-sm uppercase tracking-[0.08em]">
+            <Link href="/registration">Founding Mentor Access</Link>
           </Button>
         </div>
 
@@ -100,16 +100,16 @@ export function Header() {
               {isPending ? (
                 <div className="h-11 w-full animate-pulse rounded-full bg-gray-200" />
               ) : session?.user ? (
-                <Button onClick={handleSignOut} variant="outline" className="w-full justify-center">
+                <Button onClick={handleSignOut} variant="outline" className="w-full justify-center btn-ghost-luxe bg-gradient-to-r from-black/40 to-black/20 text-amber-50 border-amber-300/40">
                   Sign out
                 </Button>
               ) : (
-                <Button asChild variant="outline" className="w-full justify-center">
+                <Button asChild variant="outline" className="w-full justify-center btn-ghost-luxe bg-gradient-to-r from-black/30 to-black/10 text-amber-50 border-amber-300/40">
                   <Link href="/auth/login">Sign in</Link>
                 </Button>
               )}
-              <Button asChild className="w-full justify-center bg-blue-600 text-white hover:bg-blue-700">
-                <Link href="/registration">Become a mentor</Link>
+              <Button asChild className="w-full justify-center btn-luxe text-xs uppercase tracking-[0.08em]">
+                <Link href="/registration">Founding Mentor Access</Link>
               </Button>
             </div>
           </SheetContent>

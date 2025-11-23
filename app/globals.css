@@ -374,4 +374,25 @@
     background-size: 200% 200%;
     animation: gradient-text 4s ease infinite;
   }
+
+  /* Luxe CTA styles for founding mentor touchpoints */
+  .btn-luxe {
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full px-5 py-3 text-sm font-semibold tracking-wide text-amber-100 transition-all duration-300 bg-gradient-to-r from-[#0b1020] via-[#0b1326] to-[#0b1020] border border-amber-400/40 shadow-[0_12px_40px_-18px_rgba(0,0,0,0.85)];
+  }
+  .btn-luxe::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.22),transparent)] transition-transform duration-700;
+  }
+  .btn-luxe:hover {
+    @apply -translate-y-px shadow-[0_18px_50px_-22px_rgba(0,0,0,0.95)];
+  }
+  .btn-luxe:hover::after {
+    transform: translateX(100%);
+  }
+  .btn-ghost-luxe {
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full px-5 py-3 text-sm font-semibold tracking-wide text-slate-50 transition-all duration-300 border border-amber-200/40 bg-white/5 backdrop-blur-md shadow-[0_12px_40px_-22px_rgba(0,0,0,0.7)];
+  }
+  .btn-ghost-luxe:hover {
+    @apply border-amber-200/60 text-white shadow-[0_16px_48px_-24px_rgba(0,0,0,0.9)];
+  }
 }

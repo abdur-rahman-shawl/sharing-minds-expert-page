@@ -85,13 +85,13 @@ export function HeroSection() {
         className={`relative z-10 mx-auto max-w-5xl text-center animate-on-scroll will-change-opacity ${reveal ? "animate-fade-in" : ""}`}
       >
         <h1 className="mb-6 text-4xl font-bold text-gray-900 text-balance sm:text-5xl lg:text-6xl">
-          Join SharingMinds as an Expert
+          The Founding Mentor Cohort
         </h1>
         <p className="mx-auto mb-4 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-xl">
-          Empower minds by becoming a mentor. Create your profile, share expertise and connect 1 to 1 on video calls
-          with mentees.
+          A private circle of category-defining experts shaping our platform. White-glove onboarding, concierge support,
+          and priority access for pioneers.
         </p>
-        <p className="mb-10 text-sm italic text-gray-500 sm:mb-12 sm:text-base">"Lead with experience, empowers with guidance"</p>
+        <p className="mb-10 text-sm italic text-gray-500 sm:mb-12 sm:text-base">Invitation-first. High trust. High touch.</p>
 
         {/* Show loading state */}
         {isPending ? (
@@ -195,9 +195,9 @@ export function HeroSection() {
                       <Button
                         onClick={handleRegisterClick}
                         size="sm"
-                        className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto"
+                        className="w-full sm:w-auto btn-luxe px-5 py-2"
                       >
-                        Become a Mentor
+                        Request Founding Access
                       </Button>
                     )}
                     <Button
@@ -218,9 +218,14 @@ export function HeroSection() {
           <div className="max-w-lg mx-auto mb-12 space-y-4">
             <Button
               onClick={handleRegisterClick}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 font-medium"
+              className="btn-luxe w-full h-14 text-base px-6 py-4"
             >
-              Register as a Mentor
+              <div className="flex w-full items-center justify-between gap-3">
+                <span className="text-left">Request Founding Access</span>
+                <span className="text-[11px] uppercase tracking-[0.14em] text-amber-200/80 bg-white/5 px-3 py-1 rounded-full border border-amber-200/30">
+                  Limited cohort
+                </span>
+              </div>
             </Button>
 
             <div className="relative">
@@ -235,10 +240,10 @@ export function HeroSection() {
             <Button
               onClick={handleGoogleSignIn}
               variant="outline"
-              className="w-full h-12 font-medium flex items-center justify-center gap-2"
+              className="btn-ghost-luxe w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-black/30 to-black/20 text-amber-50 border-amber-200/40"
             >
               <FcGoogle className="h-5 w-5" />
-              Register with Google
+              Fast Track with Google
             </Button>
           </div>
         )}

@@ -61,12 +61,11 @@ export function FinalCTASection() {
               id="mentor-cta-heading"
               className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900"
             >
-              Join SharingMinds as a Mentor Today.
+              Founding Mentor Invitation
             </h2>
 
             <p className="mt-6 text-center text-[17px] leading-relaxed text-slate-700 italic max-w-3xl mx-auto">
-              "SharingMinds Mentor Onboarding has enabled me early access of tools and priority founder mentor status." -
-              Amit Sawant
+              White-glove onboarding, concierge support, and early influence on the product roadmap for our pioneer mentors.
             </p>
 
             {isPending ? (
@@ -90,9 +89,9 @@ export function FinalCTASection() {
                     </div>
                     <Button
                       onClick={handleBecomeMentor}
-                      className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                      className="h-11 px-6 btn-luxe"
                     >
-                      Become a Mentor
+                      Continue as Founding Mentor
                     </Button>
                   </div>
                 </div>
@@ -101,9 +100,9 @@ export function FinalCTASection() {
               <div className="mt-10 mx-auto max-w-xl space-y-4">
                 <Button
                   onClick={handleBecomeMentor}
-                  className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                  className="h-14 w-full btn-luxe text-base"
                 >
-                  Become a Mentor
+                  Request Founding Access
                 </Button>
 
                 <div className="relative">
@@ -118,10 +117,10 @@ export function FinalCTASection() {
                 <Button
                   onClick={handleGoogleSignIn}
                   variant="outline"
-                  className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-white border-slate-300 hover:bg-slate-50"
+                  className="w-full h-12 font-medium flex items-center justify-center gap-2 btn-ghost-luxe bg-gradient-to-r from-black/25 to-black/10 text-amber-50 border-amber-200/40"
                 >
                   <FcGoogle className="h-5 w-5" />
-                  Sign Up with Google
+                  Fast Track with Google
                 </Button>
               </div>
             )}
