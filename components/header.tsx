@@ -3,11 +3,12 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { signOut, useSession } from "@/lib/auth-client"
 
 const navLinks = [
   { href: "/service", label: "Service" },
@@ -18,6 +19,8 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const { data: session, isPending } = useSession()
   const isHome = pathname === "/"
 
   useEffect(() => {
@@ -31,6 +34,15 @@ export function Header() {
     "sticky top-0 z-50 border-b border-transparent transition-colors duration-300",
     isHome && !scrolled ? "bg-transparent" : "bg-white/90 backdrop-blur-xl shadow-sm border-white/50",
   )
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.refresh()
+    } catch (error) {
+      console.error("Sign out error:", error)
+    }
+  }
 
   return (
     <header className={containerClass}>
@@ -55,9 +67,17 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex">
-            <Link href="/auth/login">Sign in</Link>
-          </Button>
+          {isPending ? (
+            <div className="h-9 w-24 animate-pulse rounded-full bg-gray-200" />
+          ) : session?.user ? (
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              Sign out
+            </Button>
+          ) : (
+            <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex">
+              <Link href="/auth/login">Sign in</Link>
+            </Button>
+          )}
           <Button asChild size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
             <Link href="/registration">Become a mentor</Link>
           </Button>
@@ -77,9 +97,17 @@ export function Header() {
               ))}
             </nav>
             <div className="mt-8 space-y-3">
-              <Button asChild variant="outline" className="w-full justify-center">
-                <Link href="/auth/login">Sign in</Link>
-              </Button>
+              {isPending ? (
+                <div className="h-11 w-full animate-pulse rounded-full bg-gray-200" />
+              ) : session?.user ? (
+                <Button onClick={handleSignOut} variant="outline" className="w-full justify-center">
+                  Sign out
+                </Button>
+              ) : (
+                <Button asChild variant="outline" className="w-full justify-center">
+                  <Link href="/auth/login">Sign in</Link>
+                </Button>
+              )}
               <Button asChild className="w-full justify-center bg-blue-600 text-white hover:bg-blue-700">
                 <Link href="/registration">Become a mentor</Link>
               </Button>
