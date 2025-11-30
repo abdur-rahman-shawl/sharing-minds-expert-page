@@ -23,42 +23,87 @@ export function BenefitsSection() {
 
   const benefits = [
     {
-      title: "Build Your Professional Brand",
-      description: "Create a stunning mentor profile that highlights your experience. Your profile isn't just a listing — it's your digital portfolio of leadership.",
+      title: "Build Your Professional Mentor Brand",
+      description: (
+        <>
+          Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go
+          beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship
+          impact data. Your mentor profile isn't just a listing — it's your{" "}
+          <strong className="font-semibold text-slate-900">digital portfolio of leadership and influence</strong>, helping you attract the right mentees and
+          speaking opportunities.
+        </>
+      ),
       image: "/profesional-mentor-profile.jpeg",
     },
     {
       title: "Connect with the Right Mentees",
-      description: "Be discovered by mentees looking for your specific guidance. Transform casual connections into meaningful professional relationships.",
+      description: (
+        <>
+          Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and
+          founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs,
+          and community discussions that <strong className="font-semibold text-slate-900">transform casual connections into meaningful relationships.</strong>
+        </>
+      ),
       image: "/connect-with-mentees.jpeg",
     },
     {
       title: "Monetize Your Expertise",
-      description: "Mentors can earn up to $500/month or more. Turn your mentoring time into a consistent income stream while creating real-world impact.",
+      description: (
+        <>
+          Get rewarded for the knowledge and experience you've built over years. Mentors on SharingMinds can earn{" "}
+          <strong className="font-semibold text-slate-900">up to $500 a month or more</strong>, depending on engagement and demand. Turn your mentoring time into
+          a consistent income stream while continuing to do what you love —{" "}
+          <strong className="font-semibold text-slate-900">sharing wisdom that creates real-world impact.</strong>
+        </>
+      ),
       image: "/payment-for-expertise.jpeg",
     },
     {
-      title: "Smart Matchmaking AI",
-      description: "Our algorithm ensures every connection feels natural. We study goals and styles to suggest ideal matches, backed by human review.",
+      title: "Smarter Matchmaking through AI + Human Touch",
+      description: (
+        <>
+          Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies
+          goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a{" "}
+          <strong className="font-semibold text-slate-900">human layer of review</strong> to ensure quality, chemistry, and mutual fit. No wasted sessions. No
+          mismatched expectations. Just meaningful collaboration.
+        </>
+      ),
       image: "/match-making.jpeg",
     },
     {
-      title: "Seamless Performance Tracking",
-      description: "Track mentee progress and monitor impact. Data-driven insights ensure you stay organized and aware of measurable outcomes.",
+      title: "Seamless Data Access & Performance Tracking",
+      description: (
+        <>
+          Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee
+          progress, manage your bookings, and monitor your impact with clarity and convenience.{" "}
+          <strong className="font-semibold text-slate-900">Data-driven insights</strong> ensure you stay organized and always aware of your mentorship journey's
+          measurable outcomes.
+        </>
+      ),
       image: "/efficient-mentor-data.jpeg",
     },
     {
-      title: "Measure Success",
-      description: "Get real-time feedback and benchmarks. Actionable analytics help you refine your approach and celebrate milestones.",
-      features: ["Live feedback tracking", "Dashboard analytics", "Monthly summaries"],
+      title: "Measure Success, Amplify Impact",
+      description: (
+        <>
+          Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard.
+          SharingMinds gives you <strong className="font-semibold text-slate-900">actionable analytics</strong> to refine your mentoring approach, enhance
+          outcomes, and celebrate growth milestones.
+        </>
+      ),
+      features: [
+        "Live feedback & sentiment tracking",
+        "Dashboard analytics & benchmarking",
+        "Real-time reporting & monthly summaries",
+        "Continuous performance insights",
+      ],
       image: "/success-metrics.jpeg",
     },
   ]
 
   return (
-    // Changed bg-white to transparent (or subtle gradient) to blend with Hero
     <section ref={sectionRef} className="relative z-10 px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-      {/* Subtle separator background */}
+      {/* Subtle separator background to blend with Hero */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-indigo-50/30 -z-10" />
 
       <div className="mx-auto max-w-7xl">
@@ -68,14 +113,17 @@ export function BenefitsSection() {
             titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <h2 className="text-base font-semibold uppercase tracking-widest text-indigo-600 mb-3">
+          <h2 className="text-sm sm:text-base font-semibold uppercase tracking-widest text-indigo-600 mb-3">
             Excellence in Mentorship
           </h2>
           <h3 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl text-balance">
-            Benefits of Mentoring with SharingMinds
+            Benefits of Mentoring
+            <br className="hidden sm:block" /> with SharingMinds
           </h3>
           <p className="mx-auto max-w-3xl text-lg text-slate-600 leading-relaxed">
-            Designed for leaders who want to make their experience impactful while being recognized, rewarded, and connected.
+            Empower others while accelerating your own professional growth. SharingMinds is designed for leaders,
+            educators, and professionals who want to make their experience truly impactful — while being recognized,
+            rewarded, and connected with a meaningful network.
           </p>
         </div>
 
@@ -94,9 +142,9 @@ export function BenefitsSection() {
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="relative h-64 w-full overflow-hidden rounded-2xl sm:h-72">
-                  <div className="absolute inset-0 bg-slate-200 animate-pulse" /> {/* Placeholder while loading */}
+                  <div className="absolute inset-0 bg-slate-200 animate-pulse" />
                   <img
-                    src={benefit.image}
+                    src={benefit.image || "/placeholder.svg"}
                     alt={benefit.title}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
@@ -106,10 +154,10 @@ export function BenefitsSection() {
                 </div>
                 
                 <div className="flex flex-1 flex-col p-6 sm:p-8">
-                  <h3 className="mb-3 text-2xl font-bold text-slate-900">{benefit.title}</h3>
-                  <p className="mb-6 flex-1 text-base leading-relaxed text-slate-600">
+                  <h3 className="mb-4 text-2xl font-bold text-slate-900">{benefit.title}</h3>
+                  <div className="mb-6 flex-1 text-base leading-relaxed text-slate-600">
                     {benefit.description}
-                  </p>
+                  </div>
                   
                   {benefit.features && (
                     <ul className="mt-auto space-y-2 border-t border-slate-100 pt-4">
