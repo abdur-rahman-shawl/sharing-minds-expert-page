@@ -5,7 +5,8 @@ import { FinalCTASection } from "@/components/final-cta-section"
 
 export default function Page() {
   return (
-    <div className="min-h-screen space-y-12 sm:space-y-16">
+    // Removed space-y-12. Added a seamless background base.
+    <div className="min-h-screen w-full bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
       <HeroSection />
       <BenefitsSection />
       <TestimonialSection />

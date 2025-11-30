@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
 import { FaLinkedin } from "react-icons/fa"
 import { signIn, useSession } from "@/lib/auth-client"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, ArrowRight } from "lucide-react"
 
-// Final CTA card styled to match the provided reference image
 export function FinalCTASection() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
@@ -18,7 +17,6 @@ export function FinalCTASection() {
       router.push('/registration')
       return
     }
-
     router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
   }
 
@@ -45,78 +43,85 @@ export function FinalCTASection() {
   }
 
   return (
-    <section className="relative bg-[#eaf4fb] px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="mentor-cta-heading">
-      {/* dotted pattern on the top-right of the section */}
-      <div
-        className="pointer-events-none absolute right-6 md:right-16 top-4 md:top-6 h-24 w-40 opacity-40 -z-10"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.25) 1px, transparent 1px)",
-          backgroundSize: "14px 14px",
-        }}
-      />
+    // Replaced solid background with a fade-out effect from the previous section
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white px-4 py-24 sm:px-6 sm:py-32">
+      
+      {/* Decorative Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-      <div className="mx-auto max-w-6xl">
-        <div className="relative grid min-h-[300px] place-items-center overflow-hidden rounded-2xl border border-slate-300/60 bg-[linear-gradient(180deg,#f5fbff,white_30%)] p-6 shadow-[0_10px_30px_-10px_rgba(2,6,23,0.15)] md:min-h-[clamp(360px,36vw,460px)] md:rounded-3xl md:p-10 lg:p-12">
-          {/* decorative diagonal shapes inside card (persistently visible) */}
-          <svg
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full"
-            viewBox="0 0 1200 400"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <polygon points="0,260 1200,140 1200,400 0,400" fill="rgba(59,130,246,0.12)" />
-            <polygon points="0,340 720,230 1200,280 1200,400 0,400" fill="rgba(99,102,241,0.10)" />
-          </svg>
+      <div className="relative mx-auto max-w-5xl">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-900/5">
+          <div className="grid lg:grid-cols-5">
+            
+            {/* Left Content Side */}
+            <div className="px-8 py-12 lg:col-span-3 lg:p-14">
+              <h2 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Ready to Shape the Future?
+              </h2>
+              <p className="mb-8 text-lg text-slate-600 leading-relaxed">
+                Join our private circle of category-defining experts. Experience white-glove onboarding, concierge support, and influence our product roadmap.
+              </p>
 
-          <div className="relative z-10 w-full">
-            <h2
-              id="mentor-cta-heading"
-              className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900"
-            >
-              Founding Mentor Invitation
-            </h2>
-
-            <p className="mt-6 text-center text-[17px] leading-relaxed text-slate-700 italic max-w-3xl mx-auto">
-              White-glove onboarding, concierge support, and early influence on the product roadmap for our pioneer mentors.
-            </p>
-
-            {isPending ? (
-              <div className="mt-10 mx-auto max-w-xl">
-                <Card className="animate-pulse">
-                  <CardContent className="p-8">
-                    <div className="h-12 bg-slate-200 rounded mb-4"></div>
-                    <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto"></div>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : session?.user ? (
-              <div className="mt-10 mx-auto max-w-xl">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-slate-200 p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                      <p className="text-slate-700">
-                        You're signed in as <span className="font-medium">{session.user.name || session.user.email}</span>
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleBecomeMentor}
-                      className="h-11 px-6 btn-luxe"
-                    >
-                      Continue as Founding Mentor
-                    </Button>
-                  </div>
+              {isPending ? (
+                <div className="max-w-md">
+                   <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
                 </div>
-              </div>
-            ) : (
-              <div className="mt-10 mx-auto max-w-xl space-y-4">
-                <Button
-                  onClick={handleBecomeMentor}
-                  className="h-14 w-full btn-luxe text-base"
-                >
-                  Request Founding Access
-                </Button>
+              ) : session?.user ? (
+                <div className="rounded-xl bg-indigo-50/50 p-6 border border-indigo-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <CheckCircle2 className="h-5 w-5 text-indigo-600" />
+                    <p className="text-slate-700 font-medium">
+                      Signed in as {session.user.name}
+                    </p>
+                  </div>
+                  <Button onClick={handleBecomeMentor} className="w-full bg-slate-900 hover:bg-slate-800 h-11">
+                    Continue Application <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 max-w-md">
+                  <Button
+                    onClick={handleBecomeMentor}
+                    className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 text-white"
+                  >
+                    Request Founding Access
+                  </Button>
+                  
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-slate-200"></div>
+                    <span className="flex-shrink-0 mx-4 text-xs font-semibold text-slate-400 uppercase tracking-widest">Or</span>
+                    <div className="flex-grow border-t border-slate-200"></div>
+                  </div>
 
+                  <Button
+                    onClick={handleGoogleSignIn}
+                    variant="outline"
+                    className="w-full h-12 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    <FcGoogle className="h-5 w-5 mr-3" />
+                    Fast Track with Google
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Right Visual Side */}
+            <div className="relative bg-slate-900 lg:col-span-2 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20"></div>
+                {/* Decorative circles */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%]">
+                    <div className="absolute inset-0 border-[40px] border-white/5 rounded-full animate-[spin_10s_linear_infinite]"></div>
+                    <div className="absolute inset-4 border-[40px] border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+                </div>
+                
+                <div className="relative h-full flex flex-col items-center justify-center p-8 text-center text-white/90">
+                    <div className="mb-4 rounded-full bg-white/10 p-3 backdrop-blur-sm">
+                        <CheckCircle2 className="h-8 w-8 text-indigo-300" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white">Verified Community</h3>
+                    <p className="mt-2 text-sm text-indigo-200">High trust. High touch.</p>
+                </div>
+            </div>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-slate-300" />
@@ -145,7 +150,6 @@ export function FinalCTASection() {
                   </Button>
                 </div>
               </div>
-            )}
           </div>
         </div>
       </div>

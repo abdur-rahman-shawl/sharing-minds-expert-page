@@ -5,7 +5,6 @@ import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 export function BenefitsSection() {
   const { ref: sectionRef } = useScrollAnimation(0.1)
   const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation(0.2)
-
   const { ref: card0Ref, isVisible: card0Visible } = useScrollAnimation(0.1)
   const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation(0.1)
   const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation(0.1)
@@ -24,107 +23,63 @@ export function BenefitsSection() {
 
   const benefits = [
     {
-      title: "Build Your Professional Mentor Brand",
-      description: (
-        <>
-          Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go
-          beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship
-          impact data. Your mentor profile isn't just a listing — it's your{" "}
-          <strong>digital portfolio of leadership and influence</strong>, helping you attract the right mentees and
-          speaking opportunities.
-        </>
-      ),
+      title: "Build Your Professional Brand",
+      description: "Create a stunning mentor profile that highlights your experience. Your profile isn't just a listing — it's your digital portfolio of leadership.",
       image: "/profesional-mentor-profile.jpeg",
     },
     {
       title: "Connect with the Right Mentees",
-      description: (
-        <>
-          Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and
-          founders to career changers and students. Engage through personalized sessions, ongoing mentorship programs,
-          and community discussions that <strong>transform casual connections into meaningful relationships.</strong>
-        </>
-      ),
+      description: "Be discovered by mentees looking for your specific guidance. Transform casual connections into meaningful professional relationships.",
       image: "/connect-with-mentees.jpeg",
     },
     {
       title: "Monetize Your Expertise",
-      description: (
-        <>
-          Get rewarded for the knowledge and experience you've built over years. Mentors on SharingMinds can earn{" "}
-          <strong>up to $500 a month or more</strong>, depending on engagement and demand. Turn your mentoring time into
-          a consistent income stream while continuing to do what you love —{" "}
-          <strong>sharing wisdom that creates real-world impact.</strong>
-        </>
-      ),
+      description: "Mentors can earn up to $500/month or more. Turn your mentoring time into a consistent income stream while creating real-world impact.",
       image: "/payment-for-expertise.jpeg",
     },
     {
-      title: "Smarter Matchmaking through AI + Human Touch",
-      description: (
-        <>
-          Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies
-          goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a{" "}
-          <strong>human layer of review</strong> to ensure quality, chemistry, and mutual fit. No wasted sessions. No
-          mismatched expectations. Just meaningful collaboration.
-        </>
-      ),
+      title: "Smart Matchmaking AI",
+      description: "Our algorithm ensures every connection feels natural. We study goals and styles to suggest ideal matches, backed by human review.",
       image: "/match-making.jpeg",
     },
     {
-      title: "Seamless Data Access & Performance Tracking",
-      description: (
-        <>
-          Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee
-          progress, manage your bookings, and monitor your impact with clarity and convenience.{" "}
-          <strong>Data-driven insights</strong> ensure you stay organized and always aware of your mentorship journey's
-          measurable outcomes.
-        </>
-      ),
+      title: "Seamless Performance Tracking",
+      description: "Track mentee progress and monitor impact. Data-driven insights ensure you stay organized and aware of measurable outcomes.",
       image: "/efficient-mentor-data.jpeg",
     },
     {
-      title: "Measure Success, Amplify Impact",
-      description: (
-        <>
-          Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard.
-          SharingMinds gives you <strong>actionable analytics</strong> to refine your mentoring approach, enhance
-          outcomes, and celebrate growth milestones.
-        </>
-      ),
-      features: [
-        "Live feedback & sentiment tracking",
-        "Dashboard analytics & benchmarking",
-        "Real-time reporting & monthly summaries",
-        "Continuous performance insights",
-      ],
+      title: "Measure Success",
+      description: "Get real-time feedback and benchmarks. Actionable analytics help you refine your approach and celebrate milestones.",
+      features: ["Live feedback tracking", "Dashboard analytics", "Monthly summaries"],
       image: "/success-metrics.jpeg",
     },
   ]
 
   return (
-    <section ref={sectionRef} className="bg-white px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
-      <div className="mx-auto max-w-6xl">
+    // Changed bg-white to transparent (or subtle gradient) to blend with Hero
+    <section ref={sectionRef} className="relative z-10 px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+      {/* Subtle separator background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-indigo-50/30 -z-10" />
+
+      <div className="mx-auto max-w-7xl">
         <div
           ref={titleRef}
-          className={`mb-16 text-center animate-on-scroll will-change-opacity sm:mb-24 ${
-            titleVisible ? "animate-fade-in-slow" : ""
+          className={`mb-20 text-center transition-all duration-700 ease-out ${
+            titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 text-balance sm:text-4xl lg:text-5xl">
-            Benefits of Mentoring
-            <br />
-            with SharingMinds
+          <h2 className="text-base font-semibold uppercase tracking-widest text-indigo-600 mb-3">
+            Excellence in Mentorship
           </h2>
-          <h3 className="mb-4 text-xl font-semibold text-gray-700 sm:text-2xl">Why Mentor with SharingMinds?</h3>
-          <p className="mx-auto max-w-3xl text-base text-gray-600 sm:text-lg">
-            Empower others while accelerating your own professional growth. SharingMinds is designed for leaders,
-            educators, and professionals who want to make their experience truly impactful — while being recognized,
-            rewarded, and connected with a meaningful network.
+          <h3 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl text-balance">
+            Benefits of Mentoring with SharingMinds
+          </h3>
+          <p className="mx-auto max-w-3xl text-lg text-slate-600 leading-relaxed">
+            Designed for leaders who want to make their experience impactful while being recognized, rewarded, and connected.
           </p>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {benefits.map((benefit, index) => {
             const { ref: cardRef, isVisible: cardVisible } = cardRefs[index]
 
@@ -132,27 +87,36 @@ export function BenefitsSection() {
               <div
                 key={benefit.title}
                 ref={cardRef}
-                className={`group rounded-2xl bg-gray-50/60 p-6 transition-[background,transform,opacity] duration-300 hover:bg-gray-50 animate-on-scroll will-change-opacity sm:p-8 ${
-                  cardVisible ? `animate-fade-in-slow animate-delay-${Math.min(index * 100 + 200, 400)}` : ""
+                // Glassmorphic Card Style
+                className={`group flex flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/40 p-1 shadow-lg backdrop-blur-sm transition-all duration-700 hover:shadow-xl hover:bg-white/60 ring-1 ring-slate-900/5 ${
+                  cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                 }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="relative mb-6 overflow-hidden rounded-xl">
+                <div className="relative h-64 w-full overflow-hidden rounded-2xl sm:h-72">
+                  <div className="absolute inset-0 bg-slate-200 animate-pulse" /> {/* Placeholder while loading */}
                   <img
-                    src={benefit.image || "/placeholder.svg"}
+                    src={benefit.image}
                     alt={benefit.title}
                     loading="lazy"
-                    className="aspect-[4/3] w-full rounded-xl object-cover shadow-sm transition-transform duration-700 ease-out group-hover:scale-[1.03] group-hover:shadow-md"
+                    className="h-full w-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
                   />
+                  {/* Image overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
-                <div>
-                  <h3 className="mb-4 text-2xl font-semibold leading-tight text-gray-900">{benefit.title}</h3>
-                  <p className="mb-6 text-base leading-relaxed text-gray-600">{benefit.description}</p>
+                
+                <div className="flex flex-1 flex-col p-6 sm:p-8">
+                  <h3 className="mb-3 text-2xl font-bold text-slate-900">{benefit.title}</h3>
+                  <p className="mb-6 flex-1 text-base leading-relaxed text-slate-600">
+                    {benefit.description}
+                  </p>
+                  
                   {benefit.features && (
-                    <ul className="space-y-3 text-sm text-gray-600 sm:text-base">
-                      {benefit.features.map(feature => (
-                        <li key={feature} className="flex items-center gap-3">
-                          <span className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-600" aria-hidden />
-                          <span className="font-medium">{feature}</span>
+                    <ul className="mt-auto space-y-2 border-t border-slate-100 pt-4">
+                      {benefit.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                          <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                          {feature}
                         </li>
                       ))}
                     </ul>

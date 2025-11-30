@@ -1,11 +1,9 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Star, CheckCircle, Heart } from "lucide-react"
+import { Star } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
@@ -24,7 +22,6 @@ export function HeroSection() {
       router.push('/registration')
       return
     }
-
     router.push(`/auth/login?callbackUrl=${encodeURIComponent('/registration')}`)
   }
 
@@ -69,116 +66,95 @@ export function HeroSection() {
     return 'U'
   }
 
-  // Gentle delayed reveal for hero content
   useEffect(() => {
     const t = setTimeout(() => setReveal(true), 1000)
     return () => clearTimeout(t)
   }, [])
 
   return (
-    <section className="relative mt-[-48px] flex min-h-[calc(100vh-120px)] flex-col justify-center overflow-hidden px-4 py-16 sm:mt-[-64px] sm:px-6 sm:py-24 lg:px-10 lg:py-32">
-      <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-xy"></div>
-      <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40 animate-gradient-slow"></div>
-      <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-bl from-transparent via-purple-50/30 to-blue-100/30 animate-gradient-diagonal"></div>
-
-      {/* Fluid, morphing blobs for a premium, visible motion */}
+    // Reduced pt-* values significantly and adjusted min-h to pull content up
+    <section className="relative mt-[-48px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-64px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
+      
+      {/* Background System */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50 via-slate-50 to-white"></div>
+      
+      {/* Fluid Blobs - Repositioned slightly to match new height */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-24 -left-20 w-[48rem] h-[48rem] opacity-60 blur-2xl blob-shape animate-blob animate-blob-slower saturate-150 
-          bg-gradient-to-tr from-blue-500/45 via-indigo-500/35 to-purple-500/45" />
-        <div className="absolute top-36 -right-28 w-[40rem] h-[40rem] opacity-50 blur-2xl blob-shape animate-blob animate-delay-5s saturate-150 
-          bg-gradient-to-tr from-sky-500/40 via-blue-500/35 to-indigo-500/40" />
-        <div className="absolute -bottom-28 left-1/3 w-[44rem] h-[44rem] opacity-45 blur-2xl blob-shape animate-blob animate-delay-10s saturate-150 
-          bg-gradient-to-tr from-violet-500/35 via-indigo-500/30 to-blue-500/35" />
+        <div className="absolute -top-24 -left-20 w-[40rem] h-[40rem] opacity-40 blur-3xl blob-shape animate-blob bg-purple-200 mix-blend-multiply" />
+        <div className="absolute top-24 -right-28 w-[35rem] h-[35rem] opacity-40 blur-3xl blob-shape animate-blob animate-delay-5s bg-indigo-200 mix-blend-multiply" />
+        <div className="absolute -bottom-28 left-1/3 w-[40rem] h-[40rem] opacity-40 blur-3xl blob-shape animate-blob animate-delay-10s bg-blue-200 mix-blend-multiply" />
       </div>
 
-      {/* Navigation is provided globally via layout header */}
-
       <div
-        className={`relative z-10 mx-auto max-w-5xl text-center animate-on-scroll will-change-opacity ${reveal ? "animate-fade-in" : ""}`}
+        className={`relative z-10 mx-auto max-w-5xl text-center px-4 sm:px-6 transition-all duration-1000 ease-out ${reveal ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
-        <h1 className="mb-6 text-4xl font-bold text-gray-900 text-balance sm:text-5xl lg:text-6xl">
-          The Founding Mentor Cohort
-        </h1>
-        <p className="mx-auto mb-4 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-xl">
-          A private circle of category-defining experts shaping our platform. White-glove onboarding, concierge support,
-          and priority access for pioneers.
-        </p>
-        <p className="mb-10 text-sm italic text-gray-500 sm:mb-12 sm:text-base">Invitation-first. High trust. High touch.</p>
+        <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/50 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm">
+          <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
+          Invitation Only
+        </div>
 
-        {/* Show loading state */}
+        <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+          The Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Mentor Cohort</span>
+        </h1>
+        
+        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl">
+          A private circle of category-defining experts shaping our platform. 
+          White-glove onboarding and priority access for pioneers.
+        </p>
+
+        {/* Logic Block */}
         {isPending ? (
-          <div className="max-w-lg mx-auto mb-12">
-            <Card className="border-2 border-gray-200 animate-pulse">
+          <div className="max-w-lg mx-auto mb-10">
+            <Card className="border border-slate-200/60 shadow-lg bg-white/50 backdrop-blur-md">
               <CardContent className="p-8">
-                <div className="h-12 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                <div className="h-12 bg-slate-200/50 rounded mb-4 animate-pulse"></div>
+                <div className="h-4 bg-slate-200/50 rounded w-3/4 mx-auto animate-pulse"></div>
               </CardContent>
             </Card>
           </div>
         ) : session?.user ? (
-          /* Show welcome with mentor status */
-          <div className="max-w-lg mx-auto mb-12">
+          <div className="max-w-lg mx-auto mb-10">
             {!mentorStatusLoading && isMentor ? (
-              /* Show appreciation for registered mentors */
-              <div className="relative group animate-fade-in-slow">
-                {/* Subtle glow effect */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
-
-                <div className="relative bg-gradient-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/50 shadow-2xl overflow-hidden">
-                  {/* Shimmer effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-200%] animate-shimmer pointer-events-none"></div>
-
-                  <div className="text-center mb-6 relative z-10">
-                    {/* Premium icon with subtle animation */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 flex items-center justify-center">
-                      <Star className="h-7 w-7 sm:h-8 sm:w-8 text-purple-600 fill-purple-600" />
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 border border-white shadow-2xl ring-1 ring-slate-900/5">
+                  <div className="text-center mb-6">
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-indigo-50 flex items-center justify-center">
+                      <Star className="h-7 w-7 text-indigo-600 fill-indigo-600" />
                     </div>
-
-                    <h3 className="text-xl sm:text-2xl font-semibold mb-2 tracking-tight">
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 animate-gradient-text">
-                        Thank You for Being a Mentor!
-                      </span>
+                    <h3 className="text-xl font-semibold text-slate-900">
+                      Welcome, Founding Mentor
                     </h3>
-                    <p className="text-gray-600 text-xs sm:text-sm font-light tracking-wide px-2">
-                      Your expertise is shaping the next generation
-                    </p>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <div className="relative flex-shrink-0">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 blur-sm"></div>
-                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 relative border-2 border-white/80">
-                          <AvatarImage src={session.user.image || undefined} />
-                          <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 text-purple-700 font-medium text-sm">
-                            {getUserInitials(session.user.name, session.user.email)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                      <div className="flex-1 min-w-0 text-left">
-                        <p className="font-medium text-gray-900 tracking-tight capitalize text-sm sm:text-base truncate">{mentor?.fullName || session.user.name}</p>
-                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse flex-shrink-0"></div>
-                          <span className="text-[10px] sm:text-xs text-gray-500 font-light tracking-wide uppercase">Registered • We'll get back to you</span>
-                        </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 ring-2 ring-white">
+                        <AvatarImage src={session.user.image || undefined} />
+                        <AvatarFallback className="bg-indigo-100 text-indigo-700">
+                          {getUserInitials(session.user.name, session.user.email)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="text-left">
+                        <p className="font-medium text-slate-900 text-sm">{mentor?.fullName || session.user.name}</p>
+                        <p className="text-xs text-slate-500">Verified Mentor</p>
                       </div>
                     </div>
-
                     <Button
                       onClick={handleSignOut}
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300 font-medium w-full sm:w-auto"
+                      className="text-slate-500 hover:text-slate-900"
                     >
                       Sign out
                     </Button>
                   </div>
 
                   {mentor?.verificationStatus === 'VERIFIED' && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="mt-4">
                       <Button
                         onClick={() => router.push('/dashboard')}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide"
+                        className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg transition-all"
                       >
                         Go to Dashboard
                       </Button>
@@ -187,37 +163,27 @@ export function HeroSection() {
                 </div>
               </div>
             ) : (
-              /* Show regular welcome for non-mentors */
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/50 shadow-xl p-6 ring-1 ring-slate-900/5">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-10 w-10 ring-2 ring-white">
                       <AvatarImage src={session.user.image || undefined} />
-                      <AvatarFallback className="bg-gray-100 text-gray-700 text-sm">
+                      <AvatarFallback className="bg-indigo-50 text-indigo-700">
                         {getUserInitials(session.user.name, session.user.email)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="text-sm text-gray-600">Welcome back,</p>
-                      <p className="font-medium text-gray-900">{session.user.name || session.user.email}</p>
+                    <div className="text-left">
+                      <p className="text-sm text-slate-500">Logged in as</p>
+                      <p className="font-semibold text-slate-900">{session.user.name || session.user.email}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     {!isMentor && (
-                      <Button
-                        onClick={handleRegisterClick}
-                        size="sm"
-                        className="w-full sm:w-auto btn-luxe px-5 py-2"
-                      >
-                        Request Founding Access
+                      <Button onClick={handleRegisterClick} size="sm" className="flex-1 bg-slate-900 text-white hover:bg-slate-800">
+                        Apply Now
                       </Button>
                     )}
-                    <Button
-                      onClick={handleSignOut}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-gray-600 hover:text-gray-900 sm:w-auto"
-                    >
+                    <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-500">
                       Sign out
                     </Button>
                   </div>
@@ -226,29 +192,22 @@ export function HeroSection() {
             )}
           </div>
         ) : (
-          /* Show registration options for non-authenticated users */
-          <div className="max-w-lg mx-auto mb-12 space-y-4">
+          <div className="max-w-md mx-auto mb-12 space-y-4">
             <Button
               onClick={handleRegisterClick}
-              className="btn-luxe w-full h-14 text-base px-6 py-4"
+              className="w-full h-14 text-base font-semibold shadow-xl shadow-indigo-500/20 bg-slate-900 hover:bg-slate-800 text-white transition-all hover:scale-[1.02]"
             >
-              <div className="flex w-full items-center justify-between gap-3">
-                <span className="text-left">Request Founding Access</span>
-                <span className="text-[11px] uppercase tracking-[0.14em] text-amber-200/80 bg-white/5 px-3 py-1 rounded-full border border-amber-200/30">
-                  Limited cohort
-                </span>
-              </div>
+               Request Founding Access
             </Button>
-
-            <div className="relative">
+            
+            <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-300" />
+                <span className="w-full border-t border-slate-300/60" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                <span className="bg-transparent px-2 text-slate-400">or</span>
               </div>
             </div>
-
             <div className="space-y-3">
               <Button
                 onClick={handleGoogleSignIn}
@@ -270,19 +229,19 @@ export function HeroSection() {
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-sm">
-            <img
-              src="/professional-headshot.png"
-              alt="Ulysses Rodriguez"
-              loading="lazy"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <div className="text-left">
-              <p className="text-sm font-medium text-gray-900">"Helped me connect with amazing talents."</p>
-              <p className="text-xs text-gray-500">Ulysses Rodriguez, Instructor and upskill experts</p>
+        {/* Social Proof */}
+        <div className="flex justify-center">
+            <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm">
+                <img
+                src="/professional-headshot.png"
+                alt="Ulysses Rodriguez"
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-white"
+                />
+                <div className="text-left">
+                    <p className="text-sm font-semibold text-slate-900 leading-none">"Helped me connect with amazing talents."</p>
+                    <p className="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Ulysses Rodriguez • Upskill Expert</p>
+                </div>
             </div>
-          </div>
         </div>
       </div>
     </section>
