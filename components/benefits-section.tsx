@@ -1,10 +1,20 @@
 "use client"
 
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import { 
+  UserCircle, 
+  Users, 
+  Wallet, 
+  Sparkles, 
+  BarChart3, 
+  LineChart, 
+  ArrowUpRight 
+} from "lucide-react"
 
 export function BenefitsSection() {
   const { ref: sectionRef } = useScrollAnimation(0.1)
   const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation(0.2)
+  
   const { ref: card0Ref, isVisible: card0Visible } = useScrollAnimation(0.1)
   const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation(0.1)
   const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation(0.1)
@@ -23,20 +33,21 @@ export function BenefitsSection() {
 
   const benefits = [
     {
-      title: "Build Your Professional Mentor Brand",
+      title: "Build Your Professional Brand",
+      icon: UserCircle,
       description: (
         <>
           Create a stunning mentor profile that highlights your experience, achievements, and industry credibility. Go
           beyond the traditional bio — feature your verified testimonials, thought-leadership blogs, and mentorship
           impact data. Your mentor profile isn't just a listing — it's your{" "}
-          <strong className="font-semibold text-slate-900">digital portfolio of leadership and influence</strong>, helping you attract the right mentees and
-          speaking opportunities.
+          <strong className="font-semibold text-slate-900">digital portfolio of leadership and influence</strong>.
         </>
       ),
       image: "/profesional-mentor-profile.jpeg",
     },
     {
       title: "Connect with the Right Mentees",
+      icon: Users,
       description: (
         <>
           Be discovered by mentees who are genuinely looking for your kind of guidance — from emerging professionals and
@@ -48,30 +59,32 @@ export function BenefitsSection() {
     },
     {
       title: "Monetize Your Expertise",
+      icon: Wallet,
       description: (
         <>
           Get rewarded for the knowledge and experience you've built over years. Mentors on SharingMinds can earn{" "}
           <strong className="font-semibold text-slate-900">up to $500 a month or more</strong>, depending on engagement and demand. Turn your mentoring time into
           a consistent income stream while continuing to do what you love —{" "}
-          <strong className="font-semibold text-slate-900">sharing wisdom that creates real-world impact.</strong>
+          <strong className="font-semibold text-slate-900">sharing wisdom.</strong>
         </>
       ),
       image: "/payment-for-expertise.jpeg",
     },
     {
-      title: "Smarter Matchmaking through AI + Human Touch",
+      title: "AI Matchmaking + Human Touch",
+      icon: Sparkles,
       description: (
         <>
           Our advanced AI algorithm ensures every mentee-mentor connection feels natural and purposeful. It studies
           goals, learning styles, and expertise areas to suggest ideal matches — while our team adds a{" "}
-          <strong className="font-semibold text-slate-900">human layer of review</strong> to ensure quality, chemistry, and mutual fit. No wasted sessions. No
-          mismatched expectations. Just meaningful collaboration.
+          <strong className="font-semibold text-slate-900">human layer of review</strong> to ensure quality, chemistry, and mutual fit.
         </>
       ),
       image: "/match-making.jpeg",
     },
     {
-      title: "Seamless Data Access & Performance Tracking",
+      title: "Data Access & Tracking",
+      icon: BarChart3,
       description: (
         <>
           Access and export all your mentorship data with ease through a powerful mentor dashboard. Track mentee
@@ -84,6 +97,7 @@ export function BenefitsSection() {
     },
     {
       title: "Measure Success, Amplify Impact",
+      icon: LineChart,
       description: (
         <>
           Get real-time feedback, progress insights, and performance benchmarks — all in one intuitive dashboard.
@@ -103,71 +117,101 @@ export function BenefitsSection() {
 
   return (
     <section ref={sectionRef} className="relative z-10 px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-      {/* Subtle separator background to blend with Hero */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-indigo-50/30 -z-10" />
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/50 to-indigo-50/20 -z-10" />
+      <div className="absolute top-1/4 left-0 w-64 h-64 bg-indigo-100/30 rounded-full blur-3xl -z-10" />
+      <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-purple-100/30 rounded-full blur-3xl -z-10" />
 
       <div className="mx-auto max-w-7xl">
+        {/* Section Header */}
         <div
           ref={titleRef}
-          className={`mb-20 text-center transition-all duration-700 ease-out ${
+          className={`mb-24 text-center transition-all duration-700 ease-out ${
             titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <h2 className="text-sm sm:text-base font-semibold uppercase tracking-widest text-indigo-600 mb-3">
-            Excellence in Mentorship
+          {/* Badge */}
+          <div className="mb-8 inline-flex justify-center">
+            <span className="relative inline-block overflow-hidden rounded-full p-[2px]">
+              <span className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#6366f1_50%,#E2E8F0_100%)]" />
+              <div className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-indigo-600 backdrop-blur-3xl shadow-lg">
+                Why Mentor With Us?
+              </div>
+            </span>
+          </div>
+          
+          <h2 className="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl text-balance">
+            Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Mentorship Journey</span>
           </h2>
-          <h3 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl text-balance">
-            Benefits of Mentoring
-            <br className="hidden sm:block" /> with SharingMinds
-          </h3>
-          <p className="mx-auto max-w-3xl text-lg text-slate-600 leading-relaxed">
-            Empower others while accelerating your own professional growth. SharingMinds is designed for leaders,
-            educators, and professionals who want to make their experience truly impactful — while being recognized,
-            rewarded, and connected with a meaningful network.
+          <p className="mx-auto max-w-3xl text-xl text-slate-600 leading-relaxed">
+            SharingMinds is designed for leaders who want to make their experience impactful while being recognized, rewarded, and connected.
           </p>
         </div>
 
+        {/* Benefits Grid */}
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {benefits.map((benefit, index) => {
             const { ref: cardRef, isVisible: cardVisible } = cardRefs[index]
+            const Icon = benefit.icon
 
             return (
               <div
                 key={benefit.title}
                 ref={cardRef}
-                // Glassmorphic Card Style
-                className={`group flex flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/40 p-1 shadow-lg backdrop-blur-sm transition-all duration-700 hover:shadow-xl hover:bg-white/60 ring-1 ring-slate-900/5 ${
+                className={`group relative flex flex-col overflow-hidden rounded-[2rem] bg-white border border-slate-200/60 shadow-xl shadow-slate-200/40 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 ${
                   cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="relative h-64 w-full overflow-hidden rounded-2xl sm:h-72">
-                  <div className="absolute inset-0 bg-slate-200 animate-pulse" />
+                {/* 
+                   IMAGE SECTION:
+                   - aspect-video ensures 16:9 ratio
+                   - object-center ensures the image is vertically centered
+                */}
+                <div className="relative aspect-video w-full overflow-hidden border-b border-slate-100">
+                  <div className="absolute inset-0 bg-slate-100 animate-pulse" />
+                  
                   <img
                     src={benefit.image || "/placeholder.svg"}
                     alt={benefit.title}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
+                    className="h-full w-full object-cover object-center transition-transform duration-700 will-change-transform group-hover:scale-105"
                   />
-                  {/* Image overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  
+                  {/* Subtle inner shadow for depth */}
+                  <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.05)] pointer-events-none" />
                 </div>
                 
-                <div className="flex flex-1 flex-col p-6 sm:p-8">
-                  <h3 className="mb-4 text-2xl font-bold text-slate-900">{benefit.title}</h3>
-                  <div className="mb-6 flex-1 text-base leading-relaxed text-slate-600">
+                {/* Content Section */}
+                <div className="flex flex-1 flex-col p-8 sm:p-10">
+                  <div className="flex items-start justify-between mb-4 gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900">
+                        {benefit.title}
+                      </h3>
+                    </div>
+                    
+                    <ArrowUpRight className="h-6 w-6 text-slate-300 opacity-0 -translate-x-2 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
+                  </div>
+                  
+                  <div className="mb-6 flex-1 text-lg leading-relaxed text-slate-600">
                     {benefit.description}
                   </div>
                   
                   {benefit.features && (
-                    <ul className="mt-auto space-y-2 border-t border-slate-100 pt-4">
-                      {benefit.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                          <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-auto rounded-xl bg-slate-50/80 p-5 border border-slate-100">
+                      <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-3">
+                        {benefit.features.map((feature) => (
+                          <li key={feature} className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               </div>
