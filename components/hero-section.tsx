@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Star } from "lucide-react"
+import { Star, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
@@ -72,8 +72,8 @@ export function HeroSection() {
   }, [])
 
   return (
-    // Reduced pt-* values significantly and adjusted min-h to pull content up
     <section className="relative mt-[-48px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-64px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
+      
       {/* Background image layer */}
       <div
         className={`absolute inset-0 z-0 bg-[url('/mentor-background-photo.png')] bg-cover bg-top transition-opacity duration-1000 ${
@@ -84,16 +84,16 @@ export function HeroSection() {
       <div
         className={`relative z-10 mx-auto max-w-5xl text-center px-4 sm:px-6 transition-all duration-1000 ease-out ${reveal ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
-        <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/50 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm">
+        <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/50 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
           <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
           Invitation Only
         </div>
 
-        <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+        <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
           The Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Mentor Cohort</span>
         </h1>
         
-        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl">
+        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
           A private circle of category-defining experts shaping our platform. 
           White-glove onboarding and priority access for pioneers.
         </p>
@@ -111,12 +111,12 @@ export function HeroSection() {
         ) : session?.user ? (
           <div className="max-w-lg mx-auto mb-10">
             {!mentorStatusLoading && isMentor ? (
-              <div className="relative group">
+              <div className="relative group perspective-1000">
                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 border border-white shadow-2xl ring-1 ring-slate-900/5">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 border border-white shadow-2xl ring-1 ring-slate-900/5 transition-transform duration-500 group-hover:scale-[1.01]">
                   <div className="text-center mb-6">
                     <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-indigo-50 flex items-center justify-center">
-                      <Star className="h-7 w-7 text-indigo-600 fill-indigo-600" />
+                      <Star className="h-7 w-7 text-indigo-600 fill-indigo-600 animate-[spin_10s_linear_infinite]" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900">
                       Welcome, Founding Mentor
@@ -125,22 +125,22 @@ export function HeroSection() {
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50 rounded-xl p-4 border border-slate-100">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 ring-2 ring-white">
+                      <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
                         <AvatarImage src={session.user.image || undefined} />
-                        <AvatarFallback className="bg-indigo-100 text-indigo-700">
+                        <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
                           {getUserInitials(session.user.name, session.user.email)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="text-left">
                         <p className="font-medium text-slate-900 text-sm">{mentor?.fullName || session.user.name}</p>
-                        <p className="text-xs text-slate-500">Verified Mentor</p>
+                        <p className="text-xs text-slate-500 font-medium">Verified Mentor</p>
                       </div>
                     </div>
                     <Button
                       onClick={handleSignOut}
                       variant="ghost"
                       size="sm"
-                      className="text-slate-500 hover:text-slate-900"
+                      className="text-slate-500 hover:text-slate-900 hover:bg-white"
                     >
                       Sign out
                     </Button>
@@ -150,9 +150,13 @@ export function HeroSection() {
                     <div className="mt-4">
                       <Button
                         onClick={() => router.push('/dashboard')}
-                        className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg transition-all"
+                        className="group relative w-full overflow-hidden bg-slate-900 hover:bg-slate-800 text-white shadow-lg transition-all duration-300 hover:shadow-indigo-500/25 hover:scale-[1.02]"
                       >
-                        Go to Dashboard
+                         <span className="relative z-10 flex items-center justify-center gap-2">
+                           Go to Dashboard <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                         </span>
+                         {/* Shine Effect */}
+                         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 ease-in-out" />
                       </Button>
                     </div>
                   )}
@@ -175,11 +179,15 @@ export function HeroSection() {
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
                     {!isMentor && (
-                      <Button onClick={handleRegisterClick} size="sm" className="flex-1 bg-slate-900 text-white hover:bg-slate-800">
+                      <Button 
+                        onClick={handleRegisterClick} 
+                        size="sm" 
+                        className="flex-1 bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg transition-all"
+                      >
                         Apply Now
                       </Button>
                     )}
-                    <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-500">
+                    <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-500 hover:bg-white/50">
                       Sign out
                     </Button>
                   </div>
@@ -189,19 +197,29 @@ export function HeroSection() {
           </div>
         ) : (
           <div className="max-w-md mx-auto mb-12 space-y-4">
+            
+            {/* PRIMARY LUXE BUTTON */}
             <Button
               onClick={handleRegisterClick}
-              className="w-full h-14 text-base font-semibold shadow-xl shadow-indigo-500/20 bg-slate-900 hover:bg-slate-800 text-white transition-all hover:scale-[1.02]"
+              className="group relative w-full h-14 text-base font-semibold text-white bg-slate-900 rounded-lg overflow-hidden transition-all duration-300 shadow-xl hover:shadow-[0_0_40px_-10px_rgba(79,70,229,0.4)] hover:scale-[1.02]"
             >
-               Request Founding Access
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800" />
+              
+              {/* Shine Animation Layer */}
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
+
+              <span className="relative z-20 flex items-center justify-center gap-2">
+                Request Founding Access 
+                <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
+              </span>
             </Button>
             
             <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-300/60" />
+                <span className="w-full border-t border-slate-900/10" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-widest">
-                <span className="bg-transparent px-2 text-slate-400">or</span>
+              <div className="relative flex justify-center text-xs uppercase tracking-widest font-semibold">
+                <span className="bg-transparent px-2 text-slate-500">or</span>
               </div>
             </div>
             <div className="space-y-3">
@@ -227,7 +245,7 @@ export function HeroSection() {
 
         {/* Social Proof */}
         <div className="flex justify-center">
-            <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm">
+            <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm transition-transform hover:scale-105 duration-300 cursor-default">
                 <img
                 src="/professional-headshot.png"
                 alt="Ulysses Rodriguez"
