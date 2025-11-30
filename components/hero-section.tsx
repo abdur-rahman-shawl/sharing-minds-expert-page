@@ -74,16 +74,12 @@ export function HeroSection() {
   return (
     // Reduced pt-* values significantly and adjusted min-h to pull content up
     <section className="relative mt-[-48px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-64px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
-      
-      {/* Background System */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50 via-slate-50 to-white"></div>
-      
-      {/* Fluid Blobs - Repositioned slightly to match new height */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-24 -left-20 w-[40rem] h-[40rem] opacity-40 blur-3xl blob-shape animate-blob bg-purple-200 mix-blend-multiply" />
-        <div className="absolute top-24 -right-28 w-[35rem] h-[35rem] opacity-40 blur-3xl blob-shape animate-blob animate-delay-5s bg-indigo-200 mix-blend-multiply" />
-        <div className="absolute -bottom-28 left-1/3 w-[40rem] h-[40rem] opacity-40 blur-3xl blob-shape animate-blob animate-delay-10s bg-blue-200 mix-blend-multiply" />
-      </div>
+      {/* Background image layer */}
+      <div
+        className={`absolute inset-0 z-0 bg-[url('/mentor-background-photo.png')] bg-cover bg-top transition-opacity duration-1000 ${
+          reveal ? "opacity-100" : "opacity-0"
+        }`}
+      />
 
       <div
         className={`relative z-10 mx-auto max-w-5xl text-center px-4 sm:px-6 transition-all duration-1000 ease-out ${reveal ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
