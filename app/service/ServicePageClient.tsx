@@ -1,8 +1,10 @@
 "use client"
-import { CheckCircle2, Layers, Sparkles, CalendarClock } from "lucide-react"
+
+import { CheckCircle2, LayoutDashboard, Users, UserCircle, ArrowRight } from "lucide-react"
 import { FinalCTASection } from "@/components/final-cta-section"
 import Image from "next/image"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import { Button } from "@/components/ui/button"
 
 export default function ServicePageClient() {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
@@ -16,23 +18,26 @@ export default function ServicePageClient() {
     {
       title: "Professional Mentor Profile",
       description:
-        "Easily create a professional mentor profile to showcase your expertise and experience to potential mentees.",
+        "Easily create a professional mentor profile to showcase your expertise and experience to potential mentees. Your digital portfolio of leadership.",
       image: "/images/professional-mentor.jpg",
       alt: "Professional mentor in office setting",
+      icon: UserCircle
     },
     {
       title: "Mentor-Mentee Connection",
       description:
-        "Engage and connect with mentees looking for guidance and support in your specific industry or domain.",
+        "Engage and connect with mentees looking for guidance. Our algorithm ensures meaningful chemistry and domain alignment.",
       image: "/images/mentor-connection.jpg",
       alt: "Mentor-mentee connection",
+      icon: Users
     },
     {
       title: "Personalized Dashboard Access",
       description:
-        "Access a personalized dashboard to manage your mentorship activities, upload content, and track your progress.",
+        "Access a personalized dashboard to manage your mentorship activities, upload content, and track your progress with data-driven insights.",
       image: "/images/leadership-dashboard.jpg",
       alt: "Personalized dashboard interface",
+      icon: LayoutDashboard
     },
   ]
 
@@ -51,107 +56,157 @@ export default function ServicePageClient() {
   const faqItems = [
     {
       q: "How are mentors vetted?",
-      a: "Every expert goes through profile verification, domain checks, and trial sessions before joining.",
+      a: "Every expert goes through profile verification, domain checks, and trial sessions before joining. We ensure high trust and high quality.",
     },
     {
       q: "Can I reschedule a session?",
-      a: "Yes — with flexible rescheduling and timezone support via calendar integrations.",
+      a: "Yes — with flexible rescheduling and automatic timezone support via our seamless calendar integrations.",
     },
     {
       q: "Do you support ongoing mentorship?",
-      a: "Absolutely. You can book recurring sessions and continue where you left off.",
+      a: "Absolutely. You can book recurring sessions, set long-term goals, and pick up exactly where you left off.",
     },
   ]
   const faqCardRefs = faqItems.map(() => useScrollAnimation(0.1))
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      {/* Hero - Mentorship Made Easy */}
+    <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
+      
+      {/* --- HERO SECTION --- */}
       <section
         ref={heroRef}
-        className={`relative overflow-hidden px-4 py-20 animate-on-scroll will-change-opacity sm:px-6 sm:py-24 lg:px-8 ${
-          heroVisible ? "animate-fade-in-slow" : ""
-        }`}
+        // CHANGED: Reduced pt-32/pt-40/pt-48 to pt-24/pt-32/pt-36 to bring text up
+        className="relative flex flex-col justify-center pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden"
       >
-        <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" />
-        <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-tr from-blue-100/40 via-transparent to-indigo-100/40" />
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Mentorship Made Easy</h1>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Join SharingMinds as a mentor to empower and guide young minds towards success.
+        {/* Background System */}
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/50 via-slate-50 to-white"></div>
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] -z-10 bg-indigo-200/20 blur-[100px] rounded-[50%] pointer-events-none mix-blend-multiply"></div>
+
+        <div 
+          className={`max-w-5xl mx-auto text-center px-4 transition-all duration-1000 ease-out ${
+            heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/60 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
+            <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
+            Our Services
+          </div>
+
+          <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
+            Mentorship <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Made Easy</span>
+          </h1>
+          
+          <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
+            Join SharingMinds as a mentor to empower and guide young minds towards success using our premium suite of tools.
           </p>
-          <div className="mt-6">
-            <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-              Learn More →
-            </a>
+
+          <div className="mt-8">
+            <Button className="h-12 px-8 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-105 transition-all duration-300 group">
+              Start Your Journey <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Dashboard Preview */}
+      {/* --- DASHBOARD PREVIEW --- */}
       <section
         ref={dashboardRef}
-        className={`px-4 py-12 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
-          dashboardVisible ? "animate-fade-in-up" : ""
+        className={`px-4 pb-24 sm:px-6 lg:px-8 -mt-8 relative z-10 transition-all duration-1000 delay-200 ${
+          dashboardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
         }`}
       >
         <div className="max-w-6xl mx-auto">
-          <div className="relative rounded-2xl border bg-white shadow-lg overflow-hidden">
-            <Image
-              src="/images/dashboard-mockup.jpg"
-              alt="Mentorship Dashboard showing analytics and team members"
-              width={1200}
-              height={800}
-              className="w-full h-auto"
-            />
+          {/* Browser Window Effect */}
+          <div className="relative rounded-2xl border border-slate-200/60 bg-white/50 shadow-2xl backdrop-blur-sm p-2 ring-1 ring-slate-900/5">
+            <div className="absolute top-0 left-0 right-0 h-10 bg-white/80 border-b border-slate-100 rounded-t-xl flex items-center px-4 gap-2 z-20">
+              <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
+              <div className="w-3 h-3 rounded-full bg-amber-400/80"></div>
+              <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
+            </div>
+            
+            <div className="relative rounded-xl overflow-hidden mt-8 shadow-inner bg-slate-100 aspect-[16/10]">
+               {/* Replace with actual image */}
+              <Image
+                src="/images/dashboard-mockup.jpg"
+                alt="Mentorship Dashboard showing analytics and team members"
+                fill
+                className="object-cover object-top"
+              />
+               {/* Placeholder fallback if image missing */}
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center -z-10">
+                 <span className="text-slate-400 font-medium">Dashboard Preview</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Description */}
+      {/* --- DESCRIPTION --- */}
       <section
         ref={descriptionRef}
-        className={`px-4 py-12 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
-          descriptionVisible ? "animate-fade-in" : ""
+        className={`px-4 py-20 relative transition-all duration-1000 ${
+          descriptionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}
       >
+        <div className="absolute inset-0 bg-white skew-y-1 -z-10 shadow-sm border-y border-slate-100/50"></div>
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-600 leading-relaxed">
-            SharingMinds Mentor Onboarding software provides a seamless experience for mentors to create profiles,
-            connect with mentees, and efficiently manage their mentoring relationships.
+          <p className="text-xl md:text-2xl text-slate-700 leading-relaxed font-light">
+            "SharingMinds Mentor Onboarding software provides a <span className="font-semibold text-indigo-600">seamless experience</span> for mentors to create profiles,
+            connect with mentees, and efficiently manage their mentoring relationships."
           </p>
         </div>
       </section>
 
-      {/* Feature Cards */}
-      <section ref={featuresRef} className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-20">
+      {/* --- FEATURE CARDS --- */}
+      <section ref={featuresRef} className="px-4 py-24 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-24">
           {features.map((feature, index) => {
             const { ref, isVisible } = featureCardRefs[index]
+            const Icon = feature.icon
+
             return (
               <div
                 key={index}
                 ref={ref}
-                className={`flex flex-col items-center gap-8 lg:gap-12 ${
+                className={`flex flex-col gap-12 lg:gap-20 items-center ${
                   index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-                } animate-on-scroll will-change-opacity ${
-                  isVisible ? "animate-fade-in-up" : ""
+                } transition-all duration-1000 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
                 }`}
               >
-                <div className="flex-1 w-full">
-                  <div className="relative h-64 overflow-hidden rounded-2xl shadow-lg sm:h-80 lg:h-96">
+                {/* Visual Side */}
+                <div className="flex-1 w-full group">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-slate-200 shadow-2xl shadow-indigo-500/10">
+                    <div className="absolute inset-0 bg-slate-200 animate-pulse -z-10" />
                     <Image
                       src={feature.image || "/placeholder.svg"}
                       alt={feature.alt}
-                      width={600}
-                      height={400}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
+                    
+                    {/* Floating Icon */}
+                    <div className="absolute bottom-6 left-6 h-14 w-14 rounded-2xl bg-white/90 backdrop-blur shadow-lg flex items-center justify-center text-indigo-600">
+                        <Icon className="w-7 h-7" />
+                    </div>
                   </div>
                 </div>
+
+                {/* Text Side */}
                 <div className="flex-1 space-y-6">
-                  <h3 className="text-2xl lg:text-3xl font-bold tracking-tight">{feature.title}</h3>
-                  <p className="text-lg text-gray-600 leading-relaxed">{feature.description}</p>
+                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-widest">
+                    Feature 0{index + 1}
+                  </div>
+                  <h3 className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">{feature.title}</h3>
+                  <p className="text-lg text-slate-600 leading-relaxed border-l-2 border-indigo-100 pl-6">
+                    {feature.description}
+                  </p>
+                  <Button variant="link" className="text-indigo-600 p-0 h-auto font-semibold group">
+                    Learn more <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                  </Button>
                 </div>
               </div>
             )
@@ -159,28 +214,37 @@ export default function ServicePageClient() {
         </div>
       </section>
 
-      {/* Why choose SharingMinds */}
+      {/* --- WHY CHOOSE US --- */}
       <section
         ref={whyChooseRef}
-        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
-          whyChooseVisible ? "animate-fade-in" : ""
-        }`}
+        className="px-4 py-24 bg-slate-900 text-white relative overflow-hidden"
       >
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center">Why Choose SharingMinds</h2>
-          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Background Effects */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Why Choose SharingMinds</h2>
+            <p className="text-indigo-200 text-lg">Experience the difference of a platform built for excellence.</p>
+          </div>
+          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {whyChooseItems.map((item, index) => {
               const { ref, isVisible } = whyChooseCardRefs[index]
               return (
                 <div
                   key={item}
                   ref={ref}
-                  className={`flex items-start gap-3 rounded-xl border border-slate-200 p-5 bg-white animate-on-scroll will-change-opacity ${
-                    isVisible ? `animate-fade-in-up animate-delay-${index * 100}` : ""
+                  className={`group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-500 hover:bg-white/10 hover:border-indigo-500/50 hover:-translate-y-1 ${
+                    isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
                   }`}
+                  style={{ transitionDelay: `${index * 50}ms` }}
                 >
-                  <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5" />
-                  <p className="font-medium text-gray-800">{item}</p>
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors duration-300">
+                    <CheckCircle2 className="h-5 w-5 text-indigo-300 group-hover:text-white" />
+                  </div>
+                  <p className="font-medium text-lg text-slate-100">{item}</p>
                 </div>
               )
             })}
@@ -188,28 +252,30 @@ export default function ServicePageClient() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* --- FAQ --- */}
       <section
         ref={faqRef}
-        className={`px-4 py-16 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 ${
-          faqVisible ? "animate-fade-in" : ""
-        }`}
+        className="px-4 py-24 sm:px-6 lg:px-8 bg-slate-50"
       >
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-semibold text-center">Frequently Asked Questions</h2>
-          <div className="mt-8 space-y-4">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-slate-900">Frequently Asked Questions</h2>
+          <div className="space-y-6">
             {faqItems.map((item, index) => {
               const { ref, isVisible } = faqCardRefs[index]
               return (
                 <div
                   key={item.q}
                   ref={ref}
-                  className={`rounded-xl border border-slate-200 p-5 bg-white animate-on-scroll will-change-opacity ${
-                    isVisible ? `animate-fade-in-up animate-delay-${index * 100}` : ""
+                  className={`rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-md hover:border-indigo-200 ${
+                    isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
                   }`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
                 >
-                  <p className="font-medium">{item.q}</p>
-                  <p className="text-gray-600 mt-2">{item.a}</p>
+                  <h4 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                    {item.q}
+                  </h4>
+                  <p className="text-slate-600 leading-relaxed pl-3.5 border-l border-slate-100">{item.a}</p>
                 </div>
               )
             })}
