@@ -3,6 +3,7 @@ import { HeartHandshake, Target, Users2, CheckCircle2 } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
+import { FaLinkedin } from "react-icons/fa"
 import { signIn, useSession } from "@/lib/auth-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,17 @@ export default function AboutPageClient() {
     try {
       await signIn.social({
         provider: 'google',
+        callbackURL: '/registration'
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    }
+  }
+
+  const handleLinkedInSignIn = async () => {
+    try {
+      await signIn.social({
+        provider: 'linkedin',
         callbackURL: '/registration'
       })
     } catch (error) {
@@ -340,14 +352,24 @@ export default function AboutPageClient() {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleGoogleSignIn}
-                  variant="outline"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
-                >
-                  <FcGoogle className="h-5 w-5" />
-                  Sign Up with Google
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleGoogleSignIn}
+                    variant="outline"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                  >
+                    <FcGoogle className="h-5 w-5" />
+                    Sign Up with Google
+                  </Button>
+                  <Button
+                    onClick={handleLinkedInSignIn}
+                    variant="outline"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                  >
+                    <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
+                    Sign Up with LinkedIn
+                  </Button>
+                </div>
               </div>
             )}
           </div>

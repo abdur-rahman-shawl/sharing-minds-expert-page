@@ -47,6 +47,7 @@ Configure identical secrets for both apps:
 - BETTER_AUTH_SECRET + BETTER_AUTH_URL (BetterAuth server config; next.config.mjs:12-14 exposes URL to client).
 - NEXT_PUBLIC_BETTER_AUTH_URL (client base URL; lib/auth-client.ts:9-10).
 - GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (required because better-auth config enables Google; lib/auth.ts:22-29).
+- LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET (for LinkedIn social sign-in; lib/auth.ts:22-34).
 - GMAIL_APP_USER / GMAIL_APP_PASSWORD for nodemailer SMTP (lib/otp.ts:20-40).
 - Any existing Supabase or auxiliary envs if reused.
 Replicate .env.local without copying secrets directly; use secure vault.

@@ -27,6 +27,11 @@ export const auth = betterAuth({
       accessType: 'offline',
       prompt: 'consent',
     },
+    linkedin: {
+      clientId: process.env.LINKEDIN_CLIENT_ID!,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+      scope: ['openid', 'email', 'profile'],
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7,

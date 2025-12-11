@@ -9,6 +9,7 @@ import { Star, CheckCircle, Heart } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
+import { FaLinkedin } from "react-icons/fa"
 import { signIn, signOut, useSession } from "@/lib/auth-client"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 
@@ -31,6 +32,17 @@ export function HeroSection() {
     try {
       await signIn.social({
         provider: 'google',
+        callbackURL: '/registration'
+      })
+    } catch (error) {
+      console.error('Sign in error:', error)
+    }
+  }
+
+  const handleLinkedInSignIn = async () => {
+    try {
+      await signIn.social({
+        provider: 'linkedin',
         callbackURL: '/registration'
       })
     } catch (error) {
@@ -237,14 +249,24 @@ export function HeroSection() {
               </div>
             </div>
 
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="btn-ghost-luxe w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-black/30 to-black/20 text-amber-50 border-amber-200/40"
-            >
-              <FcGoogle className="h-5 w-5" />
-              Fast Track with Google
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleGoogleSignIn}
+                variant="outline"
+                className="btn-ghost-luxe w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-black/30 to-black/20 text-amber-50 border-amber-200/40"
+              >
+                <FcGoogle className="h-5 w-5" />
+                Fast Track with Google
+              </Button>
+              <Button
+                onClick={handleLinkedInSignIn}
+                variant="outline"
+                className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A66C2]/90 to-[#004182]/80 text-white border-transparent hover:brightness-110"
+              >
+                <FaLinkedin className="h-5 w-5" />
+                Fast Track with LinkedIn
+              </Button>
+            </div>
           </div>
         )}
 

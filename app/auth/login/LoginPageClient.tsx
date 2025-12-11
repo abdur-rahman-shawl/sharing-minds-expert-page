@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { signInSchema, signUpSchema } from '@/lib/validations/auth'
 import { useAuth } from '@/contexts/auth-context'
 import { FcGoogle } from 'react-icons/fc'
+import { FaLinkedin } from 'react-icons/fa'
 import { createAuthClient } from 'better-auth/react'
 
 const client = createAuthClient()
@@ -227,9 +228,20 @@ export default function LoginPageClient() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signIn.social({
+      await signIn('social', {
         provider: 'google',
-        callbackURL: callbackUrl
+        callbackURL: callbackUrl,
+      })
+    } catch (error) {
+      console.error('Sign in error:', error)
+    }
+  }
+
+  const handleLinkedInSignIn = async () => {
+    try {
+      await signIn('social', {
+        provider: 'linkedin',
+        callbackURL: callbackUrl,
       })
     } catch (error) {
       console.error('Sign in error:', error)
@@ -275,7 +287,7 @@ export default function LoginPageClient() {
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center tracking-tight">
             Unlock your <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">potential.</span>
           </h1>
-          
+        
           {/* Google Button - Added subtle border and better background interaction */}
           <div className="space-y-4 mb-8">
             <Button 
@@ -284,7 +296,16 @@ export default function LoginPageClient() {
               onClick={handleGoogleSignIn}
             >
               <FcGoogle className="h-5 w-5" />
+
               Continue with Google
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full py-3 btn-ghost-luxe bg-gradient-to-r from-[#0A66C2]/80 to-[#004182]/70 text-white border-transparent hover:scale-[1.01]"
+              onClick={handleLinkedInSignIn}
+            >
+              <FaLinkedin className="mr-2 h-5 w-5" />
+              Continue with LinkedIn
             </Button>
           </div>
 

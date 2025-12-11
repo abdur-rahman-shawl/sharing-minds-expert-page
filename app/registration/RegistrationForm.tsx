@@ -26,6 +26,7 @@ import SuccessMessage from "@/components/common/SuccessMessage"
 import { useSession, signIn } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { FcGoogle } from "react-icons/fc"
+import { FaLinkedin } from "react-icons/fa"
 import { ArrowLeft, Check, ChevronsUpDown, User } from "lucide-react"
 import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
@@ -447,7 +448,7 @@ export default function RegistrationForm() {
   const { data: session, isPending } = useSession()
   const router = useRouter()
 
-  // Check if user signed in with Google and auto-verify email
+  // Check if user signed in with social and auto-verify email
   useEffect(() => {
     if (session?.user) {
       // Pre-fill email and name from session
@@ -457,8 +458,7 @@ export default function RegistrationForm() {
           email: session.user.email || '',
           fullName: session.user.name || prev.fullName
         }))
-        // Auto-verify if signed in with Google
-        // Google emails are already verified
+        // Auto-verify if signed in with a social provider
         setIsEmailVerified(true)
       }
       setShowMentorForm(true)
@@ -470,6 +470,20 @@ export default function RegistrationForm() {
     try {
       await signIn.social({
         provider: 'google',
+        callbackURL: '/registration'
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLinkedInSignIn = async () => {
+    setIsLoading(true)
+    try {
+      await signIn.social({
+        provider: 'linkedin',
         callbackURL: '/registration'
       })
     } catch (error) {
@@ -623,18 +637,30 @@ export default function RegistrationForm() {
               {!session?.user && (
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800 mb-3">
-                    Sign in with Google to skip email verification and auto-fill your information
+                    Sign in with Google or LinkedIn to skip email verification and auto-fill your information
                   </p>
-                  <Button
-                    type="button"
-                    onClick={handleGoogleSignIn}
-                    disabled={isLoading || isPending}
-                    className="w-full flex items-center justify-center gap-2"
-                    variant="outline"
-                  >
-                    <FcGoogle className="h-5 w-5" />
-                    {isLoading || isPending ? "Signing in..." : "Sign in with Google"}
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={isLoading || isPending}
+                      className="w-full flex items-center justify-center gap-2"
+                      variant="outline"
+                    >
+                      <FcGoogle className="h-5 w-5" />
+                      {isLoading || isPending ? "Signing in..." : "Sign in with Google"}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleLinkedInSignIn}
+                      disabled={isLoading || isPending}
+                      className="w-full flex items-center justify-center gap-2"
+                      variant="outline"
+                    >
+                      <FaLinkedin className="h-5 w-5" />
+                      {isLoading || isPending ? "Signing in..." : "Sign in with LinkedIn"}
+                    </Button>
+                  </div>
                 </div>
               )}
               <form onSubmit={handleMentorFormSubmit} className="space-y-6" encType="multipart/form-data">
