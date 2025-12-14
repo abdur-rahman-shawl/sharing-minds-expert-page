@@ -173,7 +173,6 @@ export function FinalCTASection() {
               </div>
           </div>
         </div>
-      </div>
     </section>
   )
 }

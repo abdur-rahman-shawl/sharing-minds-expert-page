@@ -72,7 +72,11 @@ export default function AboutPageClient() {
     },
   ]
 
-  const valueCardRefs = values.map(() => useScrollAnimation(0.1))
+  // FIX 1: Hooks must be called at the top level, not inside .map()
+  const valAnim1 = useScrollAnimation(0.1)
+  const valAnim2 = useScrollAnimation(0.1)
+  const valAnim3 = useScrollAnimation(0.1)
+  const valueCardRefs = [valAnim1, valAnim2, valAnim3]
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
@@ -80,7 +84,6 @@ export default function AboutPageClient() {
       {/* --- HERO SECTION --- */}
       <section
         ref={heroRef}
-        // CHANGED: Reduced padding-top significantly (pt-32 -> pt-24, sm:pt-40 -> sm:pt-32, etc.)
         className="relative flex flex-col justify-center pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden"
       >
         {/* Background System */}
@@ -367,6 +370,7 @@ export default function AboutPageClient() {
                   </div>
                 </div>
               ) : (
+                // FIX 2: Corrected JSX structure for the 'else' block
                 <div className="max-w-md mx-auto space-y-4">
                   <Button
                     onClick={handleBecomeMentor}
@@ -384,35 +388,27 @@ export default function AboutPageClient() {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    variant="outline"
-                    className="w-full h-12 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-medium flex items-center justify-center gap-2"
-                  >
-                    <FcGoogle className="h-5 w-5" />
-                    Sign Up with Google
-                  </Button>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={handleGoogleSignIn}
+                      variant="outline"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                    >
+                      <FcGoogle className="h-5 w-5" />
+                      Sign Up with Google
+                    </Button>
+                    <Button
+                      onClick={handleLinkedInSignIn}
+                      variant="outline"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                    >
+                      <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
+                      Sign Up with LinkedIn
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    variant="outline"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
-                  >
-                    <FcGoogle className="h-5 w-5" />
-                    Sign Up with Google
-                  </Button>
-                  <Button
-                    onClick={handleLinkedInSignIn}
-                    variant="outline"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
-                  >
-                    <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
-                    Sign Up with LinkedIn
-                  </Button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </section>
