@@ -122,6 +122,14 @@ export function FinalCTASection() {
                     <FcGoogle className="h-5 w-5 mr-3" />
                     Fast Track with Google
                   </Button>
+                  <Button
+                    onClick={handleLinkedInSignIn}
+                    variant="outline"
+                    className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A66C2]/90 to-[#004182]/80 text-white border-transparent hover:brightness-110"
+                  >
+                    <FaLinkedin className="h-5 w-5 mr-3" />
+                    Fast Track with LinkedIn
+                  </Button>
                 </div>
               )}
             </div>
@@ -142,36 +150,9 @@ export function FinalCTASection() {
                     <h3 className="text-xl font-semibold text-white tracking-wide">Verified Community</h3>
                     <p className="mt-2 text-sm text-indigo-200 font-medium tracking-wide">High trust. High touch.</p>
                 </div>
-            </div>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-slate-300" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-slate-500">Or continue with</span>
-                  </div>
                 </div>
-
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    variant="outline"
-                    className="w-full h-12 font-medium flex items-center justify-center gap-2 btn-ghost-luxe bg-gradient-to-r from-black/25 to-black/10 text-amber-50 border-amber-200/40"
-                  >
-                    <FcGoogle className="h-5 w-5" />
-                    Fast Track with Google
-                  </Button>
-                  <Button
-                    onClick={handleLinkedInSignIn}
-                    variant="outline"
-                    className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A66C2]/90 to-[#004182]/80 text-white border-transparent hover:brightness-110"
-                  >
-                    <FaLinkedin className="h-5 w-5" />
-                    Fast Track with LinkedIn
-                  </Button>
-                </div>
-              </div>
           </div>
+        </div>
         </div>
     </section>
   )
