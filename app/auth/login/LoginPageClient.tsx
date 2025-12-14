@@ -56,29 +56,30 @@ function SignInForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-      <div className="space-y-2">
+    // Reduced space-y from 5 to 4 (mobile) and 3 (laptop)
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 lg:space-y-3">
+      <div className="space-y-1.5 lg:space-y-1">
         <Label htmlFor="email" className="text-gray-600 font-medium ml-1">Email Address</Label>
-        {/* h-12 and text-base are critical for mobile premium feel and preventing iOS zoom */}
         <Input 
           id="email" 
           type="email" 
           {...form.register('email')} 
-          className="rounded-xl h-12 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200" 
+          // h-12 on mobile, h-10 on laptop to save vertical space
+          className="rounded-xl h-12 lg:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200" 
           placeholder="name@example.com"
         />
         {form.formState.errors.email && (
           <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.email.message}</p>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5 lg:space-y-1">
         <Label htmlFor="password" className="text-gray-600 font-medium ml-1">Password</Label>
         <div className="relative">
           <Input 
             id="password" 
             type={showPassword ? 'text' : 'password'} 
             {...form.register('password')} 
-            className="rounded-xl h-12 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200 pr-10" 
+            className="rounded-xl h-12 lg:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200 pr-10" 
           />
           <button
             type="button"
@@ -98,7 +99,8 @@ function SignInForm() {
       <Button 
         type="submit" 
         disabled={isLoading} 
-        className="w-full h-12 rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+        // Reduced height on laptop
+        className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 mt-2"
       >
         {isLoading ? 'Signing In...' : 'Sign In to Founding Cohort'}
       </Button>
@@ -150,51 +152,53 @@ function SignUpForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-1.5">
+    // Tightened spacing significantly for desktop (space-y-2) to fit 4 inputs
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 lg:space-y-2">
+      <div className="space-y-1">
         <Label htmlFor="name" className="text-gray-600 font-medium ml-1">Full Name</Label>
         <Input 
           id="name" 
           type="text" 
           {...form.register('name')} 
-          className="rounded-xl h-11 text-base border-gray-200 bg-gray-50 focus:bg-white" 
+          // h-11 mobile, h-9 or h-10 desktop
+          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
         />
         {form.formState.errors.name && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.name.message}</p>
+          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.name.message}</p>
         )}
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <Label htmlFor="email" className="text-gray-600 font-medium ml-1">Email Address</Label>
         <Input 
           id="email" 
           type="email" 
           {...form.register('email')} 
-          className="rounded-xl h-11 text-base border-gray-200 bg-gray-50 focus:bg-white" 
+          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
         />
         {form.formState.errors.email && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.email.message}</p>
+          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.email.message}</p>
         )}
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <Label htmlFor="password" className="text-gray-600 font-medium ml-1">Password</Label>
         <Input 
           id="password" 
           type="password" 
           {...form.register('password')} 
-          className="rounded-xl h-11 text-base border-gray-200 bg-gray-50 focus:bg-white" 
+          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
         />
         {form.formState.errors.password && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.password.message}</p>
+          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.password.message}</p>
         )}
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <Label htmlFor="confirmPassword" className="text-gray-600 font-medium ml-1">Confirm Password</Label>
         <div className="relative">
           <Input
             id="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
             {...form.register('confirmPassword')}
-            className="rounded-xl h-11 text-base border-gray-200 bg-gray-50 focus:bg-white pr-10"
+            className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white pr-10"
           />
           <button
             type="button"
@@ -205,13 +209,13 @@ function SignUpForm() {
           </button>
         </div>
         {form.formState.errors.confirmPassword && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.confirmPassword.message}</p>
+          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.confirmPassword.message}</p>
         )}
       </div>
 
       {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-      <Button type="submit" disabled={isLoading} className="w-full h-12 rounded-xl text-base font-semibold shadow-md mt-2">
+      <Button type="submit" disabled={isLoading} className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md mt-2 lg:mt-3">
         {isLoading ? 'Creating Account...' : 'Request Founding Access'}
       </Button>
     </form>
@@ -249,19 +253,20 @@ export default function LoginPageClient() {
   }
 
   return (
-    // min-h-[100dvh] ensures it fits perfectly on mobile browsers with dynamic address bars
-    <div className="flex flex-col lg:flex-row min-h-[100dvh] bg-white overflow-hidden">
+    // Changed: h-screen overflow-hidden ensures it never scrolls the main window
+    <div className="flex flex-col lg:flex-row h-screen max-h-screen bg-white overflow-hidden">
       
       {/* 
-        Mobile Layout Strategy:
-        1. flex-col to stack
-        2. justify-center to vertically align the form in the middle of the screen
-        3. p-6 or p-8 for horizontal breathing room
+        Container Logic:
+        1. overflow-y-auto: Allows scrolling ONLY inside this panel if screen is tiny (phone landscape), 
+           but on laptop it should fit.
+        2. scrollbar-hide: Keeps the clean look even if it overflows slightly.
+        3. justify-center: Vertically centers content.
       */}
-      <div className="flex-1 flex flex-col justify-center items-center w-full lg:w-1/2 p-6 lg:p-12 relative">
+      <div className="flex-1 flex flex-col justify-center items-center w-full lg:w-1/2 p-6 lg:p-12 relative h-full overflow-y-auto no-scrollbar">
         
-        {/* Navigation Button: Absolute positioned, increased z-index */}
-        <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-20">
+        {/* Navigation Button */}
+        <div className="absolute top-4 left-4 lg:top-6 lg:left-8 z-20">
           <Link href="/">
             <Button variant="ghost" size="sm" className="gap-2 pl-2 pr-4 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full">
               <ArrowLeft className="h-4 w-4" />
@@ -270,29 +275,29 @@ export default function LoginPageClient() {
           </Link>
         </div>
 
-        <div className="w-full max-w-sm lg:max-w-md mx-auto">
-          {/* Logo Container - Adjusted margins for better visual balance */}
-          <Link href="/" className="flex justify-center mb-8" aria-label="SharingMinds home">
+        <div className="w-full max-w-sm lg:max-w-md mx-auto flex flex-col justify-center">
+          {/* Logo Container - Tightened mb */}
+          <Link href="/" className="flex justify-center mb-6 lg:mb-4" aria-label="SharingMinds home">
             <Image
               src="/sharing-minds-logo.png"
               alt="SharingMinds logo"
               width={400}
               height={125}
-              className="h-20 md:h-24 w-auto object-contain" 
+              // Shrunk logo height for laptops
+              className="h-20 lg:h-16 xl:h-20 w-auto object-contain transition-all" 
             />
           </Link>
           
-          {/* Headline - Tighter tracking for premium feel */}
-          {/* Replace the existing <h1> with this: */}
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center tracking-tight">
-            Unlock your <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">potential.</span>
+          {/* Headline - Updated Text */}
+          <h1 className="text-3xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-6 lg:mb-4 text-center tracking-tight transition-all leading-tight">
+            Transforming minds into <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">Institutions!</span>
           </h1>
-        
-          {/* Google Button - Added subtle border and better background interaction */}
-          <div className="space-y-4 mb-8">
+          
+          {/* Google Button - Reduced height and margin */}
+          <div className="space-y-4 mb-6 lg:mb-4">
             <Button 
               variant="outline" 
-              className="w-full h-12 rounded-xl text-base font-medium border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm" 
+              className="w-full h-12 lg:h-10 rounded-xl text-base font-medium border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm" 
               onClick={handleGoogleSignIn}
             >
               <FcGoogle className="h-5 w-5" />
@@ -309,7 +314,7 @@ export default function LoginPageClient() {
             </Button>
           </div>
 
-          <div className="relative mb-8">
+          <div className="relative mb-6 lg:mb-4">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-gray-200" />
             </div>
@@ -320,12 +325,12 @@ export default function LoginPageClient() {
             </div>
           </div>
 
-          {/* Form Container with minimal animation fade (optional, but handled by React state) */}
-          <div className="mb-6">
+          {/* Form Container */}
+          <div className="mb-4 lg:mb-2">
              {isSigningIn ? <SignInForm /> : <SignUpForm />}
           </div>
 
-          <div className="text-center">
+          <div className="text-center mt-2">
             <p className="text-sm text-gray-500">
               {isSigningIn ? "Don't have an account?" : "Already have an account?"}{' '}
               <button 
@@ -339,8 +344,8 @@ export default function LoginPageClient() {
         </div>
       </div>
 
-      {/* Right Side Image (Hidden on Mobile) */}
-      <div className="hidden lg:block lg:w-1/2 relative bg-gray-900">
+      {/* Right Side Image */}
+      <div className="hidden lg:block lg:w-1/2 relative bg-gray-900 h-full">
         <Image
           src="/sign-in-banner.jpeg"
           alt="Connect. Learn. Grow."

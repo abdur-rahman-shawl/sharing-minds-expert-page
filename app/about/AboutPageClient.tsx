@@ -246,7 +246,7 @@ export default function AboutPageClient() {
             Who We Are
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tight">Built by Builders</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tight">Our Team</h2>
           
           <div className="space-y-8 text-xl text-slate-300 font-light leading-relaxed">
             <p>
