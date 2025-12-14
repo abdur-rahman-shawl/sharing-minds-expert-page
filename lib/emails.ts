@@ -49,3 +49,54 @@ export async function sendApplicationReceivedEmail(email: string, name: string) 
     return { success: false, error: 'Failed to send application received email' };
   }
 }
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+export async function sendContactSubmissionEmail({
+  name,
+  email,
+  subject,
+  message,
+}: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  try {
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #0f172a;">
+        <h2 style="color: #4f46e5; margin-bottom: 12px;">New Contact Enquiry</h2>
+        <p style="margin: 6px 0;"><strong>Name:</strong> ${safeName}</p>
+        <p style="margin: 6px 0;"><strong>Email:</strong> ${safeEmail}</p>
+        <p style="margin: 6px 0;"><strong>Subject:</strong> ${safeSubject}</p>
+        <div style="margin-top: 16px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <p style="margin: 0 0 8px 0; font-weight: 600;">Message</p>
+          <p style="margin: 0; line-height: 1.6;">${safeMessage}</p>
+        </div>
+      </div>
+    `;
+
+    await sendEmail({
+      to: 'community@sharingminds.in, support@sharingminds.in, abdur.rahman.shawl@gmail.com',
+      subject: `New Contact Enquiry: ${safeSubject}`,
+      html,
+    });
+
+    return { success: true, message: 'Contact enquiry email sent successfully' };
+  } catch (error) {
+    console.error('Error sending contact submission email:', error);
+    return { success: false, error: 'Failed to send contact submission email' };
+  }
+}

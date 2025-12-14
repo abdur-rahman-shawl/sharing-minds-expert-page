@@ -1,13 +1,82 @@
 'use client'
 
+import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { Mail, MessageSquare, Clock, ArrowRight, MapPin } from "lucide-react"
 
 export default function ContactPageClient() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+    consent: false,
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const requiredFieldsFilled =
+    formData.name.trim() !== "" &&
+    formData.email.trim() !== "" &&
+    formData.subject.trim() !== "" &&
+    formData.message.trim() !== ""
+  const isFormValid = requiredFieldsFilled && formData.consent
+  const canSubmit = isFormValid && !isSubmitting
+
+  const handleInputChange =
+    (field: "name" | "email" | "subject" | "message") =>
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData(prev => ({ ...prev, [field]: event.target.value }))
+    }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSubmitStatus(null)
+
+    if (!isFormValid) {
+      setSubmitStatus({ type: "error", message: "Please complete all fields and provide consent." })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+          consent: formData.consent,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit your enquiry.")
+      }
+
+      setSubmitStatus({
+        type: "success",
+        message: "Thanks for reaching out. We will respond shortly.",
+      })
+      setFormData({ name: "", email: "", subject: "", message: "", consent: false })
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message: error instanceof Error ? error.message : "Failed to submit your enquiry.",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
   const { ref: contentRef, isVisible: contentVisible } = useScrollAnimation(0.2)
 
@@ -57,25 +126,50 @@ export default function ContactPageClient() {
           {/* LEFT: Contact Form Card */}
           <div className="relative rounded-3xl border border-slate-200/60 bg-white shadow-2xl shadow-indigo-500/10 p-8 sm:p-10">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900">Send an Inquiry</h2>
+              <h2 className="text-2xl font-bold text-slate-900">Send an Enquiry</h2>
               <p className="text-slate-500 mt-2">Submit your details below. Our team will prioritize your request.</p>
             </div>
             
-            <form className="space-y-6" method="post">
+            <form className="space-y-6" method="post" onSubmit={handleSubmit}>
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-slate-700 font-medium">Name</Label>
-                  <Input id="name" name="name" placeholder="Full Name" className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20" />
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={handleInputChange("name")}
+                    required
+                    className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-medium">Work Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="name@company.com" className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="name@company.com"
+                    value={formData.email}
+                    onChange={handleInputChange("email")}
+                    required
+                    className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20"
+                  />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="subject" className="text-slate-700 font-medium">Subject</Label>
-                <Input id="subject" name="subject" placeholder="Founding Mentor Application..." className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20" />
+                <Input
+                  id="subject"
+                  name="subject"
+                  placeholder="Founding Mentor Application..."
+                  value={formData.subject}
+                  onChange={handleInputChange("subject")}
+                  required
+                  className="bg-slate-50 border-slate-200 h-11 focus:ring-indigo-500/20"
+                />
               </div>
 
               <div className="space-y-2">
@@ -85,16 +179,44 @@ export default function ContactPageClient() {
                   name="message" 
                   placeholder="How can we assist you?" 
                   rows={6} 
+                  value={formData.message}
+                  onChange={handleInputChange("message")}
+                  required
                   className="bg-slate-50 border-slate-200 resize-none focus:ring-indigo-500/20" 
                 />
               </div>
 
-              <Button className="group relative w-full h-12 overflow-hidden rounded-xl bg-slate-900 text-white shadow-lg transition-all duration-300 hover:bg-slate-800 hover:shadow-indigo-500/25 hover:scale-[1.01]">
+              <div className="flex items-start space-x-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <Checkbox
+                  id="consent"
+                  checked={formData.consent}
+                  onCheckedChange={checked => setFormData(prev => ({ ...prev, consent: checked === true }))}
+                  className="mt-1 data-[state=checked]:bg-indigo-600 border-slate-300"
+                />
+                <Label htmlFor="consent" className="text-sm text-slate-600 leading-snug cursor-pointer">
+                  I consent to be contacted by SharingMinds regarding my enquiry and the details submitted above.
+                </Label>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={!canSubmit}
+                className="group relative w-full h-12 overflow-hidden rounded-xl bg-slate-900 text-white shadow-lg transition-all duration-300 hover:bg-slate-800 hover:shadow-indigo-500/25 hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-slate-900"
+              >
                  <span className="relative z-10 flex items-center justify-center gap-2 font-medium">
-                   Submit Inquiry <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                   {isSubmitting ? "Submitting..." : "Submit Enquiry"} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                  </span>
                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out" />
               </Button>
+
+              {submitStatus && (
+                <p
+                  className={`text-sm font-medium ${submitStatus.type === "success" ? "text-emerald-600" : "text-red-600"}`}
+                  aria-live="polite"
+                >
+                  {submitStatus.message}
+                </p>
+              )}
             </form>
           </div>
 
@@ -108,12 +230,12 @@ export default function ContactPageClient() {
                   <Mail className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-lg">Direct Inquiries</h3>
+                  <h3 className="font-bold text-slate-900 text-lg">Direct Enquiries</h3>
                   <p className="text-slate-600 mt-1 mb-2 text-sm leading-relaxed">
                     For partnerships and mentor support.
                   </p>
-                  <a href="mailto:hello@sharingminds.example" className="text-indigo-600 font-medium hover:underline">
-                    hello@sharingminds.example
+                  <a href="mailto:community@sharingminds.in" className="text-indigo-600 font-medium hover:underline">
+                    community@sharingminds.in
                   </a>
                 </div>
               </div>
@@ -130,8 +252,8 @@ export default function ContactPageClient() {
                   <p className="text-slate-600 mt-1 mb-2 text-sm leading-relaxed">
                     Technical assistance for onboarding.
                   </p>
-                  <a href="mailto:support@sharingminds.example" className="text-purple-600 font-medium hover:underline">
-                    support@sharingminds.example
+                  <a href="mailto:support@sharingminds.in" className="text-purple-600 font-medium hover:underline">
+                    support@sharingminds.in
                   </a>
                 </div>
               </div>
