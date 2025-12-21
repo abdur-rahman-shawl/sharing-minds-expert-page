@@ -12,6 +12,7 @@ import { signOut, useSession } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { useMentorStatus } from "@/hooks/use-mentor-status"
 
 const navLinks = [
   { href: "/service", label: "Service" },
@@ -24,7 +25,11 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session, isPending } = useSession()
+  const { isMentor, isLoading: mentorStatusLoading } = useMentorStatus()
   const isHome = pathname === "/"
+
+  const ctaHref = isMentor ? "/vip-lounge" : "/registration"
+  const ctaLabel = isMentor ? "VIP Lounge" : "Founding Mentor Access"
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -131,13 +136,13 @@ export function Header() {
               </Button>
             )}
 
-            {(!session?.user || session) && (
+            {!mentorStatusLoading && (
                <Button
                asChild
                className="hidden lg:inline-flex rounded-full bg-slate-900 text-white shadow-lg shadow-indigo-500/20 hover:bg-slate-800 hover:scale-105 transition-all duration-300 px-6 h-11"
              >
-               <Link href="/registration" className="flex items-center gap-2 font-semibold tracking-wide text-sm">
-                 Founding Mentor Access
+               <Link href={ctaHref} className="flex items-center gap-2 font-semibold tracking-wide text-sm">
+                 {ctaLabel}
                </Link>
              </Button>
             )}
@@ -207,14 +212,16 @@ export function Header() {
 
               {/* Mobile Footer Actions */}
               <div className="p-6 bg-slate-50 border-t border-slate-100 space-y-4">
-                <Button
-                  asChild
-                  className="w-full h-11 rounded-xl bg-slate-900 text-white shadow-md hover:bg-slate-800"
-                >
-                  <Link href="/registration">
-                    Founding Mentor Access
-                  </Link>
-                </Button>
+                {!mentorStatusLoading && (
+                  <Button
+                    asChild
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white shadow-md hover:bg-slate-800"
+                  >
+                    <Link href={ctaHref}>
+                      {ctaLabel}
+                    </Link>
+                  </Button>
+                )}
                 
                 {isPending ? (
                   <div className="h-10 w-full animate-pulse rounded-xl bg-slate-200" />

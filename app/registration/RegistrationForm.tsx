@@ -35,7 +35,6 @@ import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
-import { VipInvitation } from "@/components/vip/vip-invitation"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 // --- TYPES & HELPERS ---
@@ -542,15 +541,42 @@ export default function RegistrationForm() {
     }
   }, [showSuccessMessage, router])
 
-  if (!mentorStatusLoading && isMentor && mentor) {
-    const canAccessDashboard = mentor.verificationStatus === 'VERIFIED'
+  if (!mentorStatusLoading && isMentor) {
+    const canAccessDashboard = mentor?.verificationStatus === 'VERIFIED'
     return (
-      <VipInvitation
-        mentor={mentor}
-        onNavigateHome={() => router.push('/')}
-        canAccessDashboard={canAccessDashboard}
-        onNavigateDashboard={canAccessDashboard ? () => router.push('/dashboard') : undefined}
-      />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <div className="max-w-xl w-full rounded-2xl border border-slate-200 bg-white/90 shadow-lg p-8 space-y-4">
+          <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide">Already a mentor</p>
+          <h1 className="text-2xl font-bold text-slate-900">You already have mentor access</h1>
+          <p className="text-slate-600">
+            You’re signed in as a mentor, so you don’t need to submit another application. Head to the VIP lounge to continue.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <Button
+              className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
+              onClick={() => router.push('/vip-lounge')}
+            >
+              Go to VIP Lounge
+            </Button>
+            {canAccessDashboard && (
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-200 text-slate-700 hover:text-slate-900"
+                onClick={() => router.push('/dashboard')}
+              >
+                Open Dashboard
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              className="flex-1 text-slate-600 hover:text-slate-900"
+              onClick={() => router.push('/')}
+            >
+              Back Home
+            </Button>
+          </div>
+        </div>
+      </div>
     )
   }
 

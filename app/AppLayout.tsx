@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
@@ -10,20 +10,26 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { isMentor, isLoading } = useMentorStatus()
+  const hasRedirectedRef = useRef(false)
 
   const isAuthPage = pathname.startsWith('/auth')
   const isVipPage = pathname.startsWith('/vip-lounge')
   const hideChrome = isAuthPage || isVipPage
 
   useEffect(() => {
-    if (!isLoading && isMentor && !isVipPage) {
-      router.replace('/vip-lounge')
+    if (isLoading) return
+
+    if (isMentor && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true
+      if (!isVipPage) {
+        router.replace('/vip-lounge')
+      }
+    }
+
+    if (!isMentor) {
+      hasRedirectedRef.current = false
     }
   }, [isLoading, isMentor, isVipPage, router])
-
-  if (!isVipPage && isMentor) {
-    return null
-  }
 
   return (
     <div className="flex min-h-screen flex-col">

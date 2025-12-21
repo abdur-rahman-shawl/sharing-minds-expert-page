@@ -7,12 +7,18 @@ import { FcGoogle } from "react-icons/fc"
 import { FaLinkedin } from "react-icons/fa"
 import { signIn, useSession } from "@/lib/auth-client"
 import { CheckCircle2, ArrowRight } from "lucide-react"
+import { useMentorStatus } from "@/hooks/use-mentor-status"
 
 export function FinalCTASection() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
+  const { isMentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
   const handleBecomeMentor = () => {
+    if (isMentor) {
+      router.push('/vip-lounge')
+      return
+    }
     if (session?.user) {
       router.push('/registration')
       return
@@ -61,7 +67,7 @@ export function FinalCTASection() {
                 Join our private circle of category-defining experts. Experience white-glove onboarding, concierge support, and influence our product roadmap.
               </p>
 
-              {isPending ? (
+              {isPending || mentorStatusLoading ? (
                 <div className="max-w-md">
                    <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
                 </div>
@@ -83,7 +89,7 @@ export function FinalCTASection() {
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
                     
                     <span className="relative z-20 flex items-center justify-center gap-2">
-                      Continue Application 
+                      {isMentor ? 'Enter VIP Lounge' : 'Continue Application'} 
                       <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                     </span>
                   </Button>
