@@ -1,0 +1,18 @@
+-- Contact submissions storage (PostgreSQL).
+-- Ensure pgcrypto is available for gen_random_uuid().
+
+CREATE TABLE IF NOT EXISTS contact_submissions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  email text NOT NULL,
+  subject text NOT NULL,
+  message text NOT NULL,
+  consent boolean NOT NULL DEFAULT false,
+  user_agent text,
+  ip_address text,
+  is_resolved boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON contact_submissions (created_at);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_email ON contact_submissions (email);
