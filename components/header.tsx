@@ -28,6 +28,8 @@ export function Header() {
   const { isMentor, isLoading: mentorStatusLoading } = useMentorStatus()
   const isHome = pathname === "/"
 
+  const isActivePath = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+
   const ctaHref = isMentor ? "/vip-lounge" : "/registration"
   const ctaLabel = isMentor ? "VIP Lounge" : "Founding Mentor Access"
 
@@ -86,7 +88,12 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                className={cn(
+                  "px-3 py-2 text-sm font-medium transition-colors rounded-lg",
+                  isActivePath(link.href)
+                    ? "text-slate-900 bg-slate-100"
+                    : "text-slate-600 hover:text-slate-900"
+                )}
               >
                 {link.label}
               </Link>
@@ -202,7 +209,12 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center justify-between px-4 py-3.5 text-[15px] font-medium text-slate-600 rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors"
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3.5 text-[15px] font-medium rounded-xl transition-colors",
+                      isActivePath(link.href)
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                    )}
                   >
                     {link.label}
                     <ChevronRight className="w-4 h-4 opacity-30" />
