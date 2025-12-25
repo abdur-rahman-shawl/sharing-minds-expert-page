@@ -35,6 +35,7 @@ import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
+import { logConsentEvents } from "@/lib/consent-client"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 // --- TYPES & HELPERS ---
@@ -487,6 +488,19 @@ export default function RegistrationForm() {
         city: mentorFormData.cityId,
         phone: `+${mentorFormData.phoneCountryCode}-${mentorFormData.phone}`,
       })
+
+      logConsentEvents(
+        legalDocuments.map(doc => ({
+          consentType: doc.id,
+          action: legalConsents[doc.id] ? 'granted' : 'denied',
+          source: 'ui',
+          userRole: 'mentor',
+          context: {
+            label: doc.label,
+            location: 'registration',
+          },
+        }))
+      )
 
       const formData = new FormData()
       formData.append('userId', session.user.id)
