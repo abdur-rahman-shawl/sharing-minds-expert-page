@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
 import { Star, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -72,13 +73,12 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative mt-[-48px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-64px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
-      
+    <section className="relative mt-[-80px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-96px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
+
       {/* Background image layer */}
       <div
-        className={`absolute inset-0 z-0 bg-[url('/mentor-background-photo.png')] bg-cover bg-top transition-opacity duration-1000 ${
-          reveal ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 z-0 bg-[url('/mentor-background-photo.png')] bg-cover bg-top transition-opacity duration-1000 ${reveal ? "opacity-100" : "opacity-0"
+          }`}
       />
 
       <div
@@ -92,9 +92,9 @@ export function HeroSection() {
         <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
           The Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Mentor Cohort</span>
         </h1>
-        
+
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
-          A private circle of category-defining experts shaping our platform. 
+          A private circle of category-defining experts shaping our platform.
           White-glove onboarding and priority access for pioneers.
         </p>
 
@@ -136,14 +136,13 @@ export function HeroSection() {
                         <p className="text-xs text-slate-500 font-medium">Verified Mentor</p>
                       </div>
                     </div>
-                    <Button
-                      onClick={handleSignOut}
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-500 hover:text-slate-900 hover:bg-white"
-                    >
-                      Sign out
-                    </Button>
+                    <Image
+                      src="/vip-access.jpeg"
+                      alt="VIP Access"
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full border border-amber-200/60 object-cover shadow-md shadow-amber-500/30"
+                    />
                   </div>
 
                   {mentor?.verificationStatus === 'VERIFIED' && (
@@ -152,11 +151,11 @@ export function HeroSection() {
                         onClick={() => router.push('/dashboard')}
                         className="group relative w-full overflow-hidden bg-slate-900 hover:bg-slate-800 text-white shadow-lg transition-all duration-300 hover:shadow-indigo-500/25 hover:scale-[1.02]"
                       >
-                         <span className="relative z-10 flex items-center justify-center gap-2">
-                           Go to Dashboard <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                         </span>
-                         {/* Shine Effect */}
-                         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 ease-in-out" />
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          Go to Dashboard <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                        {/* Shine Effect */}
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 ease-in-out" />
                       </Button>
                     </div>
                   )}
@@ -179,9 +178,9 @@ export function HeroSection() {
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
                     {!isMentor && (
-                      <Button 
-                        onClick={handleRegisterClick} 
-                        size="sm" 
+                      <Button
+                        onClick={handleRegisterClick}
+                        size="sm"
                         className="flex-1 bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg transition-all"
                       >
                         Apply Now
@@ -197,23 +196,23 @@ export function HeroSection() {
           </div>
         ) : (
           <div className="max-w-md mx-auto mb-12 space-y-4">
-            
+
             {/* PRIMARY LUXE BUTTON */}
             <Button
               onClick={handleRegisterClick}
               className="group relative w-full h-14 text-base font-semibold text-white bg-slate-900 rounded-lg overflow-hidden transition-all duration-300 shadow-xl hover:shadow-[0_0_40px_-10px_rgba(79,70,229,0.4)] hover:scale-[1.02]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800" />
-              
+
               {/* Shine Animation Layer */}
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
 
               <span className="relative z-20 flex items-center justify-center gap-2">
-                Request Founding Access 
+                Request Founding Access
                 <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
               </span>
             </Button>
-            
+
             <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-slate-900/10" />
@@ -245,17 +244,17 @@ export function HeroSection() {
 
         {/* Social Proof */}
         <div className="flex justify-center">
-            <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm transition-transform hover:scale-105 duration-300 cursor-default">
-                <img
-                src="/professional-headshot.png"
-                alt="Ulysses Rodriguez"
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-white"
-                />
-                <div className="text-left">
-                    <p className="text-sm font-semibold text-slate-900 leading-none">"Helped me connect with amazing talents."</p>
-                    <p className="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Ulysses Rodriguez • Upskill Expert</p>
-                </div>
+          <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm transition-transform hover:scale-105 duration-300 cursor-default">
+            <img
+              src="/professional-headshot.png"
+              alt="Ulysses Rodriguez"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white"
+            />
+            <div className="text-left">
+              <p className="text-sm font-semibold text-slate-900 leading-none">"Helped me connect with amazing talents."</p>
+              <p className="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Ulysses Rodriguez • Upskill Expert</p>
             </div>
+          </div>
         </div>
       </div>
     </section>

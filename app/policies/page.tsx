@@ -1,13 +1,72 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { legalDocuments } from "@/lib/legal-documents"
-import { Shield, FileText } from "lucide-react"
+import { Shield, FileText, Mail } from "lucide-react"
 
-const formatParagraphs = (content: string) =>
-  content
-    .split(/\r?\n\r?\n/)
-    .map(paragraph => paragraph.trim())
-    .filter(Boolean)
+// Parse content into structured elements
+type ContentElement =
+  | { type: 'title'; text: string }
+  | { type: 'subtitle'; text: string }
+  | { type: 'section-heading'; number: string; text: string }
+  | { type: 'emoji-heading'; emoji: string; text: string }
+  | { type: 'bullet'; text: string }
+  | { type: 'contact'; email: string }
+  | { type: 'paragraph'; text: string }
+
+const parseContent = (content: string): ContentElement[] => {
+  const lines = content.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+  const elements: ContentElement[] = []
+
+  // Skip title and effective date (handled in header)
+  let startIdx = 0
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].toLowerCase().startsWith('effective date') ||
+      lines[i].toLowerCase().includes('a product of')) {
+      startIdx = i + 1
+    } else if (i > 2) {
+      break
+    }
+  }
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Numbered section heading (e.g., "1. Title" or "10. Title")
+    const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/)
+    if (numberedMatch) {
+      elements.push({ type: 'section-heading', number: numberedMatch[1], text: numberedMatch[2] })
+      continue
+    }
+
+    // Emoji numbered heading (e.g., "1️⃣ Title")
+    const emojiMatch = line.match(/^([0-9️⃣]+[️⃣]?)\s+(.+)$/)
+    if (emojiMatch && /[️⃣]/.test(line)) {
+      elements.push({ type: 'emoji-heading', emoji: emojiMatch[1], text: emojiMatch[2] })
+      continue
+    }
+
+    // Contact email
+    const emailMatch = line.match(/📧\s*(\S+@\S+)/)
+    if (emailMatch) {
+      elements.push({ type: 'contact', email: emailMatch[1] })
+      continue
+    }
+
+    // Simple heading (no number, short, ends with specific keywords or is all caps-like)
+    if (line.length < 50 && !line.includes('.') &&
+      (line.endsWith('Terms') || line.endsWith('Policy') ||
+        line.startsWith('Welcome') || line.startsWith('Our Commitment') ||
+        line === 'Contact' || line.endsWith('Conduct'))) {
+      elements.push({ type: 'subtitle', text: line })
+      continue
+    }
+
+    // Regular paragraph
+    elements.push({ type: 'paragraph', text: line })
+  }
+
+  return elements
+}
 
 const getEffectiveDate = (content: string) =>
   content
@@ -59,14 +118,14 @@ export default function PoliciesPage() {
         <section className="mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
           <div className="grid gap-6">
             {legalDocuments.map(doc => {
-              const paragraphs = formatParagraphs(doc.content)
+              const elements = parseContent(doc.content)
               const effectiveDate = getEffectiveDate(doc.content)
 
               return (
                 <Card
                   key={doc.id}
                   id={doc.id}
-                  className="border-slate-200/80 bg-white/90 shadow-lg shadow-indigo-100/50"
+                  className="border-slate-200/80 bg-white/90 shadow-lg shadow-indigo-100/50 overflow-hidden"
                 >
                   <CardHeader className="space-y-3 border-b border-slate-100 bg-gradient-to-r from-white to-indigo-50/60">
                     <div className="flex items-center gap-3">
@@ -81,12 +140,58 @@ export default function PoliciesPage() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4 py-6 text-slate-700 leading-7">
-                    {paragraphs.map((paragraph, idx) => (
-                      <p key={idx} className="whitespace-pre-line">
-                        {paragraph}
-                      </p>
-                    ))}
+                  <CardContent className="py-6">
+                    <div className="space-y-6">
+                      {elements.map((element, idx) => {
+                        switch (element.type) {
+                          case 'subtitle':
+                            return (
+                              <h3 key={idx} className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2">
+                                {element.text}
+                              </h3>
+                            )
+                          case 'section-heading':
+                            return (
+                              <div key={idx} className="flex items-start gap-3 mt-6 first:mt-0">
+                                <span className="flex-shrink-0 flex items-center justify-center h-7 w-7 rounded-lg bg-indigo-100 text-indigo-700 text-sm font-bold">
+                                  {element.number}
+                                </span>
+                                <h4 className="text-lg font-semibold text-slate-800 pt-0.5">
+                                  {element.text}
+                                </h4>
+                              </div>
+                            )
+                          case 'emoji-heading':
+                            return (
+                              <div key={idx} className="flex items-start gap-3 mt-6 first:mt-0">
+                                <span className="text-xl">{element.emoji}</span>
+                                <h4 className="text-lg font-semibold text-slate-800">
+                                  {element.text}
+                                </h4>
+                              </div>
+                            )
+                          case 'contact':
+                            return (
+                              <div key={idx} className="flex items-center gap-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                                <Mail className="h-5 w-5 text-indigo-600" />
+                                <a
+                                  href={`mailto:${element.email}`}
+                                  className="text-indigo-700 font-medium hover:text-indigo-800 hover:underline"
+                                >
+                                  {element.email}
+                                </a>
+                              </div>
+                            )
+                          case 'paragraph':
+                          default:
+                            return (
+                              <p key={idx} className="text-slate-600 leading-7 pl-0 sm:pl-10">
+                                {element.text}
+                              </p>
+                            )
+                        }
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
               )
