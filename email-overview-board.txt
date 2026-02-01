@@ -1,0 +1,78 @@
+================================================================================
+              SHARINGMINDS - EMAIL CONTENT FOR BOARD REVIEW
+================================================================================
+
+
+EMAIL 1: VERIFICATION CODE
+--------------------------
+Subject: "Your Verification Code"
+Sent to: User's email
+
+    ─────────────────────────────────────────────────────────────────
+
+                         Email Verification
+
+    Thank you for signing up. Please use the following code to 
+    verify your email address:
+
+                           123456
+
+    This code will expire in 10 minutes.
+
+    ─────────────────────────────────────────────────────────────────
+
+
+
+EMAIL 2: MENTOR APPLICATION CONFIRMATION
+----------------------------------------
+Subject: "We've Received Your Sharing Minds Application!"
+Sent to: Mentor who applied
+
+    ─────────────────────────────────────────────────────────────────
+
+           Thank You for Applying to Sharing Minds!
+
+    Hi [Mentor's Name],
+
+    We're thrilled you want to join our community of mentors. 
+    This email confirms we've successfully received your application.
+
+    Our team will carefully review your profile. We'll get back 
+    to you within 5-7 business days with the next steps.
+
+    In the meantime, feel free to explore our website and learn 
+    more about our mission.
+
+    Best regards,
+    The Sharing Minds Team
+
+    ─────────────────────────────────────────────────────────────────
+
+
+
+EMAIL 3: CONTACT FORM NOTIFICATION (Internal)
+----------------------------------------------
+Subject: "New Contact Enquiry: [User's Subject]"
+Sent to: Our support team
+
+    ─────────────────────────────────────────────────────────────────
+
+                      New Contact Enquiry
+
+    Name:    [Visitor's Name]
+    Email:   [Visitor's Email]
+    Subject: [What they wrote]
+
+    ┌─────────────────────────────────────────────────────────┐
+    │ Message                                                 │
+    │                                                         │
+    │ [Full message from the visitor]                         │
+    │                                                         │
+    └─────────────────────────────────────────────────────────┘
+
+    ─────────────────────────────────────────────────────────────────
+
+
+================================================================================
+                                                         Last Updated: Jan 2026
+================================================================================
