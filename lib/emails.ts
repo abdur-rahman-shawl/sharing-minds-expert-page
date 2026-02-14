@@ -94,9 +94,141 @@ export async function sendContactSubmissionEmail({
       html,
     });
 
-    return { success: true, message: 'Contact enquiry email sent successfully' };
+    return { success: true, message: 'Contact form email sent successfully' };
   } catch (error) {
-    console.error('Error sending contact submission email:', error);
-    return { success: false, error: 'Failed to send contact submission email' };
+    console.error('Error sending contact form email:', error);
+    return { success: false, error: 'Failed to send contact form email' };
+  }
+}
+
+// ============================================
+// BOOKING EMAIL TEMPLATES
+// ============================================
+
+interface BookingEmailData {
+  sessionId: string;
+  sessionTitle: string;
+  scheduledAt: Date;
+  duration: number;
+  meetingType: 'video' | 'audio' | 'chat';
+}
+
+/**
+ * Format date for email display
+ */
+function formatEmailDate(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function formatEmailTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+/**
+ * Email 1: Booking Confirmed (to Mentee)
+ * Sent after successful payment
+ */
+export async function sendBookingConfirmedEmail(
+  menteeEmail: string,
+  menteeName: string,
+  mentorName: string,
+  booking: BookingEmailData
+) {
+  try {
+    const subject = `Your Session with ${mentorName} is Confirmed!`;
+    const scheduledDate = new Date(booking.scheduledAt);
+
+    const html = `
+      <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px;">
+        <h2 style="color: #0056b3;">🎉 Session Confirmed!</h2>
+        <p>Hi ${menteeName},</p>
+        <p>Great news! Your session has been successfully booked.</p>
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 12px 0; color: #1e293b;">${booking.sessionTitle}</h3>
+          <p style="margin: 6px 0;"><strong>Mentor:</strong> ${mentorName}</p>
+          <p style="margin: 6px 0;"><strong>Date:</strong> ${formatEmailDate(scheduledDate)}</p>
+          <p style="margin: 6px 0;"><strong>Time:</strong> ${formatEmailTime(scheduledDate)}</p>
+          <p style="margin: 6px 0;"><strong>Duration:</strong> ${booking.duration} minutes</p>
+          <p style="margin: 6px 0;"><strong>Meeting Type:</strong> ${booking.meetingType.charAt(0).toUpperCase() + booking.meetingType.slice(1)} Call</p>
+        </div>
+        
+        <p>You can join the session from your dashboard when it's time.</p>
+        
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?section=sessions" style="display: inline-block; background-color: #0056b3; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Session Details</a>
+        
+        <p style="margin-top: 20px;">Best regards,</p>
+        <p><strong>The SharingMinds Team</strong></p>
+      </div>
+    `;
+
+    await sendEmail({
+      to: menteeEmail,
+      subject,
+      html,
+    });
+
+    return { success: true, message: 'Booking confirmation email sent' };
+  } catch (error) {
+    console.error('Error sending booking confirmed email:', error);
+    return { success: false, error: 'Failed to send booking confirmation email' };
+  }
+}
+
+/**
+ * Email 2: New Booking Alert (to Mentor)
+ * Sent when a mentee books a session
+ */
+export async function sendNewBookingAlertEmail(
+  mentorEmail: string,
+  mentorName: string,
+  menteeName: string,
+  booking: BookingEmailData
+) {
+  try {
+    const subject = `New Session Booked: ${booking.sessionTitle}`;
+    const scheduledDate = new Date(booking.scheduledAt);
+
+    const html = `
+      <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px;">
+        <h2 style="color: #0056b3;">📅 New Session Booked!</h2>
+        <p>Hi ${mentorName},</p>
+        <p>A mentee has just booked a session with you.</p>
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 12px 0; color: #1e293b;">${booking.sessionTitle}</h3>
+          <p style="margin: 6px 0;"><strong>Mentee:</strong> ${menteeName}</p>
+          <p style="margin: 6px 0;"><strong>Date:</strong> ${formatEmailDate(scheduledDate)}</p>
+          <p style="margin: 6px 0;"><strong>Time:</strong> ${formatEmailTime(scheduledDate)}</p>
+          <p style="margin: 6px 0;"><strong>Duration:</strong> ${booking.duration} minutes</p>
+          <p style="margin: 6px 0;"><strong>Meeting Type:</strong> ${booking.meetingType.charAt(0).toUpperCase() + booking.meetingType.slice(1)} Call</p>
+        </div>
+        
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?section=schedule" style="display: inline-block; background-color: #0056b3; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 55px; margin-top: 10px;">View Your Schedule</a>
+        
+        <p style="margin-top: 20px;">Best regards,</p>
+        <p><strong>The SharingMinds Team</strong></p>
+      </div>
+    `;
+
+    await sendEmail({
+      to: mentorEmail,
+      subject,
+      html,
+    });
+
+    return { success: true, message: 'New booking alert email sent' };
+  } catch (error) {
+    console.error('Error sending new booking alert email:', error);
+    return { success: false, error: 'Failed to send new booking alert email' };
   }
 }

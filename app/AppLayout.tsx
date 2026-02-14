@@ -17,19 +17,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const hideChrome = isAuthPage || isVipPage
 
   useEffect(() => {
-    if (isLoading) return
-
-    if (isMentor && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true
-      if (!isVipPage) {
-        router.replace('/vip-lounge')
-      }
-    }
-
-    if (!isMentor) {
-      hasRedirectedRef.current = false
-    }
-  }, [isLoading, isMentor, isVipPage, router])
+    // No automatic redirects
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -181,6 +181,20 @@ export default function DashboardPage() {
 
     // Has mentor record - show status-specific content
     const status = mentor.verificationStatus as VerificationStatus
+
+    // Redirect verified mentors to the actual dashboard
+    if (status === 'VERIFIED') {
+        router.push('/dashboard/mentor')
+        return (
+            <div className="min-h-screen mt-[-80px] sm:mt-[-96px] pt-20 sm:pt-24 bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-emerald-400 mx-auto" />
+                    <p className="mt-4 text-slate-300 text-sm">Redirecting to your dashboard...</p>
+                </div>
+            </div>
+        )
+    }
+
     const config = statusConfigs[status] || statusConfigs.YET_TO_APPLY
 
     return (

@@ -38,6 +38,10 @@ type MentorProfile = {
   availability?: string
   headline?: string
   maxMentees?: number
+  state?: string
+  bannerImageUrl?: string
+  verificationNotes?: string
+  isAvailable?: boolean
 } | null
 
 type AuthState = {
@@ -80,7 +84,7 @@ function AuthProviderInner({ children }: AuthProviderProps) {
 
   const session = sessionData?.session ?? null
   const roles = sessionData?.roles ?? []
-  const mentorProfile = sessionData?.mentorProfile ?? null
+  const mentorProfile = (sessionData?.mentorProfile as MentorProfile) ?? null
   const error = sessionError?.message ?? null
 
   const isAuthenticated = Boolean((session as any)?.user)
