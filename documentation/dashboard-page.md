@@ -10,8 +10,8 @@ The `/dashboard` is built as a sidebar-based application shell. It uses Next.js 
 
 Since this is a **pre-launch early-access** site, sections are organized into 3 tiers:
 - **Tier 1 (Functional):** Dashboard overview, Profile
-- **Tier 2 (Visual placeholder):** My Mentees, Schedule, Availability
-- **Tier 3 (Coming Soon):** Messages, Subscription, Earnings, Reviews, Analytics, My Content, Settings
+- **Tier 2 (Visual preview):** My Mentees, Schedule, Availability, Earnings, Reviews, Analytics, Messages, Subscription
+- **Tier 3 (Coming Soon):** My Content, Settings
 
 ---
 
@@ -85,11 +85,11 @@ components/dashboard/
 | `/dashboard/mentees` | My Mentees | 2 | Visual placeholder with user illustrations |
 | `/dashboard/schedule` | Schedule | 2 | Google Calendar-style weekly grid (empty) |
 | `/dashboard/availability` | Availability | 2 | Weekly time-slot table (visual only) |
-| `/dashboard/messages` | Messages | 3 | Coming soon card |
-| `/dashboard/subscription` | Subscription | 3 | Coming soon + founding mentor pricing teaser |
-| `/dashboard/earnings` | Earnings | 3 | Coming soon card |
-| `/dashboard/reviews` | Reviews | 3 | Coming soon card |
-| `/dashboard/analytics` | Analytics | 3 | Coming soon + AI insights teaser |
+| `/dashboard/earnings` | Earnings | 2 | Bar chart, summary cards, transactions table |
+| `/dashboard/reviews` | Reviews | 2 | Star breakdown, rating cards, satisfaction metrics |
+| `/dashboard/analytics` | Analytics | 2 | Metric cards, bar chart, donut chart, skill bars |
+| `/dashboard/messages` | Messages | 2 | Split-pane chat UI with conversation list |
+| `/dashboard/subscription` | Subscription | 2 | 3-tier plan cards with feature lists |
 | `/dashboard/content` | My Content | 3 | Coming soon card |
 | `/dashboard/profile` | Profile | 1 | View mentor profile with all fields |
 | `/dashboard/settings` | Settings | 3 | Coming soon card |
