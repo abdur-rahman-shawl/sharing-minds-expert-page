@@ -1,119 +1,163 @@
 # Dashboard Page Implementation
 
-> Status-aware dashboard page that handles all mentor verification states.
+> Full sidebar-based mentor dashboard, restricted to **verified mentors only**. Uses Next.js nested layouts with 12 sections organized in a tiered early-access model.
 
 ---
 
 ## Overview
 
-The `/dashboard` page serves as the central hub for mentors. It displays different content based on the user's authentication and verification status.
+The `/dashboard` is built as a sidebar-based application shell. It uses Next.js nested routing — a shared `layout.tsx` renders the sidebar and access control gate, while each section is a sub-route (`/dashboard/mentees`, `/dashboard/profile`, etc.).
+
+Since this is a **pre-launch early-access** site, sections are organized into 3 tiers:
+- **Tier 1 (Functional):** Dashboard overview, Profile
+- **Tier 2 (Visual placeholder):** My Mentees, Schedule, Availability
+- **Tier 3 (Coming Soon):** Messages, Subscription, Earnings, Reviews, Analytics, My Content, Settings
 
 ---
 
-## User States Handled
-
-| State | Condition | UI Response |
-|-------|-----------|-------------|
-| **Loading** | Session/mentor data loading | Spinner with "Loading your dashboard..." |
-| **Not Logged In** | `!session?.user` | Login prompt with redirect to `/auth/login` |
-| **Not a Mentor** | `!isMentor \|\| !mentor` | "Become a Founding Mentor" invitation |
-| **YET_TO_APPLY** | Mentor record exists, incomplete | "Complete Your Registration" prompt |
-| **IN_PROGRESS** | Application submitted | "Under Review" status with timeline |
-| **VERIFIED** | Approved mentor | "Dashboard Coming Soon" + VIP badge |
-| **REJECTED** | Application denied | Rejection notice with reapply option |
-| **REVERIFICATION** | Needs profile update | "Update Required" prompt |
-
----
-
-## File Location
+## Access Control Flow
 
 ```
-app/
-└── dashboard/
-    └── page.tsx
+User visits /dashboard/*
+        │
+        ▼
+   ┌─────────┐     No     ┌──────────────────────┐
+   │ Loading? │──────────▸ │ Signed in?           │
+   └────┬─────┘            └──────────────────────┘
+        │ Yes                      │ No
+    Show spinner          Redirect → /auth/login
+                                   │ Yes
+                                   ▼
+                          ┌──────────────────────┐
+                          │ Has mentor record?    │
+                          └──────────────────────┘
+                                   │ No → /registration
+                                   │ Yes
+                                   ▼
+                          ┌──────────────────────┐
+                          │ Status === VERIFIED?  │
+                          └──────────────────────┘
+                                   │ No → /vip-lounge
+                                   │ Yes
+                                   ▼
+                            ✅ Render Dashboard
+```
+
+This gate lives in `layout.tsx` so **all sub-routes are automatically protected**.
+
+`AppLayout.tsx` was also updated:
+- Hides global header/footer on `/dashboard` routes (sidebar replaces them)
+- Exempts verified mentors on `/dashboard` from the VIP auto-redirect
+
+---
+
+## File Structure
+
+```
+app/dashboard/
+├── layout.tsx              # Shared sidebar layout + access control
+├── page.tsx                # Overview (Tier 1)
+├── mentees/page.tsx        # My Mentees (Tier 2)
+├── schedule/page.tsx       # Schedule (Tier 2)
+├── availability/page.tsx   # Availability (Tier 2)
+├── messages/page.tsx       # Messages (Tier 3)
+├── subscription/page.tsx   # Subscription (Tier 3)
+├── earnings/page.tsx       # Earnings (Tier 3)
+├── reviews/page.tsx        # Reviews (Tier 3)
+├── analytics/page.tsx      # Analytics (Tier 3)
+├── content/page.tsx        # My Content (Tier 3)
+├── profile/page.tsx        # Profile (Tier 1)
+├── settings/page.tsx       # Settings (Tier 3)
+
+components/dashboard/
+├── dashboard-sidebar.tsx   # Sidebar with nav + profile header
+├── coming-soon-card.tsx    # Reusable Tier 3 placeholder
+├── stat-card.tsx           # Reusable stat card for overview
 ```
 
 ---
 
-## Dependencies
+## Routes
 
-- `@/lib/auth-client` - `useSession()` for authentication
-- `@/hooks/use-mentor-status` - `useMentorStatus()` for mentor data
-- `@/components/ui/button` - Button component
-- `next/image` - VIP badge image
-- `lucide-react` - Status icons
+| Route | Section | Tier | Description |
+|---|---|---|---|
+| `/dashboard` | Dashboard | 1 | Welcome banner, stat cards, quick actions |
+| `/dashboard/mentees` | My Mentees | 2 | Visual placeholder with user illustrations |
+| `/dashboard/schedule` | Schedule | 2 | Google Calendar-style weekly grid (empty) |
+| `/dashboard/availability` | Availability | 2 | Weekly time-slot table (visual only) |
+| `/dashboard/messages` | Messages | 3 | Coming soon card |
+| `/dashboard/subscription` | Subscription | 3 | Coming soon + founding mentor pricing teaser |
+| `/dashboard/earnings` | Earnings | 3 | Coming soon card |
+| `/dashboard/reviews` | Reviews | 3 | Coming soon card |
+| `/dashboard/analytics` | Analytics | 3 | Coming soon + AI insights teaser |
+| `/dashboard/content` | My Content | 3 | Coming soon card |
+| `/dashboard/profile` | Profile | 1 | View mentor profile with all fields |
+| `/dashboard/settings` | Settings | 3 | Coming soon card |
 
 ---
 
 ## Key Components
 
-### `DashboardPage`
-Main page component that:
-1. Fetches session and mentor status
-2. Determines which UI state to render
-3. Passes config to `DashboardCard`
+### `layout.tsx` — Shared Dashboard Layout
 
-### `DashboardCard`
-Reusable card component with:
-- Icon with colored background
-- Optional VIP badge
-- Mentor info display
-- Title and description
-- Primary/secondary action buttons
+- **Access control gate** via `useEffect` — redirects non-verified users
+- Wraps all sub-routes with `SidebarProvider` + `SidebarInset`
+- Renders top bar with `SidebarTrigger` + section title (derived from pathname)
+- Uses the existing `shadcn/ui` Sidebar component system
+
+### `dashboard-sidebar.tsx` — Sidebar Navigation
+
+- **Header:** Mentor avatar (initials fallback) + full name + "Founding Mentor" badge
+- **Navigation:** 12 items with icons, active state highlighting (indigo), badge support (Messages)
+- **Footer:** Back to Home + Sign Out buttons
+- Dark theme (slate-900) matching the app aesthetic
+
+### `coming-soon-card.tsx` — Tier 3 Placeholder
+
+Reusable component with: section icon, title, description, "Coming Soon" badge, optional teaser text.
+
+### `stat-card.tsx` — Overview Stats
+
+Small metric card with: icon, value, label, optional subtitle. Used in the overview grid.
 
 ---
 
-## Status Configuration
+## Dependencies
 
-Each status has a configuration object:
-
-```typescript
-interface StatusConfig {
-  icon: React.ReactNode      // Lucide icon
-  iconBg: string            // Tailwind bg class
-  title: string             // Main heading
-  description: string       // Body text
-  subdescription?: string   // Additional context
-  primaryAction?: {         // Main CTA
-    label: string
-    href: string
-    variant?: 'default' | 'outline'
-  }
-  secondaryAction?: {       // Secondary link
-    label: string
-    href: string
-  }
-  showVipBadge?: boolean    // Show VIP badge (VERIFIED only)
-}
-```
+- `@/components/ui/sidebar` — SidebarProvider, Sidebar, SidebarInset, SidebarTrigger, etc.
+- `@/components/ui/avatar` — Avatar, AvatarFallback, AvatarImage
+- `@/components/ui/separator` — Separator
+- `@/lib/auth-client` — `useSession()` for authentication
+- `@/hooks/use-mentor-status` — `useMentorStatus()` for mentor data
+- `@/contexts/auth-context` — `useAuth()` for sign-out
+- `lucide-react` — All section icons
 
 ---
 
 ## Styling
 
-- **Background**: Dark gradient (`from-slate-950 via-slate-900 to-black`)
-- **Card**: Glassmorphic with glow effect
-- **Primary Button**: Amber gradient for CTAs
-- **Icons**: Status-specific colors (amber, blue, emerald, red, orange)
+- **Background:** `bg-slate-950` across all dashboard pages
+- **Sidebar:** `bg-slate-900` with `border-slate-800` separator
+- **Active nav item:** `bg-indigo-600/20` with indigo text and border
+- **Cards:** `bg-slate-900/60` with `border-slate-800`
+- **Accents:** Amber (founding mentor), Indigo (active/links), Emerald (verified)
 
-### Header Offset Pattern
+### Chrome Handling
 
-The dashboard uses negative margins to extend the dark background behind the header:
-
+The global `AppLayout` hides the header and footer on dashboard routes:
 ```tsx
-className="mt-[-80px] sm:mt-[-96px] pt-20 sm:pt-24"
+const hideChrome = isAuthPage || isVipPage || isDashboardPage
 ```
-
-This offsets the `pt-20 sm:pt-24` padding added by `AppLayout` and ensures no white gap appears between the header and the dark gradient background.
 
 ---
 
 ## Related Files
 
-- [Mentor Schema](file:///c:/Users/Admin/sm-expert-landing-page/lib/db/schema/mentors.ts) - Verification status enum
-- [useMentorStatus Hook](file:///c:/Users/Admin/sm-expert-landing-page/hooks/use-mentor-status.ts) - Mentor data fetching
-- [VIP Lounge](file:///c:/Users/Admin/sm-expert-landing-page/app/vip-lounge/page.tsx) - Related VIP page
+- [AppLayout.tsx](file:///c:/Users/Admin/sm-expert-landing-page/app/AppLayout.tsx) — Global layout (hides chrome + VIP redirect exemption)
+- [Mentor Schema](file:///c:/Users/Admin/sm-expert-landing-page/lib/db/schema/mentors.ts) — Verification status enum + mentor fields
+- [useMentorStatus](file:///c:/Users/Admin/sm-expert-landing-page/hooks/use-mentor-status.ts) — Mentor data fetching hook
+- [Sidebar UI](file:///c:/Users/Admin/sm-expert-landing-page/components/ui/sidebar.tsx) — shadcn/ui sidebar primitives
 
 ---
 
-*Created: January 2026*
+*Updated: February 2026*
