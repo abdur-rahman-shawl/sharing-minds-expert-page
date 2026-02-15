@@ -137,9 +137,10 @@ sm-expert-landing-page/
 ### 4.4 Navigation & Layout Behaviour
 
 - **`AppLayout.tsx`** wraps all pages and:
-  - Hides the Header & Footer on `/auth/*` and `/vip-lounge` routes.
+  - Hides the Header & Footer on `/auth/*`, `/vip-lounge`, and `/dashboard/*` routes.
   - Auto-redirects authenticated mentors to `/vip-lounge` (unless already there).
 - The **Header** includes: logo, nav links (Service, About, Contact), auth buttons (Sign In / Dashboard / Sign Out), and a mobile hamburger menu.
+- The **Dashboard** has its own standalone header (inside `layout.tsx`) with logo, section title, dark/light mode toggle, user avatar, and sign out.
 
 ---
 
@@ -405,12 +406,19 @@ Emails are sent via **Nodemailer** using a Gmail SMTP account. Defined in [`lib/
 | `SignUpForm`       | `app/auth/login/LoginPageClient.tsx`    | Email/password sign-up with name fields   |
 | `LoginPageClient`  | `app/auth/login/LoginPageClient.tsx`    | Container with tabs + OAuth buttons        |
 
-### 10.4 Dashboard Component
+### 10.4 Dashboard Components
 
-The [`DashboardCard`](file:///c:/Users/Admin/sm-expert-landing-page/app/dashboard/page.tsx) is a reusable card component used to render different states:
-- **Not logged in** → Sign In prompt
-- **Logged in but not a mentor** → "Become a Founding Mentor" CTA
-- **Mentor with status** → Config-driven card based on `verificationStatus`
+The dashboard renders through `layout.tsx` which provides:
+- A **standalone header** with logo, section title, dark/light mode toggle, user avatar, and sign out
+- A **sidebar** with navigation links
+- Theme-aware styling via Tailwind's `dark:` prefix pattern
+
+| Component | File | Description |
+|---|---|---|
+| `DashboardSidebar` | `components/dashboard/dashboard-sidebar.tsx` | Navigation sidebar with mentor info |
+| `StatCard` | `components/dashboard/stat-card.tsx` | Metric card for overview page |
+| `ComingSoonCard` | `components/dashboard/coming-soon-card.tsx` | Placeholder for unreleased sections |
+| `MentorProfileEdit` | `components/dashboard/mentor-profile-edit.tsx` | Full profile editor with file uploads |
 
 ### 10.5 VIP Components
 

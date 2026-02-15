@@ -70,6 +70,11 @@ sm-expert-landing-page/
 │   ├── ui/                       # 51 Radix-based UI primitives
 │   ├── auth/                     # Authentication components
 │   ├── common/                   # Shared components (ErrorBoundary)
+│   ├── dashboard/                # Dashboard components
+│   │   ├── dashboard-sidebar.tsx # Navigation sidebar
+│   │   ├── stat-card.tsx         # Metric card for overview
+│   │   ├── coming-soon-card.tsx  # Placeholder for unreleased sections
+│   │   └── mentor-profile-edit.tsx # Full profile editor
 │   ├── providers/                # Component providers
 │   ├── vip/                      # VIP-specific components
 │   ├── hero-section.tsx          # Landing hero section
@@ -324,6 +329,17 @@ type AuthState = {
 - **Data Display**: `Table`, `Avatar`, `Badge`, `Calendar`, `Chart`
 - **Overlay**: `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`
 
+### Dashboard Components (`components/dashboard/`)
+
+| Component | File | Description |
+|-----------|------|-------------|
+| `DashboardSidebar` | `dashboard-sidebar.tsx` | Navigation sidebar with mentor avatar + nav links |
+| `StatCard` | `stat-card.tsx` | Metric card for the overview page |
+| `ComingSoonCard` | `coming-soon-card.tsx` | Placeholder for unreleased sections |
+| `MentorProfileEdit` | `mentor-profile-edit.tsx` | Full profile editor with file uploads |
+
+All dashboard components support **dark and light mode** via Tailwind's `dark:` variant, controlled by a theme toggle in the dashboard header (`layout.tsx`).
+
 ---
 
 ## Providers & Context
@@ -414,4 +430,4 @@ Required environment variables (see `.env.local`):
 
 ---
 
-*Last updated: January 2026*
+*Last updated: 15 February 2026*
