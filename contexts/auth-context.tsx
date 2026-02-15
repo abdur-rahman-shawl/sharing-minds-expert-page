@@ -18,6 +18,7 @@ type MentorProfile = {
   verificationStatus: string
   id: string
   profileImageUrl?: string
+  bannerImageUrl?: string
   resumeUrl?: string
   fullName?: string
   title?: string
@@ -25,6 +26,7 @@ type MentorProfile = {
   email?: string
   phone?: string
   city?: string
+  state?: string
   country?: string
   industry?: string
   expertise?: string
@@ -38,6 +40,10 @@ type MentorProfile = {
   availability?: string
   headline?: string
   maxMentees?: number
+  isAvailable?: boolean
+  verificationNotes?: string
+  createdAt?: string
+  updatedAt?: string
 } | null
 
 type AuthState = {

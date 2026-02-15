@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard,
     Users,
@@ -16,8 +15,6 @@ import {
     FolderOpen,
     UserCircle,
     Settings,
-    LogOut,
-    Home,
     Sparkles,
 } from 'lucide-react'
 import {
@@ -34,7 +31,6 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useAuth } from '@/contexts/auth-context'
 
 interface MentorData {
     id: string
@@ -61,8 +57,6 @@ const navItems = [
 
 export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
     const pathname = usePathname()
-    const router = useRouter()
-    const { signOut } = useAuth()
 
     const initials = mentor.fullName
         ?.split(' ')
@@ -74,11 +68,6 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
     const isActive = (href: string) => {
         if (href === '/dashboard') return pathname === '/dashboard'
         return pathname.startsWith(href)
-    }
-
-    const handleSignOut = async () => {
-        await signOut()
-        router.push('/')
     }
 
     return (
@@ -151,35 +140,6 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
                 </SidebarGroup>
             </SidebarContent>
 
-            <SidebarSeparator className="bg-slate-800" />
-
-            {/* Footer */}
-            <SidebarFooter className="p-3 bg-slate-900">
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip="Back to Home"
-                            className="h-9 px-3 text-slate-500 hover:text-white hover:bg-slate-800/60 rounded-lg"
-                        >
-                            <Link href="/">
-                                <Home className="h-4 w-4" />
-                                <span>Back to Home</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            tooltip="Sign Out"
-                            onClick={handleSignOut}
-                            className="h-9 px-3 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg cursor-pointer"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            <span>Sign Out</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarFooter>
         </Sidebar>
     )
 }

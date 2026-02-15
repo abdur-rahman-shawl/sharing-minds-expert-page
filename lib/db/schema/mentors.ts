@@ -8,6 +8,8 @@ export const verificationStatusEnum = pgEnum('verification_status', [
   'VERIFIED',
   'REJECTED',
   'REVERIFICATION',
+  'RESUBMITTED',
+  'UPDATED_PROFILE',
 ]);
 
 export const mentors = pgTable('mentors', {
@@ -34,6 +36,7 @@ export const mentors = pgTable('mentors', {
   state: text('state'),
   country: text('country'),
   profileImageUrl: text('profile_image_url'),
+  bannerImageUrl: text('banner_image_url'),
   resumeUrl: text('resume_url'),
   verificationStatus: verificationStatusEnum('verification_status').default('YET_TO_APPLY').notNull(),
   verificationNotes: text('verification_notes'),

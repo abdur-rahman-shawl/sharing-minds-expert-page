@@ -53,6 +53,46 @@ export async function uploadProfilePicture(file: File, userId: string): Promise<
   }
 }
 
+// Upload banner image to Supabase Storage
+export async function uploadBannerImage(file: File, userId: string): Promise<UploadResult> {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${userId}-${Date.now()}.${fileExt}`
+  const filePath = `mentors/banners/${fileName}`
+
+  // Validate file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('File size exceeds 5MB limit')
+  }
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Invalid file type. Only JPEG, PNG, and WebP images are allowed')
+  }
+
+  const { data, error } = await supabase.storage
+    .from('uploads')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true
+    })
+
+  if (error) {
+    throw new Error(`Upload failed: ${error.message}`)
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('uploads')
+    .getPublicUrl(filePath)
+
+  return {
+    url: publicUrl,
+    path: data.path,
+    size: file.size,
+    contentType: file.type
+  }
+}
+
 // Upload resume to Supabase Storage
 export async function uploadResume(file: File, userId: string): Promise<UploadResult> {
   const fileExt = file.name.split('.').pop()

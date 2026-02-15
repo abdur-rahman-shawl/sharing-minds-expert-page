@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
           title: mentors.title,
           company: mentors.company,
           city: mentors.city,
+          state: mentors.state,
           country: mentors.country,
           industry: mentors.industry,
           expertise: mentors.expertise,
@@ -64,7 +65,12 @@ export async function GET(request: NextRequest) {
           headline: mentors.headline,
           maxMentees: mentors.maxMentees,
           profileImageUrl: mentors.profileImageUrl,
+          bannerImageUrl: mentors.bannerImageUrl,
           resumeUrl: mentors.resumeUrl,
+          isAvailable: mentors.isAvailable,
+          verificationNotes: mentors.verificationNotes,
+          createdAt: mentors.createdAt,
+          updatedAt: mentors.updatedAt,
         })
         .from(mentors)
         .where(eq(mentors.userId, session.user.id))
