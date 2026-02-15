@@ -34,35 +34,35 @@ export default function SchedulePage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <CalendarDays className="h-5 w-5 text-emerald-400" />
-                    <h2 className="text-lg font-semibold text-white">{monthName}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{monthName}</h2>
                 </div>
                 <div className="flex items-center gap-1">
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" disabled>
+                    <button className="p-1.5 rounded-lg text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" disabled>
                         <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button className="px-3 py-1 text-xs font-medium text-slate-300 bg-slate-800 rounded-lg">
+                    <button className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 rounded-lg">
                         Today
                     </button>
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" disabled>
+                    <button className="p-1.5 rounded-lg text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" disabled>
                         <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
             </div>
 
             {/* Week view */}
-            <div className="bg-slate-900/60 rounded-xl border border-slate-800 overflow-hidden">
+            <div className="bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden">
                 {/* Day header row */}
-                <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-slate-800">
+                <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-gray-200 dark:border-slate-800">
                     <div className="p-2" />
                     {weekDates.map((date, i) => (
                         <div
                             key={i}
-                            className={`p-2 text-center border-l border-slate-800 ${isToday(date) ? 'bg-indigo-600/10' : ''}`}
+                            className={`p-2 text-center border-l border-gray-200 dark:border-slate-800 ${isToday(date) ? 'bg-indigo-50 dark:bg-indigo-600/10' : ''}`}
                         >
-                            <p className="text-[10px] text-slate-500 uppercase">{DAYS[i]}</p>
+                            <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">{DAYS[i]}</p>
                             <p className={`text-sm font-semibold mt-0.5 ${isToday(date)
-                                ? 'text-indigo-400 bg-indigo-500/20 rounded-full w-7 h-7 flex items-center justify-center mx-auto'
-                                : 'text-slate-300'
+                                ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/20 rounded-full w-7 h-7 flex items-center justify-center mx-auto'
+                                : 'text-gray-700 dark:text-slate-300'
                                 }`}>
                                 {date.getDate()}
                             </p>
@@ -73,14 +73,14 @@ export default function SchedulePage() {
                 {/* Time grid */}
                 <div className="max-h-[500px] overflow-y-auto">
                     {HOURS.map((hour) => (
-                        <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-slate-800/50 last:border-0">
-                            <div className="p-2 text-[10px] text-slate-500 text-right pr-3">
+                        <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-gray-100 dark:border-slate-800/50 last:border-0">
+                            <div className="p-2 text-[10px] text-gray-400 dark:text-slate-500 text-right pr-3">
                                 {hour > 12 ? `${hour - 12} PM` : hour === 12 ? '12 PM' : `${hour} AM`}
                             </div>
                             {weekDates.map((_, i) => (
                                 <div
                                     key={i}
-                                    className={`min-h-[48px] border-l border-slate-800/50 ${isToday(weekDates[i]) ? 'bg-indigo-600/5' : ''}`}
+                                    className={`min-h-[48px] border-l border-gray-100 dark:border-slate-800/50 ${isToday(weekDates[i]) ? 'bg-indigo-50/50 dark:bg-indigo-600/5' : ''}`}
                                 />
                             ))}
                         </div>
@@ -90,8 +90,8 @@ export default function SchedulePage() {
 
             {/* Empty state overlay */}
             <div className="text-center py-4">
-                <p className="text-slate-500 text-sm">No sessions scheduled yet</p>
-                <p className="text-slate-600 text-xs mt-1">Your upcoming and past sessions will appear on this calendar</p>
+                <p className="text-gray-500 dark:text-slate-500 text-sm">No sessions scheduled yet</p>
+                <p className="text-gray-400 dark:text-slate-600 text-xs mt-1">Your upcoming and past sessions will appear on this calendar</p>
             </div>
         </div>
     )

@@ -329,30 +329,30 @@ export function MentorProfileEdit() {
         <div className="p-6 max-w-4xl mx-auto space-y-6">
             {/* Alerts */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
-                    <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
+                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+                    <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
                     <div className="flex-1">
-                        <p className="text-sm text-red-300">{error}</p>
+                        <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
                     </div>
-                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+                    <button onClick={() => setError(null)} className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
             )}
             {success && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-start gap-3">
-                    <Check className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
-                    <p className="text-sm text-emerald-300 flex-1">{success}</p>
-                    <button onClick={() => setSuccess(null)} className="text-emerald-400 hover:text-emerald-300">
+                <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl p-4 flex items-start gap-3">
+                    <Check className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mt-0.5 shrink-0" />
+                    <p className="text-sm text-emerald-600 dark:text-emerald-300 flex-1">{success}</p>
+                    <button onClick={() => setSuccess(null)} className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
             )}
 
             {/* Banner + Profile Picture Header */}
-            <div className="relative rounded-2xl overflow-hidden border border-slate-800">
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-800">
                 {/* Banner */}
-                <div className="relative h-40 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950">
+                <div className="relative h-40 bg-gradient-to-br from-indigo-100 via-gray-50 to-purple-100 dark:from-indigo-950 dark:via-slate-900 dark:to-purple-950">
                     {bannerImgSrc && (
                         <img
                             src={bannerImgSrc}
@@ -360,13 +360,13 @@ export function MentorProfileEdit() {
                             className="absolute inset-0 w-full h-full object-cover"
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/80 dark:from-slate-950/80 to-transparent" />
 
                     {/* Banner upload button */}
                     <button
                         onClick={() => bannerInputRef.current?.click()}
                         disabled={isUploadingBanner}
-                        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-slate-900/70 text-slate-300 text-xs font-medium backdrop-blur-sm border border-slate-700/50 hover:bg-slate-800/70 transition-colors disabled:opacity-50"
+                        className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-white/70 dark:bg-slate-900/70 text-gray-700 dark:text-slate-300 text-xs font-medium backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 hover:bg-white/90 dark:hover:bg-slate-800/70 transition-colors disabled:opacity-50"
                     >
                         {isUploadingBanner ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -385,7 +385,7 @@ export function MentorProfileEdit() {
                     <div className="flex items-end gap-4">
                         {/* Avatar */}
                         <div className="relative group">
-                            <Avatar className="h-24 w-24 border-4 border-slate-950 shadow-xl">
+                            <Avatar className="h-24 w-24 border-4 border-white dark:border-slate-950 shadow-xl">
                                 <AvatarImage src={profileImgSrc} alt={mentorData.fullName} />
                                 <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-2xl font-bold">
                                     {initials}
@@ -407,12 +407,12 @@ export function MentorProfileEdit() {
 
                         {/* Name + badge */}
                         <div className="flex-1 min-w-0 pb-1">
-                            <h2 className="text-xl font-bold text-white truncate">{mentorData.fullName || 'Your Name'}</h2>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white truncate">{mentorData.fullName || 'Your Name'}</h2>
                             {mentorData.headline && (
-                                <p className="text-sm text-slate-400 truncate">{mentorData.headline}</p>
+                                <p className="text-sm text-gray-500 dark:text-slate-400 truncate">{mentorData.headline}</p>
                             )}
                             <div className="flex items-center gap-2 mt-1">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
                                     <Sparkles className="h-2.5 w-2.5" />
                                     Founding Mentor
                                 </span>
@@ -425,7 +425,7 @@ export function MentorProfileEdit() {
                                 <>
                                     <button
                                         onClick={handleCancel}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-800/60 border border-slate-700 hover:bg-slate-700/60 transition-colors"
+                                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 hover:bg-gray-200 dark:hover:bg-slate-700/60 transition-colors"
                                     >
                                         <span className="flex items-center gap-1.5">
                                             <X className="h-3 w-3" />
@@ -450,7 +450,7 @@ export function MentorProfileEdit() {
                             ) : (
                                 <button
                                     onClick={() => { setIsEditing(true); setError(null); setSuccess(null) }}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-300 bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 transition-colors"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-600/30 transition-colors"
                                 >
                                     <span className="flex items-center gap-1.5">
                                         <Pencil className="h-3 w-3" />
@@ -464,8 +464,8 @@ export function MentorProfileEdit() {
             </div>
 
             {/* About — full width */}
-            <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-5">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+            <div className="bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-slate-800 p-5">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                     <User className="h-4 w-4 text-indigo-400" />
                     About
                 </h3>
@@ -474,11 +474,11 @@ export function MentorProfileEdit() {
                         value={mentorData.about}
                         onChange={handleChange('about')}
                         rows={5}
-                        className="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/40 resize-none placeholder:text-slate-600"
+                        className="w-full bg-white dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/40 resize-none placeholder:text-gray-400 dark:placeholder:text-slate-600"
                         placeholder="Tell mentees about yourself, your background, and what you can help with..."
                     />
                 ) : (
-                    <p className="text-sm text-slate-400 leading-relaxed whitespace-pre-line">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
                         {mentorData.about || '—'}
                     </p>
                 )}
@@ -524,10 +524,10 @@ export function MentorProfileEdit() {
                     <FormField label="Max Mentees" value={mentorData.maxMentees} field="maxMentees" editing={isEditing} onChange={handleChange} type="number" icon={User} />
                     {isEditing ? (
                         <div className="flex items-center justify-between py-2">
-                            <label className="text-xs text-slate-400">Available for bookings</label>
+                            <label className="text-xs text-gray-500 dark:text-slate-400">Available for bookings</label>
                             <button
                                 onClick={handleToggle('isAvailable')}
-                                className={`relative w-10 h-5 rounded-full transition-colors ${mentorData.isAvailable ? 'bg-emerald-600' : 'bg-slate-700'}`}
+                                className={`relative w-10 h-5 rounded-full transition-colors ${mentorData.isAvailable ? 'bg-emerald-600' : 'bg-gray-300 dark:bg-slate-700'}`}
                             >
                                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${mentorData.isAvailable ? 'translate-x-5' : ''}`} />
                             </button>
@@ -541,15 +541,15 @@ export function MentorProfileEdit() {
                 <FormSection title="Documents" icon={FileText}>
                     <div className="space-y-3">
                         <div>
-                            <label className="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Resume / CV</label>
+                            <label className="text-[11px] text-gray-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5">Resume / CV</label>
                             {mentorData.resumeUrl ? (
-                                <div className="flex items-center gap-2 bg-slate-800/40 rounded-lg p-2.5 border border-slate-700/30">
-                                    <FileText className="h-4 w-4 text-indigo-400 shrink-0" />
+                                <div className="flex items-center gap-2 bg-gray-100 dark:bg-slate-800/40 rounded-lg p-2.5 border border-gray-200 dark:border-slate-700/30">
+                                    <FileText className="h-4 w-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
                                     <a
                                         href={mentorData.resumeUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-xs text-indigo-400 hover:text-indigo-300 truncate flex-1"
+                                        className="text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 truncate flex-1"
                                     >
                                         View uploaded resume
                                         <ExternalLink className="inline h-3 w-3 ml-1" />
@@ -557,7 +557,7 @@ export function MentorProfileEdit() {
                                     <button
                                         onClick={() => resumeInputRef.current?.click()}
                                         disabled={isUploadingResume}
-                                        className="text-xs text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-700/40"
+                                        className="text-xs text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white px-2 py-0.5 rounded bg-gray-200 dark:bg-slate-700/40"
                                     >
                                         {isUploadingResume ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Replace'}
                                     </button>
@@ -566,7 +566,7 @@ export function MentorProfileEdit() {
                                 <button
                                     onClick={() => resumeInputRef.current?.click()}
                                     disabled={isUploadingResume}
-                                    className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-600 transition-colors text-xs"
+                                    className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-gray-300 dark:border-slate-700 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:border-gray-400 dark:hover:border-slate-600 transition-colors text-xs"
                                 >
                                     {isUploadingResume ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -586,12 +586,12 @@ export function MentorProfileEdit() {
 
             {/* Bottom save bar (sticky, only in edit mode) */}
             {isEditing && (
-                <div className="sticky bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800 p-4 -mx-6 flex items-center justify-between rounded-b-xl">
-                    <p className="text-xs text-slate-500">Unsaved changes will be lost if you navigate away.</p>
+                <div className="sticky bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 p-4 -mx-6 flex items-center justify-between rounded-b-xl">
+                    <p className="text-xs text-gray-400 dark:text-slate-500">Unsaved changes will be lost if you navigate away.</p>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleCancel}
-                            className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors"
+                            className="px-4 py-2 rounded-lg text-sm text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white transition-colors"
                         >
                             Cancel
                         </button>
@@ -624,8 +624,8 @@ function FormSection({ title, icon: Icon, children }: {
     children: React.ReactNode
 }) {
     return (
-        <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-5">
-            <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+        <div className="bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-slate-800 p-5">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4 flex items-center gap-2">
                 <Icon className="h-4 w-4 text-indigo-400" />
                 {title}
             </h3>
@@ -652,21 +652,21 @@ function FormField({ label, value, field, editing, onChange, type = 'text', icon
     if (!editing) {
         return (
             <div className="flex items-start gap-2.5">
-                {Icon && <Icon className="h-4 w-4 text-slate-600 mt-0.5 shrink-0" />}
+                {Icon && <Icon className="h-4 w-4 text-gray-400 dark:text-slate-600 mt-0.5 shrink-0" />}
                 <div className="flex-1 min-w-0">
-                    <p className="text-[11px] text-slate-500 uppercase tracking-wider">{label}</p>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500 uppercase tracking-wider">{label}</p>
                     {link && displayValue ? (
                         <a
                             href={displayValue as string}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1 truncate"
+                            className="text-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-1 truncate"
                         >
                             {(displayValue as string).replace(/https?:\/\/(www\.)?/, '').slice(0, 40)}
                             <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                     ) : (
-                        <p className="text-sm text-slate-300 truncate">{displayValue || '—'}</p>
+                        <p className="text-sm text-gray-700 dark:text-slate-300 truncate">{displayValue || '—'}</p>
                     )}
                 </div>
             </div>
@@ -675,13 +675,13 @@ function FormField({ label, value, field, editing, onChange, type = 'text', icon
 
     return (
         <div>
-            <label className="text-[11px] text-slate-500 uppercase tracking-wider block mb-1">{label}</label>
+            <label className="text-[11px] text-gray-400 dark:text-slate-500 uppercase tracking-wider block mb-1">{label}</label>
             <input
                 type={type}
                 value={displayValue as string}
                 onChange={onChange(field)}
                 placeholder={placeholder || label}
-                className="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/40 placeholder:text-slate-600"
+                className="w-full bg-white dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/40 placeholder:text-gray-400 dark:placeholder:text-slate-600"
             />
         </div>
     )

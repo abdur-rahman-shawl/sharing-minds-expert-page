@@ -20,7 +20,6 @@ import {
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarHeader,
@@ -72,16 +71,10 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
 
     return (
         <Sidebar
-            className="border-r border-slate-800"
-            style={{
-                '--sidebar-background': '15 23 42',       // slate-900
-                '--sidebar-foreground': '226 232 240',     // slate-200
-                '--sidebar-accent': '30 41 59',            // slate-800
-                '--sidebar-accent-foreground': '248 250 252', // slate-50
-            } as React.CSSProperties}
+            className="border-r border-gray-200 dark:border-slate-800"
         >
             {/* Profile header */}
-            <SidebarHeader className="p-4 bg-slate-900/80">
+            <SidebarHeader className="p-4 bg-gray-50 dark:bg-slate-900/80">
                 <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border-2 border-amber-400/40">
                         <AvatarImage src="" alt={mentor.fullName} />
@@ -90,19 +83,19 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{mentor.fullName}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{mentor.fullName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
-                            <Sparkles className="h-3 w-3 text-amber-400" />
-                            <span className="text-[11px] text-amber-400 font-medium">Founding Mentor</span>
+                            <Sparkles className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+                            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Founding Mentor</span>
                         </div>
                     </div>
                 </div>
             </SidebarHeader>
 
-            <SidebarSeparator className="bg-slate-800" />
+            <SidebarSeparator className="bg-gray-200 dark:bg-slate-800" />
 
             {/* Navigation */}
-            <SidebarContent className="bg-slate-900">
+            <SidebarContent className="bg-white dark:bg-slate-900">
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
@@ -117,13 +110,13 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
                                             className={`
                                                 h-10 px-3 rounded-lg transition-all duration-150
                                                 ${active
-                                                    ? 'bg-indigo-600/20 text-indigo-300 font-medium border border-indigo-500/20'
-                                                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                                                    ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 font-medium border border-indigo-200 dark:border-indigo-500/20'
+                                                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800/60'
                                                 }
                                             `}
                                         >
                                             <Link href={item.href}>
-                                                <item.icon className={`h-4 w-4 ${active ? 'text-indigo-400' : ''}`} />
+                                                <item.icon className={`h-4 w-4 ${active ? 'text-indigo-500 dark:text-indigo-400' : ''}`} />
                                                 <span>{item.label}</span>
                                             </Link>
                                         </SidebarMenuButton>
@@ -139,7 +132,6 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-
         </Sidebar>
     )
 }
