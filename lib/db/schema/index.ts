@@ -7,3 +7,4 @@ export * from './mentees';
 export * from './auth';
 export * from './email-verifications';
 export * from './contact-submissions';
+export * from './mentor-availability';
