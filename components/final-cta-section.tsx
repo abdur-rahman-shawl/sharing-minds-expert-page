@@ -50,26 +50,30 @@ export function FinalCTASection() {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white px-4 py-24 sm:px-6 sm:py-32">
-      
+
       {/* Decorative Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
       <div className="relative mx-auto max-w-5xl">
         <div className="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-900/5">
           <div className="grid lg:grid-cols-5">
-            
+
             {/* Left Content Side */}
             <div className="px-8 py-12 lg:col-span-3 lg:p-14">
               <h2 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                Ready to Shape the Future?
+                Join as a Founding Expert
               </h2>
-              <p className="mb-8 text-lg text-slate-600 leading-relaxed">
-                Join our private circle of category-defining experts. Experience white-glove onboarding, concierge support, and influence our product roadmap.
+              <p className="mb-4 text-lg text-slate-600 leading-relaxed">
+                Priority visibility, private lounge access, and early session requests — for experienced practitioners who prefer curated, high-relevance conversations.
+              </p>
+              <p className="mb-8 text-sm text-slate-500 leading-relaxed border-l-2 border-indigo-200 pl-3">
+                Founding access includes complimentary Silver membership for the first year{" "}
+                <span className="font-medium text-slate-600">₹12,000/- value</span>. Verification fee applies — this preserves a serious, high-quality cohort.
               </p>
 
               {isPending || mentorStatusLoading ? (
                 <div className="max-w-md">
-                   <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
+                  <div className="h-12 w-full bg-slate-100 rounded-lg animate-pulse"></div>
                 </div>
               ) : session?.user ? (
                 <div className="rounded-xl bg-indigo-50/50 p-6 border border-indigo-100">
@@ -79,7 +83,7 @@ export function FinalCTASection() {
                       Signed in as {session.user.name}
                     </p>
                   </div>
-                  
+
                   {/* LOGGED IN BUTTON - Premium Style */}
                   <Button
                     onClick={handleBecomeMentor}
@@ -87,16 +91,16 @@ export function FinalCTASection() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800" />
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
-                    
+
                     <span className="relative z-20 flex items-center justify-center gap-2">
-                      {isMentor ? 'Enter VIP Lounge' : 'Continue Application'} 
+                      {isMentor ? 'Enter VIP Lounge' : 'Continue Application'}
                       <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                     </span>
                   </Button>
                 </div>
               ) : (
                 <div className="space-y-4 max-w-md">
-                  
+
                   {/* PRIMARY ACTION BUTTON - Premium Style */}
                   <Button
                     onClick={handleBecomeMentor}
@@ -111,7 +115,7 @@ export function FinalCTASection() {
                       <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                     </span>
                   </Button>
-                  
+
                   {/* Divider */}
                   <div className="relative flex items-center py-2">
                     <div className="flex-grow border-t border-slate-200"></div>
@@ -142,24 +146,24 @@ export function FinalCTASection() {
 
             {/* Right Visual Side */}
             <div className="relative bg-slate-900 lg:col-span-2 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20"></div>
-                {/* Decorative circles */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%]">
-                    <div className="absolute inset-0 border-[40px] border-white/5 rounded-full animate-[spin_10s_linear_infinite]"></div>
-                    <div className="absolute inset-4 border-[40px] border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20"></div>
+              {/* Decorative circles */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%]">
+                <div className="absolute inset-0 border-[40px] border-white/5 rounded-full animate-[spin_10s_linear_infinite]"></div>
+                <div className="absolute inset-4 border-[40px] border-white/5 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+              </div>
+
+              <div className="relative h-full flex flex-col items-center justify-center p-8 text-center text-white/90">
+                <div className="mb-4 rounded-full bg-white/10 p-3 backdrop-blur-sm shadow-inner ring-1 ring-white/20">
+                  <CheckCircle2 className="h-8 w-8 text-indigo-300" />
                 </div>
-                
-                <div className="relative h-full flex flex-col items-center justify-center p-8 text-center text-white/90">
-                    <div className="mb-4 rounded-full bg-white/10 p-3 backdrop-blur-sm shadow-inner ring-1 ring-white/20">
-                        <CheckCircle2 className="h-8 w-8 text-indigo-300" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white tracking-wide">Verified Community</h3>
-                    <p className="mt-2 text-sm text-indigo-200 font-medium tracking-wide">High trust. High touch.</p>
-                </div>
-                </div>
+                <h3 className="text-xl font-semibold text-white tracking-wide">Verified Community</h3>
+                <p className="mt-2 text-sm text-indigo-200 font-medium tracking-wide">High trust. High touch.</p>
+              </div>
+            </div>
           </div>
         </div>
-        </div>
+      </div>
     </section>
   )
 }

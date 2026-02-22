@@ -29,23 +29,23 @@ export function TestimonialSection() {
         {/* Large soft glow orbs */}
         <div className="absolute top-[20%] left-[15%] h-1.5 w-1.5 rounded-full bg-indigo-400/30 animate-pulse" style={{ animationDuration: '4s' }} />
         <div className="absolute top-[60%] right-[15%] h-2 w-2 rounded-full bg-purple-400/30 animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        
+
         {/* Scattered small stars/dots with randomized delays */}
         <div className="absolute top-[15%] left-[35%] h-1 w-1 rounded-full bg-white/20 animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
         <div className="absolute top-[10%] right-[30%] h-0.5 w-0.5 rounded-full bg-white/40 animate-pulse" style={{ animationDuration: '2s', animationDelay: '2s' }} />
         <div className="absolute bottom-[20%] left-[25%] h-1 w-1 rounded-full bg-indigo-300/40 animate-pulse" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
         <div className="absolute bottom-[10%] right-[40%] h-0.5 w-0.5 rounded-full bg-purple-300/40 animate-pulse" style={{ animationDuration: '3s', animationDelay: '0s' }} />
-        
+
         <div className="absolute top-[40%] left-[5%] h-1 w-1 rounded-full bg-white/10 animate-pulse" style={{ animationDuration: '5s', animationDelay: '3s' }} />
         <div className="absolute top-[80%] left-[8%] h-1.5 w-1.5 rounded-full bg-indigo-500/20 animate-pulse" style={{ animationDuration: '4.5s', animationDelay: '1s' }} />
         <div className="absolute top-[5%] right-[5%] h-1 w-1 rounded-full bg-white/20 animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
         <div className="absolute top-[50%] right-[5%] h-0.5 w-0.5 rounded-full bg-purple-400/30 animate-pulse" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }} />
-        
+
         {/* Center area subtle particles */}
         <div className="absolute top-[30%] left-[60%] h-0.5 w-0.5 rounded-full bg-white/30 animate-pulse" style={{ animationDuration: '4s', animationDelay: '2.5s' }} />
         <div className="absolute bottom-[30%] right-[20%] h-1 w-1 rounded-full bg-indigo-300/20 animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
         <div className="absolute top-[70%] left-[40%] h-1 w-1 rounded-full bg-white/10 animate-pulse" style={{ animationDuration: '3s', animationDelay: '4s' }} />
-        
+
         {/* Tiny glinting specks */}
         <div className="absolute top-[25%] right-[50%] h-[2px] w-[2px] rounded-full bg-white/40 animate-ping" style={{ animationDuration: '7s', animationDelay: '1s' }} />
         <div className="absolute bottom-[15%] left-[10%] h-[2px] w-[2px] rounded-full bg-indigo-400/40 animate-ping" style={{ animationDuration: '6s', animationDelay: '3s' }} />
@@ -55,21 +55,20 @@ export function TestimonialSection() {
       {/* --- ANIMATED BACKGROUND END --- */}
 
       <div
-        className={`relative z-10 mx-auto max-w-4xl text-center transition-all duration-1000 ${
-          sectionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
+        className={`relative z-10 mx-auto max-w-4xl text-center transition-all duration-1000 ${sectionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
       >
         <div className="mb-10 flex justify-center">
-            <div className="relative group">
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-40 blur transition duration-500 group-hover:opacity-75"></div>
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900 ring-1 ring-white/10 shadow-2xl">
-                    <Quote className="h-7 w-7 text-indigo-400" />
-                </div>
+          <div className="relative group">
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-40 blur transition duration-500 group-hover:opacity-75"></div>
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900 ring-1 ring-white/10 shadow-2xl">
+              <Quote className="h-7 w-7 text-indigo-400" />
             </div>
+          </div>
         </div>
 
         <blockquote className="mb-12 text-3xl font-medium leading-tight text-white/90 sm:text-4xl md:text-5xl lg:leading-[1.2] drop-shadow-sm">
-          "Being a mentor with SharingMinds has allowed me to make a <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold">real impact</span> on the next generation of startup founders."
+          "Conversations are <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold">focused and useful</span>. Requests are relevant — not noise. The platform respects my time."
         </blockquote>
 
         <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
@@ -77,14 +76,23 @@ export function TestimonialSection() {
             <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-slate-900 animate-[spin_4s_linear_infinite]"></div>
             <img
               src="/placeholder.svg?key=harish"
-              alt="Harish Iyer"
+              alt="Senior Strategy Advisor"
               loading="lazy"
               className="relative h-16 w-16 rounded-full border-4 border-slate-950 object-cover"
             />
           </div>
           <div className="text-center sm:text-left">
-            <div className="text-lg font-semibold text-white tracking-wide">Harish Iyer</div>
-            <div className="text-indigo-200/80 text-sm uppercase tracking-wider font-medium">Startup & Scaling Consultant</div>
+            <div className="text-lg font-semibold text-white tracking-wide">Senior Strategy Advisor</div>
+            <div className="text-indigo-300/60 text-xs uppercase tracking-widest font-medium">Founding Expert</div>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            <span className="text-sm text-indigo-200/70 tracking-wide">
+              200+ experienced professionals have joined the early expert circle (selective onboarding).
+            </span>
           </div>
         </div>
       </div>

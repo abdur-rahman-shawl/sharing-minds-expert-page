@@ -89,13 +89,17 @@ export function HeroSection() {
           Invitation Only
         </div>
 
-        <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
-          The Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Mentor Cohort</span>
+        <h1 className="mb-4 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
+          Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Experts</span>
         </h1>
 
+        <h2 className="mb-6 text-2xl sm:text-3xl font-semibold text-slate-700 tracking-tight">
+          A Thoughtful Space for People Who&apos;ve Built, Led, and Learned
+        </h2>
+
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
-          A private circle of category-defining experts shaping our platform.
-          White-glove onboarding and priority access for pioneers.
+          A small, curated circle of experienced practitioners with priority access to early mentee engagements and the private expert lounge.
+          Just real experience, shared with purpose.
         </p>
 
         {/* Logic Block */}
@@ -208,7 +212,7 @@ export function HeroSection() {
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
 
               <span className="relative z-20 flex items-center justify-center gap-2">
-                Request Founding Access
+                Request Experts Access
                 <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
               </span>
             </Button>
