@@ -160,3 +160,69 @@ export async function deleteFile(path: string): Promise<void> {
     throw new Error(`Delete failed: ${error.message}`)
   }
 }
+
+// Upload content file (video, PDF, document, image, PPT) to Supabase Storage
+const CONTENT_ALLOWED_TYPES = [
+  'video/mp4', 'video/webm', 'video/quicktime', 'video/avi',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'text/plain',
+]
+const CONTENT_MAX_SIZE = 100 * 1024 * 1024 // 100MB
+
+export async function uploadContentFile(
+  file: File,
+  userId: string,
+  type: string = 'content'
+): Promise<UploadResult> {
+  if (file.size > CONTENT_MAX_SIZE) {
+    throw new Error('File size exceeds 100MB limit')
+  }
+
+  if (!CONTENT_ALLOWED_TYPES.includes(file.type)) {
+    throw new Error(`Unsupported file type: ${file.type}`)
+  }
+
+  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
+  const fileName = `${userId}-${Date.now()}-${cleanName}`
+  const filePath = `mentors/content/${type}/${fileName}`
+
+  // Attempt upload with original MIME type
+  let uploadResult = await supabase.storage
+    .from('uploads')
+    .upload(filePath, file, {
+      contentType: file.type,
+      cacheControl: '3600',
+      upsert: false,
+    })
+
+  // Fallback: retry with generic content type
+  if (uploadResult.error) {
+    uploadResult = await supabase.storage
+      .from('uploads')
+      .upload(filePath, file, {
+        contentType: 'application/octet-stream',
+        cacheControl: '3600',
+        upsert: false,
+      })
+  }
+
+  if (uploadResult.error) {
+    throw new Error(`Upload failed: ${uploadResult.error.message}`)
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('uploads')
+    .getPublicUrl(filePath)
+
+  return {
+    url: publicUrl,
+    path: uploadResult.data.path,
+    size: file.size,
+    contentType: file.type,
+  }
+}
