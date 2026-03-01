@@ -54,20 +54,20 @@ export default function AboutPageClient() {
   const values = [
     {
       icon: <HeartHandshake className="h-6 w-6 text-white" />,
-      title: "Human-first",
-      desc: "Real conversations, empathy, and mutual respect are at the core of great mentorship.",
+      title: "Thoughtful by Design",
+      desc: "We create space for real conversations — grounded in respect, context, and lived experience.",
       color: "bg-pink-500"
     },
     {
       icon: <Target className="h-6 w-6 text-white" />,
-      title: "Outcome‑oriented",
-      desc: "We focus on measurable improvements and practical next steps after every session.",
+      title: "Practical Outcomes",
+      desc: "Every engagement is meant to leave people clearer than they arrived — with concrete next steps, not abstract advice.",
       color: "bg-indigo-500"
     },
     {
       icon: <ShieldCheck className="h-6 w-6 text-white" />,
-      title: "Trust & Safety",
-      desc: "Verified experts, transparent expectations, and privacy‑first design.",
+      title: "Trust Comes First",
+      desc: "We work with verified practitioners, set clear expectations, and design with privacy and integrity in mind.",
       color: "bg-emerald-500"
     },
   ]
@@ -80,7 +80,7 @@ export default function AboutPageClient() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
-      
+
       {/* --- HERO SECTION --- */}
       <section
         ref={heroRef}
@@ -89,11 +89,10 @@ export default function AboutPageClient() {
         {/* Background System */}
         <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/50 via-slate-50 to-white"></div>
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-        
-        <div 
-          className={`max-w-4xl mx-auto text-center px-4 transition-all duration-1000 ease-out ${
-            heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+
+        <div
+          className={`max-w-6xl mx-auto text-center px-4 transition-all duration-1000 ease-out ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/60 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
             <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
@@ -101,16 +100,19 @@ export default function AboutPageClient() {
           </div>
 
           <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
-            Bridging Experience <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">With Curiosity</span>
+            <span className="lg:whitespace-nowrap">Turning Real Experience into</span><br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Better Decisions</span>
           </h1>
-          
+
           <div className="mx-auto mt-8 max-w-2xl space-y-6 text-lg leading-relaxed text-slate-600 sm:text-xl font-light">
-             <p>
-              We’re building SharingMinds — a collaborative platform designed to connect mentors, professionals, founders, and learners through purposeful interactions.
+            <p>
+              SharingMinds is being built to close a simple gap: people making important career and business choices rarely have access to those who’ve already walked similar paths.
             </p>
             <p className="font-medium text-slate-800">
-              At this stage, our focus is simple: shape a robust ecosystem that empowers mentors to share knowledge and guide meaningful growth journeys.
+              Our mission is to make lived experience more accessible — so founders, professionals, and students can learn directly from people who’ve built, led, and navigated change.
+            </p>
+            <p className="font-medium text-slate-800">
+              We’re creating an ecosystem where experience travels faster than advice.
             </p>
           </div>
         </div>
@@ -119,9 +121,8 @@ export default function AboutPageClient() {
       {/* --- TRUSTED PLATFORM BADGE --- */}
       <section
         ref={trustedRef}
-        className={`px-4 py-12 relative z-10 -mt-8 transition-all duration-1000 delay-200 ${
-          trustedVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
+        className={`px-4 py-12 relative z-10 -mt-8 transition-all duration-1000 delay-200 ${trustedVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
       >
         <div className="max-w-5xl mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-slate-900 shadow-2xl p-8 sm:p-12 text-center text-white ring-1 ring-white/10">
@@ -130,9 +131,9 @@ export default function AboutPageClient() {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
             <div className="relative z-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">Trusted Mentorship Platform</h2>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">A Curated Ecosystem for Experience Sharing</h2>
               <p className="text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-                SharingMinds is trusted by mentors and mentees alike for its professional, impactful, and data-driven mentorship experiences.
+                SharingMinds connects practitioners, founders, and learners through structured online engagements — creating space for reflection, perspective, and informed action.
               </p>
               <div className="flex justify-center gap-1">
                 {[...Array(5)].map((_, i) => (
@@ -154,25 +155,30 @@ export default function AboutPageClient() {
         <div className="max-w-7xl mx-auto">
           <div className="grid gap-16 lg:grid-cols-12 lg:items-center">
             {/* Text Content */}
-            <div 
-              className={`lg:col-span-5 flex flex-col justify-center transition-all duration-1000 ${
-                beliefsVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
-              }`}
+            <div
+              className={`lg:col-span-5 flex flex-col justify-center transition-all duration-1000 ${beliefsVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+                }`}
             >
               <div className="inline-flex items-center gap-2 mb-4">
                 <div className="h-px w-8 bg-indigo-500"></div>
                 <span className="text-indigo-600 font-bold uppercase tracking-widest text-xs">Our Beliefs</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold mb-8 text-slate-900 leading-tight">
-                Mentorship is a <br />
-                <span className="text-indigo-600">Growth Multiplier.</span>
+                Better Decisions Come from <br />
+                <span className="text-indigo-600">Shared Experience.</span>
               </h2>
               <div className="space-y-6 text-lg text-slate-600 leading-relaxed">
                 <p>
-                  At SharingMinds, we believe in the power of mentorship to inspire, guide, and uplift individuals towards their full potential.
+                  We believe people don’t need more information — they need perspective.
                 </p>
                 <p>
-                  Our platform is built on the belief that mentorship can create positive change. It isn't a privilege anymore — it's a necessity. 
+                  The fastest way to learn isn’t through content or courses. It’s through conversations with people who’ve already navigated similar paths
+                </p>
+                <p>
+                  SharingMinds is built on a simple idea: experience should be easier to access, thoughtfully shared, and grounded in real-world context.
+                </p>
+                <p>
+                  When that happens, progress becomes clearer — in careers, in leadership, and in business.
                 </p>
                 <div className="flex items-center gap-3 font-medium text-slate-900">
                   <CheckCircle2 className="h-5 w-5 text-indigo-600" />
@@ -182,10 +188,9 @@ export default function AboutPageClient() {
             </div>
 
             {/* Premium Masonry Grid */}
-            <div 
-              className={`lg:col-span-7 grid grid-cols-2 gap-4 lg:gap-6 transition-all duration-1000 delay-200 ${
-                beliefsVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
-              }`}
+            <div
+              className={`lg:col-span-7 grid grid-cols-2 gap-4 lg:gap-6 transition-all duration-1000 delay-200 ${beliefsVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
+                }`}
             >
               {/* Column 1 - Staggered Down */}
               <div className="space-y-4 pt-12">
@@ -206,11 +211,11 @@ export default function AboutPageClient() {
                   />
                 </div>
               </div>
-              
+
               {/* Column 2 */}
               <div className="space-y-4">
                 <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
-                   <Image
+                  <Image
                     src="/images/professional-woman.jpg"
                     alt="Professional woman"
                     fill
@@ -218,7 +223,7 @@ export default function AboutPageClient() {
                   />
                 </div>
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
-                   <Image
+                  <Image
                     src="/images/workshop-mentor.jpg"
                     alt="Workshop mentor"
                     fill
@@ -238,28 +243,30 @@ export default function AboutPageClient() {
       >
         {/* Background Animation */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950" />
-        
-        <div 
-          className={`relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center transition-all duration-1000 ${
-            teamVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-          }`}
+
+        <div
+          className={`relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center transition-all duration-1000 ${teamVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            }`}
         >
           <div className="inline-flex items-center rounded-full bg-indigo-500/10 border border-indigo-500/20 px-4 py-1.5 text-sm font-medium text-indigo-300 mb-8">
             <Users2 className="w-4 h-4 mr-2" />
             Who We Are
           </div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tight">Our Team</h2>
-          
+
+          <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tight">Building a Better Way to Learn From Experience</h2>
+
           <div className="space-y-8 text-xl text-slate-300 font-light leading-relaxed">
             <p>
-              SharingMinds has been founded by a group of passionate individuals dedicated to fostering mentorship opportunities for the next generation.
+              SharingMinds is being built by operators, product builders, and business leaders who’ve seen firsthand how difficult it is to find thoughtful guidance at important moments.
             </p>
             <p className="text-white font-normal text-2xl">
-              It's an AI-powered, next-gen platform redefining career guidance in India — built to solve trust gaps and deliver credible, personalized guidance.
+              We’re creating a platform that makes real-world experience easier to access — not through content or generic advice, but through structured conversations with people who’ve built, led, and navigated change.
             </p>
             <p>
-              Our platform is being built by a high-caliber team of tech leaders and developers with proven track records in <span className="text-indigo-400 font-medium">AI, product development, and large-scale platform engineering.</span>
+              Our focus is simple: design a reliable, online space where experienced professionals can share perspective, and founders, professionals, and students can learn directly from lived journeys.
+            </p>
+            <p>
+              Behind SharingMinds is a team combining product, technology, and business experience — working quietly to build something practical, human, and useful at scale.
             </p>
           </div>
         </div>
@@ -273,9 +280,9 @@ export default function AboutPageClient() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Our Core Values</h2>
-            <p className="mt-4 text-slate-600">The principles that guide every decision we make.</p>
+            <p className="mt-4 text-slate-600">The principles that shape how we work.</p>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((v, index) => {
               const { ref, isVisible } = valueCardRefs[index]
@@ -283,9 +290,8 @@ export default function AboutPageClient() {
                 <div
                   key={v.title}
                   ref={ref}
-                  className={`group relative rounded-3xl bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ring-1 ring-slate-200 ${
-                    isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
-                  }`}
+                  className={`group relative rounded-3xl bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ring-1 ring-slate-200 ${isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
+                    }`}
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${v.color} shadow-lg mb-6 group-hover:scale-110 transition-transform`}>
@@ -303,16 +309,15 @@ export default function AboutPageClient() {
       {/* --- MENTOR SIGNUP --- */}
       <section
         ref={signupRef}
-        className={`px-4 py-24 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 bg-white ${
-          signupVisible ? "animate-fade-in-up" : ""
-        }`}
+        className={`px-4 py-24 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 bg-white ${signupVisible ? "animate-fade-in-up" : ""
+          }`}
       >
         <div className="max-w-5xl mx-auto">
           <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-2xl p-8 text-center sm:p-16">
-            
+
             {/* Background Texture */}
-             <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-            
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+
             <div className="relative z-10">
               {/* Profile Photos Grid - Animated */}
               <div className="mb-10">
@@ -325,8 +330,8 @@ export default function AboutPageClient() {
                         width={60}
                         height={60}
                         className="w-full h-full object-cover"
-                         // Fallback logic for demo
-                         onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
+                        // Fallback logic for demo
+                        onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
                       />
                     </div>
                   ))}
@@ -337,15 +342,15 @@ export default function AboutPageClient() {
               </div>
 
               {/* Main Heading */}
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">Join SharingMinds <br/> as a Mentor Today.</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">From People Who Share Their Experience on SharingMinds</h2>
 
               {/* Testimonial */}
               <div className="max-w-2xl mx-auto mb-10">
-                 <Quote className="w-8 h-8 text-indigo-200 mx-auto mb-4" />
-                 <p className="text-xl text-slate-600 font-light italic">
-                  "SharingMinds is a fantastic platform that enabled me to share my knowledge. The dashboard is efficient, making the mentoring process smooth."
-                 </p>
-                 <p className="mt-4 font-semibold text-slate-900">— Fred Taylor</p>
+                <Quote className="w-8 h-8 text-indigo-200 mx-auto mb-4" />
+                <p className="text-xl text-slate-600 font-light italic">
+                  200+ experienced professionals have joined SharingMinds to engage in thoughtful conversations with founders and business leaders.
+                </p>
+                <p className="mt-4 font-semibold text-slate-900">Not for volume. For meaningful contribution.</p>
               </div>
 
               {/* Action Buttons */}
@@ -354,9 +359,9 @@ export default function AboutPageClient() {
               ) : session?.user ? (
                 <div className="max-w-md mx-auto">
                   <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-2 shadow-sm inline-flex items-center gap-4 pr-6">
-                     <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                     </div>
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
                     <div className="text-left">
                       <p className="text-sm text-slate-500 font-medium">Signed in as</p>
                       <p className="text-sm font-bold text-slate-900">{session.user.name}</p>

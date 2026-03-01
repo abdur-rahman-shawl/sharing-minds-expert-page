@@ -17,43 +17,69 @@ type VipInvitationProps = {
 }
 
 const heroIntro = [
-  'A Personal Invitation to Become a Founding Mentor on SharingMinds',
-  'You’re invited to join a select circle of thinkers, leaders, and changemakers who will shape the foundation of SharingMinds — a collaborative mentorship network designed for meaningful growth and real impact.',
-  'As one of our Founding Mentors, you won’t just guide others — you’ll help define how mentorship evolves in the modern professional world.',
+  'An Invitation to Our Early Expert Circle',
+  'You’re invited to join SharingMinds as part of our initial group of Founding Experts — a small, curated circle of experienced professionals with priority access to early mentee engagements.',
+  (
+    <div key="vip-intro-3" className="space-y-4">
+      <p>As a Founding Expert, you receive:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li>Early visibility on the platform</li>
+        <li>Priority placement in expert discovery</li>
+        <li>Access to our private expert lounge</li>
+        <li>First access to 1:1 session requests and group conversations</li>
+        <li>A more personalised engagement experience with mentees</li>
+      </ul>
+      <p>
+        This is designed for professionals who value meaningful conversations over volume — and prefer working in a focused, well-curated environment.
+      </p>
+      <p className="font-medium text-amber-200">
+        Welcome to the inner circle.
+      </p>
+    </div>
+  )
 ]
 
 const reasonsToJoin = [
-  'Be recognized as part of the core founding group of SharingMinds',
-  'Get featured as one of the faces of the community across our upcoming campaigns, events, collaborations, and digital media',
-  'Enjoy exclusive visibility and early recognition within the ecosystem',
-  'Unlock AI-powered tools for better mentee matching and brand visibility',
-  'Monetize your mentorship and gain a consistent income source',
-  'Shape the next generation of professionals, founders, and leaders',
+  'Priority placement in expert discovery during our early launch phase',
+  'Early access to 1:1 session requests and curated group conversations',
+  'Entry to the private Founding Expert lounge',
+  'A visible Founding Expert badge on your profile',
+  'Thoughtful matching with mentees based on real context and intent',
+  'Paid 1:1 engagements, on your terms',
+  'A quieter, more curated experience — fewer requests, higher relevance'
 ]
 
 const enrolmentSteps = [
   {
-    title: '1️⃣ Mentor Verification',
-    body: [
-      'A one-time process that ensures authenticity and credibility across the platform.We keep it light yet meaningful — maintaining a serious and high-quality mentor community built on trust and real expertise.',
-      'Membership: Rs 5000/- + 18% GST',
-    ],
+    title: 'Step 1 — Expert Verification (One-Time)',
+    body: (
+      <div className="space-y-4">
+        <p>A brief verification process to confirm experience and ensure quality across the platform.</p>
+        <p>This helps us maintain a trusted, high-caliber expert ecosystem — without unnecessary friction.</p>
+        <p className="font-semibold text-amber-200">Registration & Verification Fee: ₹9999 + 18% GST (one-time)</p>
+        <p>As part of this step, you’ll also receive complimentary Silver Membership — giving you early access to explore the platform, understand engagement formats, and experience the ecosystem firsthand.</p>
+      </div>
+    ),
   },
   {
-    title: '2️⃣ Platform Subscription',
-    body: [
-      'Once verified, mentors gain annual access to our ecosystem — connect with mentees, host sessions, publish insights, and use AI-based tools for discovery, matchmaking, and impact measurement. First year annual Membership comes with special early-access benefits, applicable only after we deploy fully functional platform. Watch this space for launch date.',
-    ],
+    title: 'Step 2 — Platform Membership (Annual)',
+    body: (
+      <div className="space-y-4">
+        <p>Once verified, you receive annual access to the SharingMinds ecosystem, including:</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Participation in 1:1 expert conversations and curated group sessions</li>
+          <li>Visibility in expert discovery</li>
+          <li>Access to the Founding Expert lounge</li>
+          <li>Smart matching powered by intent-based discovery</li>
+          <li>Tools to manage availability and engagements</li>
+        </ul>
+        <p>Early members will also receive special founding benefits during our initial launch phase.</p>
+        <p className="text-xs text-slate-400 italic">
+          (Platform-wide features will activate as we complete full deployment — launch details coming soon.)
+        </p>
+      </div>
+    ),
   },
-]
-
-const exclusiveOfferDetails = [
-  'Normally, joining the platform includes:',
-  '₹5,000 One-Time Mentor Verification Fee',
-  'Annual Platform Subscription Fee',
-  'However, for mentors joining through personal invitation, your ₹5,000 verification fee is completely waived —and your first-year membership comes with special early-access benefits and founding mentor recognition.',
-  'This is a limited opportunity extended personally to mentors we truly admire — those whose presence will inspire the network and set the tone for our community’s culture.',
-  'Our Founding Mentors will be the faces of the community — highlighted in our campaigns, events, and collaborations as the first voices who believed in the idea early and helped bring it to life.',
 ]
 
 export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, canAccessDashboard }: VipInvitationProps) {
@@ -71,7 +97,7 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
               className="h-12 w-auto"
             />
             <div className="hidden text-xs uppercase tracking-[0.3em] text-amber-200 sm:block">
-              Founding Mentor Circle
+              Founding Expert Circle
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -99,10 +125,10 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[3fr,2fr]">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.4em] text-amber-200">Founding Mentors</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-amber-200">Founding Experts</p>
             <h1 className="mt-4 text-3xl font-semibold text-white">{heroIntro[0]}</h1>
             <p className="mt-6 text-base text-slate-200">{heroIntro[1]}</p>
-            <p className="mt-4 text-base text-slate-200">{heroIntro[2]}</p>
+            <div className="mt-4 text-base text-slate-200 leading-relaxed">{heroIntro[2]}</div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button variant="secondary" className="bg-amber-400/90 text-black hover:bg-amber-300" onClick={onNavigateHome}>
                 Back to Home
@@ -119,9 +145,12 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
             <div className="relative flex h-full flex-col justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-amber-200">VIP Recognition</p>
-                <h2 className="mt-4 text-2xl font-semibold">High-Ticket Mentor Spotlight</h2>
+                <h2 className="mt-4 text-2xl font-semibold">Founding Expert Lounge</h2>
                 <p className="mt-3 text-sm text-amber-50">
-                  Enjoy an elevated experience that mirrors the stature of your expertise. This private lounge is dedicated to mentors who lead with vision and integrity.
+                  As a Founding Expert, you receive priority visibility and access to early mentee engagements — along with entry to our private expert lounge.
+                  <br />This space is designed for experienced professionals who prefer focused conversations, curated connections, and a more personalised engagement experience.
+                  <br />You’ll also carry a Founding Expert badge, highlighting your early role on SharingMinds.
+
                 </p>
               </div>
               <div className="relative mt-6 flex-1 min-h-[220px]">
@@ -141,7 +170,7 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
 
         <section className="mt-12 space-y-8">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <h3 className="text-xl font-semibold text-white">🔹 Why Join as a Founding Mentor?</h3>
+            <h3 className="text-xl font-semibold text-white">🔹 Why Join as a Founding Expert?</h3>
             <ul className="mt-6 grid gap-4 text-base text-slate-100 md:grid-cols-2">
               {reasonsToJoin.map(reason => (
                 <li key={reason} className="flex items-start gap-3 rounded-xl border border-white/5 bg-black/20 p-4 text-sm leading-relaxed text-slate-200">
@@ -150,19 +179,20 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
                 </li>
               ))}
             </ul>
+            <p className="mt-6 text-sm italic text-amber-200/90 text-center font-medium">
+              Designed for experienced professionals who prefer meaningful conversations over volume.
+            </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-8">
             <h3 className="text-xl font-semibold text-white">⚙️ The Enrolment Process</h3>
-            <p className="mt-2 text-sm text-slate-200">There are two simple steps to join our mentor network:</p>
+            <p className="mt-2 text-sm text-slate-200">Joining SharingMinds as a Founding Expert is intentionally simple and thoughtfully curated.</p>
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               {enrolmentSteps.map(step => (
-                <div key={step.title} className="rounded-2xl border border-white/10 bg-black/20 p-6">
+                <div key={step.title} className="rounded-2xl border border-white/10 bg-black/20 p-6 flex flex-col">
                   <h4 className="text-lg font-semibold text-white">{step.title}</h4>
-                  <div className="mt-4 space-y-3 text-sm text-slate-200">
-                    {step.body.map(line => (
-                      <p key={line}>{line}</p>
-                    ))}
+                  <div className="mt-4 text-sm text-slate-200 flex-1">
+                    {step.body}
                   </div>
                 </div>
               ))}
@@ -170,24 +200,36 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
           </div>
 
           <div className="rounded-3xl border border-amber-200/60 bg-gradient-to-r from-amber-500/20 via-transparent to-transparent p-8">
-            <h3 className="text-xl font-semibold text-white">🎁 Exclusive Offer for Founding Mentors (By Personal Invitation Only)</h3>
-            <div className="mt-4 space-y-4 text-sm text-white">
-              {exclusiveOfferDetails.map(detail => (
-                <p key={detail}>{detail}</p>
-              ))}
+            <h3 className="text-xl font-semibold text-white">🎁 Founding Expert Access (By Personal Invitation)</h3>
+            <div className="mt-4 text-sm text-white">
+              <p className="mb-2">Joining SharingMinds includes:</p>
+              <ul className="list-disc pl-5 mb-4 space-y-2">
+                <li>One-time Expert Verification — ₹9,999 + GST</li>
+                <li>Annual Platform Membership</li>
+              </ul>
+              <p className="mb-2">As a Founding Expert, you receive:</p>
+              <ul className="list-disc pl-5 mb-4 space-y-2">
+                <li>Complimentary Silver Membership for your first year. Value INR: Rs 12,000/- +</li>
+                <li>Founding Expert recognition on your profile</li>
+                <li>Priority visibility during early launch</li>
+                <li>Access to the private expert lounge</li>
+              </ul>
+              <p className="italic text-amber-100/90 mt-4">
+                This invitation is extended selectively to experienced professionals joining us in the early phase.
+              </p>
             </div>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <h3 className="text-xl font-semibold text-white">💬 Ready to Lead the Way?</h3>
+            <h3 className="text-xl font-semibold text-white">💬 Ready to Join as a Founding Expert?</h3>
             <p className="mt-4 text-sm text-slate-200">
-              Join us in building a space where experience meets purpose — and where every conversation creates lasting impact.Together, let’s make mentorship more personal, measurable, and transformative.
+              You’re invited to be part of our early expert circle — with priority access, curated engagements, and a more personalised experience on SharingMinds.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button className="bg-amber-400/90 text-black hover:bg-amber-300">
-                👉 [Accept Your Invitation →]
+              <Button className="bg-amber-400/90 text-black hover:bg-amber-300 font-semibold px-6">
+                Accept Your Invitation
               </Button>
-              <p className="text-xs text-amber-100">(Exclusive to personally invited mentors. Limited early-access seats available.)</p>
+              <p className="text-xs text-amber-100/80">(Personal invitations only. Limited founding access.)</p>
             </div>
           </div>
         </section>

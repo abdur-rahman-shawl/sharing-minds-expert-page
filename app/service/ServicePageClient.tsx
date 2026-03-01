@@ -16,25 +16,57 @@ export default function ServicePageClient() {
 
   const features = [
     {
-      title: "Professional Mentor Profile",
-      description:
-        "Easily create a professional mentor profile to showcase your expertise and experience to potential mentees. Your digital portfolio of leadership.",
+      title: "Practitioner Profiles (Built for Real Conversations)",
+      description: (
+        <div className="space-y-4">
+          <p>
+            Present your experience clearly and thoughtfully — so founders and CXOs understand who you are, what you've worked on, and where you add value.
+          </p>
+          <p>
+            Not a resume. A practical snapshot of your real-world journey.
+          </p>
+        </div>
+      ),
       image: "/images/professional-mentor.jpg",
       alt: "Professional mentor in office setting",
       icon: UserCircle
     },
     {
-      title: "Mentor-Mentee Connection",
-      description:
-        "Engage and connect with mentees looking for guidance. Our algorithm ensures meaningful chemistry and domain alignment.",
+      title: "Thoughtful Matching for Meaningful Conversations",
+      description: (
+        <div className="space-y-4">
+          <p>
+            We help align founders and CXOs with experienced practitioners based on real challenges and context — so conversations start with relevance, not randomness.
+          </p>
+          <p className="space-y-1">
+            <span className="block">No cold outreach.</span>
+            <span className="block">No generic requests.</span>
+            <span className="block">Just carefully matched engagements.</span>
+          </p>
+        </div>
+      ),
       image: "/images/mentor-connection.jpg",
       alt: "Mentor-mentee connection",
       icon: Users
     },
     {
-      title: "Personalized Dashboard Access",
-      description:
-        "Access a personalized dashboard to manage your mentorship activities, upload content, and track your progress with data-driven insights.",
+      title: "A Simple Space to Manage Your Engagements",
+      description: (
+        <div className="space-y-4">
+          <p>
+            View upcoming conversations, manage availability, and keep track of your sessions — all in one place.
+          </p>
+          <p>
+            Designed to stay out of your way, so you can focus on the conversation.
+          </p>
+          <p>
+            From scheduling sessions to managing conversations, SharingMinds keeps things organised — quietly and efficiently.
+          </p>
+          <p>
+            No clutter. Just clarity.
+          </p>
+        </div>
+      ),
       image: "/images/leadership-dashboard.jpg",
       alt: "Personalized dashboard interface",
       icon: LayoutDashboard
@@ -71,7 +103,7 @@ export default function ServicePageClient() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
-      
+
       {/* --- HERO SECTION --- */}
       <section
         ref={heroRef}
@@ -83,10 +115,9 @@ export default function ServicePageClient() {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] -z-10 bg-indigo-200/20 blur-[100px] rounded-[50%] pointer-events-none mix-blend-multiply"></div>
 
-        <div 
-          className={`max-w-5xl mx-auto text-center px-4 transition-all duration-1000 ease-out ${
-            heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <div
+          className={`max-w-5xl mx-auto text-center px-4 transition-all duration-1000 ease-out ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/60 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
             <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
@@ -94,11 +125,15 @@ export default function ServicePageClient() {
           </div>
 
           <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
-            Mentorship <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Made Easy</span>
+            How <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">SharingMinds</span> Works?
           </h1>
-          
+
           <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
-            Join SharingMinds as a mentor to empower and guide young minds towards success using our premium suite of tools.
+            Structured online conversations that connect experienced professionals with founders and business leaders — through private 1:1 sessions, small CXO circles, and focused roundtables.
+          </p>
+
+          <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
+            Designed for real challenges. Delivered with care.
           </p>
 
           <div className="mt-8">
@@ -112,9 +147,8 @@ export default function ServicePageClient() {
       {/* --- DASHBOARD PREVIEW --- */}
       <section
         ref={dashboardRef}
-        className={`px-4 pb-24 sm:px-6 lg:px-8 -mt-8 relative z-10 transition-all duration-1000 delay-200 ${
-          dashboardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
-        }`}
+        className={`px-4 pb-24 sm:px-6 lg:px-8 -mt-8 relative z-10 transition-all duration-1000 delay-200 ${dashboardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
+          }`}
       >
         <div className="max-w-6xl mx-auto">
           {/* Browser Window Effect */}
@@ -124,18 +158,18 @@ export default function ServicePageClient() {
               <div className="w-3 h-3 rounded-full bg-amber-400/80"></div>
               <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
             </div>
-            
+
             <div className="relative rounded-xl overflow-hidden mt-8 shadow-inner bg-slate-100 aspect-[16/10]">
-               {/* Replace with actual image */}
+              {/* Replace with actual image */}
               <Image
                 src="/images/dashboard-mockup.jpg"
                 alt="Mentorship Dashboard showing analytics and team members"
                 fill
                 className="object-cover object-top"
               />
-               {/* Placeholder fallback if image missing */}
+              {/* Placeholder fallback if image missing */}
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center -z-10">
-                 <span className="text-slate-400 font-medium">Dashboard Preview</span>
+                <span className="text-slate-400 font-medium">Dashboard Preview</span>
               </div>
             </div>
           </div>
@@ -145,15 +179,13 @@ export default function ServicePageClient() {
       {/* --- DESCRIPTION --- */}
       <section
         ref={descriptionRef}
-        className={`px-4 py-20 relative transition-all duration-1000 ${
-          descriptionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+        className={`px-4 py-20 relative transition-all duration-1000 ${descriptionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
       >
         <div className="absolute inset-0 bg-white skew-y-1 -z-10 shadow-sm border-y border-slate-100/50"></div>
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xl md:text-2xl text-slate-700 leading-relaxed font-light">
-            "SharingMinds Mentor Onboarding software provides a <span className="font-semibold text-indigo-600">seamless experience</span> for mentors to create profiles,
-            connect with mentees, and efficiently manage their mentoring relationships."
+            "SharingMinds Onboarding software provides a <span className="font-semibold text-indigo-600">seamless experience</span> for experienced professionals to create profiles, connect with founders, and efficiently manage their relationships through structured online conversations."
           </p>
         </div>
       </section>
@@ -169,11 +201,9 @@ export default function ServicePageClient() {
               <div
                 key={index}
                 ref={ref}
-                className={`flex flex-col gap-12 lg:gap-20 items-center ${
-                  index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-                } transition-all duration-1000 ${
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-                }`}
+                className={`flex flex-col gap-12 lg:gap-20 items-center ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+                  } transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+                  }`}
               >
                 {/* Visual Side */}
                 <div className="flex-1 w-full group">
@@ -187,10 +217,10 @@ export default function ServicePageClient() {
                     />
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
-                    
+
                     {/* Floating Icon */}
                     <div className="absolute bottom-6 left-6 h-14 w-14 rounded-2xl bg-white/90 backdrop-blur shadow-lg flex items-center justify-center text-indigo-600">
-                        <Icon className="w-7 h-7" />
+                      <Icon className="w-7 h-7" />
                     </div>
                   </div>
                 </div>
@@ -201,9 +231,9 @@ export default function ServicePageClient() {
                     Feature 0{index + 1}
                   </div>
                   <h3 className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">{feature.title}</h3>
-                  <p className="text-lg text-slate-600 leading-relaxed border-l-2 border-indigo-100 pl-6">
+                  <div className="text-lg text-slate-600 leading-relaxed border-l-2 border-indigo-100 pl-6 space-y-4">
                     {feature.description}
-                  </p>
+                  </div>
                   <Button variant="link" className="text-indigo-600 p-0 h-auto font-semibold group">
                     Learn more <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                   </Button>
@@ -222,13 +252,13 @@ export default function ServicePageClient() {
         {/* Background Effects */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Why Choose SharingMinds</h2>
             <p className="text-indigo-200 text-lg">Experience the difference of a platform built for excellence.</p>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {whyChooseItems.map((item, index) => {
               const { ref, isVisible } = whyChooseCardRefs[index]
@@ -236,9 +266,8 @@ export default function ServicePageClient() {
                 <div
                   key={item}
                   ref={ref}
-                  className={`group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-500 hover:bg-white/10 hover:border-indigo-500/50 hover:-translate-y-1 ${
-                    isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
-                  }`}
+                  className={`group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-500 hover:bg-white/10 hover:border-indigo-500/50 hover:-translate-y-1 ${isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
+                    }`}
                   style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors duration-300">
@@ -266,9 +295,8 @@ export default function ServicePageClient() {
                 <div
                   key={item.q}
                   ref={ref}
-                  className={`rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-md hover:border-indigo-200 ${
-                    isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
-                  }`}
+                  className={`rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-500 hover:shadow-md hover:border-indigo-200 ${isVisible ? `opacity-100 translate-y-0` : "opacity-0 translate-y-8"
+                    }`}
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <h4 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
