@@ -41,7 +41,7 @@ interface MentorData {
 
 const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'My Mentees', href: '/dashboard/mentees', icon: Users },
+    { label: 'Professionals', href: '/dashboard/mentees', icon: Users },
     { label: 'Schedule', href: '/dashboard/schedule', icon: CalendarDays },
     { label: 'Availability', href: '/dashboard/availability', icon: Clock },
     { label: 'Messages', href: '/dashboard/messages', icon: MessageSquare, badge: 0 },
@@ -86,7 +86,7 @@ export function DashboardSidebar({ mentor }: { mentor: MentorData }) {
                         <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{mentor.fullName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
                             <Sparkles className="h-3 w-3 text-amber-500 dark:text-amber-400" />
-                            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Founding Mentor</span>
+                            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Verified Expert</span>
                         </div>
                     </div>
                 </div>

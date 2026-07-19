@@ -414,7 +414,7 @@ export function MentorProfileEdit() {
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
                                     <Sparkles className="h-2.5 w-2.5" />
-                                    Founding Mentor
+                                    Verified Expert
                                 </span>
                             </div>
                         </div>
@@ -475,7 +475,7 @@ export function MentorProfileEdit() {
                         onChange={handleChange('about')}
                         rows={5}
                         className="w-full bg-white dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/40 resize-none placeholder:text-gray-400 dark:placeholder:text-slate-600"
-                        placeholder="Tell mentees about yourself, your background, and what you can help with..."
+                        placeholder="Tell professionals about yourself, your background, and what you can help with..."
                     />
                 ) : (
                     <p className="text-sm text-gray-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
@@ -517,11 +517,11 @@ export function MentorProfileEdit() {
                     <FormField label="Website URL" value={mentorData.websiteUrl} field="websiteUrl" editing={isEditing} onChange={handleChange} type="url" icon={Globe} link />
                 </FormSection>
 
-                {/* Mentoring */}
-                <FormSection title="Mentoring Preferences" icon={User}>
+                {/* Expert engagement preferences */}
+                <FormSection title="Expert Engagement Preferences" icon={User}>
                     <FormField label="Hourly Rate ($)" value={mentorData.hourlyRate} field="hourlyRate" editing={isEditing} onChange={handleChange} type="number" icon={Briefcase} />
                     <FormField label="Currency" value={mentorData.currency} field="currency" editing={isEditing} onChange={handleChange} icon={Briefcase} />
-                    <FormField label="Max Mentees" value={mentorData.maxMentees} field="maxMentees" editing={isEditing} onChange={handleChange} type="number" icon={User} />
+                    <FormField label="Max Active Connections" value={mentorData.maxMentees} field="maxMentees" editing={isEditing} onChange={handleChange} type="number" icon={User} />
                     {isEditing ? (
                         <div className="flex items-center justify-between py-2">
                             <label className="text-xs text-gray-500 dark:text-slate-400">Available for bookings</label>

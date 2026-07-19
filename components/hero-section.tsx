@@ -11,6 +11,7 @@ import { FcGoogle } from "react-icons/fc"
 import { FaLinkedin } from "react-icons/fa"
 import { signIn, signOut, useSession } from "@/lib/auth-client"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export function HeroSection() {
   const [reveal, setReveal] = useState(false)
@@ -20,17 +21,17 @@ export function HeroSection() {
 
   const handleRegisterClick = () => {
     if (session?.user) {
-      router.push('/registration')
+      router.push(EXPERT_APPLICATION_PATH)
       return
     }
-    router.push(`/auth/login?callbackUrl=${encodeURIComponent('/registration')}`)
+    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error('Sign in error:', error)
@@ -41,7 +42,7 @@ export function HeroSection() {
     try {
       await signIn.social({
         provider: 'linkedin',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error('Sign in error:', error)
@@ -86,20 +87,16 @@ export function HeroSection() {
       >
         <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/50 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
           <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
-          Invitation Only
+          Currently Reviewing Expert Applications
         </div>
 
         <h1 className="mb-4 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
-          Founding <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Experts</span>
+          Apply for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Expert Verification</span>
         </h1>
 
-        <h2 className="mb-6 text-2xl sm:text-3xl font-semibold text-slate-700 tracking-tight">
-          A Thoughtful Space for People Who&apos;ve Built, Led, and Learned
-        </h2>
-
-        <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
-          A small, curated circle of experienced practitioners with priority access to early mentee engagements and the private expert lounge.
-          Just real experience, shared with purpose.
+        <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
+          SharingMinds is reviewing applications from experienced professionals who have built,
+          led, advised, solved, and scaled in the real world.
         </p>
 
         {/* Logic Block */}
@@ -123,7 +120,7 @@ export function HeroSection() {
                       <Star className="h-7 w-7 text-indigo-600 fill-indigo-600 animate-[spin_10s_linear_infinite]" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900">
-                      Welcome, Founding Mentor
+                      Welcome, Verified Expert
                     </h3>
                   </div>
 
@@ -137,7 +134,7 @@ export function HeroSection() {
                       </Avatar>
                       <div className="text-left">
                         <p className="font-medium text-slate-900 text-sm">{mentor?.fullName || session.user.name}</p>
-                        <p className="text-xs text-slate-500 font-medium">Verified Mentor</p>
+                        <p className="text-xs text-slate-500 font-medium">Verified Expert</p>
                       </div>
                     </div>
                     <Image
@@ -187,7 +184,7 @@ export function HeroSection() {
                         size="sm"
                         className="flex-1 bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg transition-all"
                       >
-                        Apply Now
+                        Continue Application
                       </Button>
                     )}
                     <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-500 hover:bg-white/50">
@@ -212,7 +209,7 @@ export function HeroSection() {
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
 
               <span className="relative z-20 flex items-center justify-center gap-2">
-                Request Experts Access
+                Apply for Expert Verification
                 <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
               </span>
             </Button>

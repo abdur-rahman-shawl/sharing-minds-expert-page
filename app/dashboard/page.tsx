@@ -27,13 +27,13 @@ export default function DashboardOverview() {
                 <div className="relative">
                     <div className="flex items-center gap-2 mb-2">
                         <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-400" />
-                        <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Founding Mentor</span>
+                        <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Verified Expert</span>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                         Welcome back, {firstName} 👋
                     </h2>
                     <p className="text-gray-500 dark:text-slate-400 text-sm max-w-lg">
-                        Your personalized dashboard is taking shape. As a founding mentor, you&apos;ll be the first to access new features as they launch.
+                        Your personalized expert dashboard is taking shape. You&apos;ll be among the first to access new features as they launch.
                     </p>
                 </div>
             </div>
@@ -41,7 +41,7 @@ export default function DashboardOverview() {
             {/* Stats grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    label="Total Mentees"
+                    label="Total Professionals"
                     value={0}
                     icon={Users}
                     subtitle="Launching soon"
@@ -78,21 +78,21 @@ export default function DashboardOverview() {
                         href="/dashboard/profile"
                         icon={TrendingUp}
                         label="Complete your profile"
-                        description="Add more details to attract mentees"
+                        description="Add more details to attract professionals seeking guidance"
                         color="text-indigo-400"
                     />
                     <QuickAction
                         href="/dashboard/availability"
                         icon={Clock}
                         label="Set your availability"
-                        description="Define when mentees can book you"
+                        description="Define when professionals can book you"
                         color="text-emerald-400"
                     />
                     <QuickAction
                         href="/dashboard/content"
                         icon={BookOpen}
                         label="Upload learning materials"
-                        description="Share resources with your mentees"
+                        description="Share resources with professionals seeking guidance"
                         color="text-amber-400"
                     />
                 </div>
@@ -107,8 +107,8 @@ export default function DashboardOverview() {
                     <div>
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Platform Launch Update</h3>
                         <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-                            The SharingMinds platform is currently in early access. Mentee matching, session scheduling,
-                            and all dashboard features will be fully activated at launch. As a founding mentor, you&apos;ll
+                            The SharingMinds platform is currently in early access. Professional matching, session scheduling,
+                            and all expert dashboard features will be fully activated at launch. As a verified expert, you&apos;ll
                             get priority access to every new feature.
                         </p>
                     </div>

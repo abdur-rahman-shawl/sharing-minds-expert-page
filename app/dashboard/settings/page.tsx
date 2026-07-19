@@ -9,7 +9,7 @@ export default function SettingsPage() {
             icon={Settings}
             title="Settings"
             description="Configure your notification preferences, privacy settings, session policies, and account details."
-            teaser="Customize your mentor experience exactly how you want it"
+            teaser="Customize your verified expert experience exactly how you want it"
         />
     )
 }

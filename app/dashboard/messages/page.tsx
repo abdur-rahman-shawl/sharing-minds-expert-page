@@ -4,10 +4,10 @@ import { MessageSquare, Search, Plus, Rocket, Sparkles } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 const PLACEHOLDER_CONVERSATIONS = [
-    { name: 'Platform Support', initials: 'SM', lastMsg: 'Welcome to SharingMinds! Your mentor account is set up.', time: 'Just now', unread: true, role: 'admin' },
-    { name: 'Mentee Name', initials: '??', lastMsg: 'Hey! I would love to book a session with you...', time: '—', unread: false, role: 'mentee' },
-    { name: 'Mentee Name', initials: '??', lastMsg: 'Thanks for the great session yesterday!', time: '—', unread: false, role: 'mentee' },
-    { name: 'Mentee Name', initials: '??', lastMsg: 'Could you share some resources on...', time: '—', unread: false, role: 'mentee' },
+    { name: 'Platform Support', initials: 'SM', lastMsg: 'Welcome to SharingMinds! Your verified expert account is set up.', time: 'Just now', unread: true, role: 'admin' },
+    { name: 'Professional', initials: '??', lastMsg: 'I would love to book a guidance session with you...', time: '—', unread: false, role: 'mentee' },
+    { name: 'Professional', initials: '??', lastMsg: 'Thanks for the valuable session yesterday!', time: '—', unread: false, role: 'mentee' },
+    { name: 'Professional', initials: '??', lastMsg: 'Could you share some resources on...', time: '—', unread: false, role: 'mentee' },
 ]
 
 export default function MessagesPage() {
@@ -96,7 +96,7 @@ export default function MessagesPage() {
                                 <div className="flex justify-start">
                                     <div className="max-w-[70%] bg-gray-100 dark:bg-slate-800/60 rounded-xl rounded-bl-sm px-4 py-2.5 border border-gray-200 dark:border-slate-700/30">
                                         <p className="text-sm text-gray-700 dark:text-slate-300">Welcome to SharingMinds! 🎉</p>
-                                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Your mentor account has been verified. You&apos;re now part of our founding mentor network.</p>
+                                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Your expert account has been verified. You&apos;re now part of our verified expert community.</p>
                                         <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-1.5">Just now</p>
                                     </div>
                                 </div>

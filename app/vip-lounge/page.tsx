@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { VipInvitation } from '@/components/vip/vip-invitation'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
 import { Button } from '@/components/ui/button'
+import { EXPERT_APPLICATION_PATH } from '@/lib/routes'
 
 export default function VipLoungePage() {
   const router = useRouter()
@@ -27,12 +28,12 @@ export default function VipLoungePage() {
         <div className="max-w-xl space-y-4">
           <h1 className="text-3xl font-semibold">VIP access is reserved</h1>
           <p className="text-base text-slate-200">
-            This section is curated exclusively for mentors who have already completed the SharingMinds registration
-            process. Please log in with your mentor account or finish your registration to unlock the experience.
+            This section is curated exclusively for verified experts who have already completed the SharingMinds
+            application process. Please log in with your expert account or finish your application to unlock the experience.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button onClick={() => router.push('/registration')} className="bg-amber-400/90 text-black hover:bg-amber-300">
-              Apply as Mentor
+            <Button onClick={() => router.push(EXPERT_APPLICATION_PATH)} className="bg-amber-400/90 text-black hover:bg-amber-300">
+              Apply for Verification
             </Button>
             <Button variant="outline" onClick={() => router.push('/')} className="border-white/30 text-white hover:bg-white/10">
               Back to Home

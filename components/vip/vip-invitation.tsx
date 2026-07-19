@@ -18,7 +18,7 @@ type VipInvitationProps = {
 
 const heroIntro = [
   'An Invitation to Our Early Expert Circle',
-  'You’re invited to join SharingMinds as part of our initial group of Founding Experts — a small, curated circle of experienced professionals with priority access to early mentee engagements.',
+  'You’re invited to join SharingMinds as part of our initial group of Founding Experts — a small, curated circle of experienced professionals with priority access to early engagements.',
   (
     <div key="vip-intro-3" className="space-y-4">
       <p>As a Founding Expert, you receive:</p>
@@ -27,7 +27,7 @@ const heroIntro = [
         <li>Priority placement in expert discovery</li>
         <li>Access to our private expert lounge</li>
         <li>First access to 1:1 session requests and group conversations</li>
-        <li>A more personalised engagement experience with mentees</li>
+        <li>A more personalised experience with professionals seeking guidance</li>
       </ul>
       <p>
         This is designed for professionals who value meaningful conversations over volume — and prefer working in a focused, well-curated environment.
@@ -44,7 +44,7 @@ const reasonsToJoin = [
   'Early access to 1:1 session requests and curated group conversations',
   'Entry to the private Founding Expert lounge',
   'A visible Founding Expert badge on your profile',
-  'Thoughtful matching with mentees based on real context and intent',
+  'Thoughtful matching with professionals seeking guidance based on real context and intent',
   'Paid 1:1 engagements, on your terms',
   'A quieter, more curated experience — fewer requests, higher relevance'
 ]
@@ -135,7 +135,7 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
               </Button>
               {canAccessDashboard && onNavigateDashboard && (
                 <Button className="border border-white/20 bg-transparent text-white hover:bg-white/10" onClick={onNavigateDashboard}>
-                  Go to Mentor Dashboard
+                  Go to Expert Dashboard
                 </Button>
               )}
             </div>
@@ -147,7 +147,7 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
                 <p className="text-xs uppercase tracking-[0.3em] text-amber-200">VIP Recognition</p>
                 <h2 className="mt-4 text-2xl font-semibold">Founding Expert Lounge</h2>
                 <p className="mt-3 text-sm text-amber-50">
-                  As a Founding Expert, you receive priority visibility and access to early mentee engagements — along with entry to our private expert lounge.
+                  As a Founding Expert, you receive priority visibility and access to early professional engagements — along with entry to our private expert lounge.
                   <br />This space is designed for experienced professionals who prefer focused conversations, curated connections, and a more personalised engagement experience.
                   <br />You’ll also carry a Founding Expert badge, highlighting your early role on SharingMinds.
 

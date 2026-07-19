@@ -337,7 +337,7 @@ export function EditContentDialog({ content, open, onOpenChange }: EditContentDi
                         </div>
                         <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3">
                             <Info className="h-4 w-4 text-amber-500 shrink-0" />
-                            <span>Analytics coming soon — track how your mentees engage with your content</span>
+                            <span>Analytics coming soon — track how professionals engage with your content</span>
                         </div>
                     </TabsContent>
                 </Tabs>

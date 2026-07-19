@@ -37,6 +37,7 @@ import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
 import { logConsentEvents } from "@/lib/consent-client"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 // --- TYPES & HELPERS ---
 
@@ -442,7 +443,7 @@ export default function RegistrationForm() {
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -456,7 +457,7 @@ export default function RegistrationForm() {
     try {
       await signIn.social({
         provider: 'linkedin',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -560,10 +561,10 @@ export default function RegistrationForm() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
         <div className="max-w-xl w-full rounded-2xl border border-slate-200 bg-white/90 shadow-lg p-8 space-y-4">
-          <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide">Already a mentor</p>
-          <h1 className="text-2xl font-bold text-slate-900">You already have mentor access</h1>
+          <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide">Already a verified expert</p>
+          <h1 className="text-2xl font-bold text-slate-900">You already have expert access</h1>
           <p className="text-slate-600">
-            You’re signed in as a mentor, so you don’t need to submit another application. Head to the VIP lounge to continue.
+            You’re signed in as a verified expert, so you don’t need to submit another application. Head to the VIP lounge to continue.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
@@ -599,7 +600,7 @@ export default function RegistrationForm() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600 font-medium">Checking registration status...</p>
+          <p className="mt-4 text-slate-600 font-medium">Checking verification status...</p>
         </div>
       </div>
     )
@@ -651,7 +652,7 @@ export default function RegistrationForm() {
             </Button>
 
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
-              Expert <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Registration</span>
+              Expert <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Verification Application</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Join a private circle of category-defining experts. Help shape the next generation by sharing your expertise.
@@ -1032,7 +1033,7 @@ export default function RegistrationForm() {
                       id="about"
                       value={mentorFormData.about}
                       onChange={e => setMentorFormData(prev => ({ ...prev, about: e.target.value }))}
-                      placeholder="What motivates you to mentor?"
+                      placeholder="What motivates you to share your expertise?"
                       rows={4}
                       className="bg-white/50 border-slate-200 focus:bg-white resize-none"
                     />
@@ -1223,7 +1224,7 @@ export default function RegistrationForm() {
                   className="group relative w-full min-h-[3.5rem] h-auto py-3 overflow-hidden rounded-xl bg-slate-900 text-white shadow-xl shadow-indigo-500/20 transition-all duration-300 hover:bg-slate-800 hover:shadow-indigo-500/40 hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2 text-base sm:text-lg font-semibold tracking-wide whitespace-normal text-center leading-tight">
-                    {isLoading ? "Submitting Application..." : "Submit Founding Mentor Application"}
+                    {isLoading ? "Submitting Application..." : "Submit Expert Verification Application"}
                     {!isLoading && <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />}
                   </span>
                   

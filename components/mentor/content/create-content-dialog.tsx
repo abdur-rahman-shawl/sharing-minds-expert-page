@@ -45,7 +45,7 @@ type ContentType = 'COURSE' | 'FILE' | 'URL'
 
 const typeOptions = [
     { value: 'COURSE' as const, icon: BookOpen, label: 'Course', desc: 'Build a structured learning experience with modules, sections, and content items' },
-    { value: 'FILE' as const, icon: FileText, label: 'File', desc: 'Upload PDFs, videos, documents, or other files for your mentees' },
+    { value: 'FILE' as const, icon: FileText, label: 'File', desc: 'Upload PDFs, videos, documents, or other files for professionals seeking guidance' },
     { value: 'URL' as const, icon: Link2, label: 'URL', desc: 'Share an external link to articles, videos, or other web resources' },
 ]
 

@@ -21,7 +21,7 @@ export default function AvailabilityPage() {
                 <Clock className="h-5 w-5 text-emerald-400" />
                 <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Set Your Availability</h2>
-                    <p className="text-xs text-gray-400 dark:text-slate-500">Define when mentees can book sessions with you</p>
+                    <p className="text-xs text-gray-400 dark:text-slate-500">Define when professionals can book sessions with you</p>
                 </div>
             </div>
 

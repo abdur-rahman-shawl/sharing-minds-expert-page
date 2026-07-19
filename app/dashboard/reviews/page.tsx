@@ -4,9 +4,9 @@ import { Star, Rocket, Sparkles, ThumbsUp, MessageCircle } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 const PLACEHOLDER_REVIEWS = [
-    { name: '—', initials: '?', rating: 0, date: '—', text: 'Review content will appear here once mentees start booking sessions with you.' },
-    { name: '—', initials: '?', rating: 0, date: '—', text: 'Your mentees will be able to leave detailed feedback after each session.' },
-    { name: '—', initials: '?', rating: 0, date: '—', text: 'Ratings help build your reputation and attract more mentees to your profile.' },
+    { name: '—', initials: '?', rating: 0, date: '—', text: 'Review content will appear here once professionals start booking sessions with you.' },
+    { name: '—', initials: '?', rating: 0, date: '—', text: 'Professionals will be able to leave detailed feedback after each session.' },
+    { name: '—', initials: '?', rating: 0, date: '—', text: 'Ratings help build your reputation and attract more professionals to your profile.' },
 ]
 
 export default function ReviewsPage() {
@@ -104,7 +104,7 @@ export default function ReviewsPage() {
             {/* Info */}
             <div className="bg-gray-100 dark:bg-slate-800/30 rounded-xl p-4 border border-gray-200 dark:border-slate-700/30 text-center">
                 <p className="text-xs text-gray-500 dark:text-slate-500">
-                    ⭐ Reviews help build trust and credibility. As a <span className="text-amber-500 dark:text-amber-400 font-medium">Founding Mentor</span>, your early reviews will be highlighted to future mentees.
+                    ⭐ Reviews help build trust and credibility. As a <span className="text-amber-500 dark:text-amber-400 font-medium">Verified Expert</span>, your early reviews will be highlighted to professionals seeking guidance.
                 </p>
             </div>
         </div>

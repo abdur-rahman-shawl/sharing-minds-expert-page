@@ -3,7 +3,7 @@ import ServicePageClient from "./ServicePageClient"
 
 export const metadata: Metadata = {
   title: "Services — SharingMinds",
-  description: "Explore our expert mentoring services and how we help you connect, learn, and grow.",
+  description: "Explore expert guidance services and how SharingMinds helps you connect, learn, and grow.",
 }
 
 export default function ServicePage() {

@@ -177,7 +177,7 @@ export function AvailabilitySettings({ schedule, onUpdate }: AvailabilitySetting
                         <CardTitle className="text-base text-gray-900 dark:text-white">Booking Window</CardTitle>
                     </div>
                     <CardDescription className="text-gray-500 dark:text-slate-400">
-                        Control how far in advance mentees can book sessions
+                        Control how far in advance professionals can book sessions
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
@@ -231,7 +231,7 @@ export function AvailabilitySettings({ schedule, onUpdate }: AvailabilitySetting
                         <CardTitle className="text-base text-gray-900 dark:text-white">Booking Preferences</CardTitle>
                     </div>
                     <CardDescription className="text-gray-500 dark:text-slate-400">
-                        Control how mentees can book sessions with you
+                        Control how professionals can book sessions with you
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
@@ -242,7 +242,7 @@ export function AvailabilitySettings({ schedule, onUpdate }: AvailabilitySetting
                                 Allow Instant Booking
                             </Label>
                             <p className="text-xs text-gray-500 dark:text-slate-400">
-                                Mentees can book without waiting for your approval
+                                Professionals can book without waiting for your approval
                             </p>
                         </div>
                         <Switch
@@ -273,7 +273,7 @@ export function AvailabilitySettings({ schedule, onUpdate }: AvailabilitySetting
                         <Alert className="bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30">
                             <Info className="h-4 w-4 text-blue-500" />
                             <AlertDescription className="text-blue-700 dark:text-blue-300 text-xs">
-                                When confirmation is required, mentees will see their booking as &quot;Pending&quot; until you approve it. You&apos;ll receive a notification for each request.
+                                When confirmation is required, professionals will see their booking as &quot;Pending&quot; until you approve it. You&apos;ll receive a notification for each request.
                             </AlertDescription>
                         </Alert>
                     )}

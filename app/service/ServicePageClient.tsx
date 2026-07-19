@@ -28,7 +28,7 @@ export default function ServicePageClient() {
         </div>
       ),
       image: "/images/professional-mentor.jpg",
-      alt: "Professional mentor in office setting",
+      alt: "Verified expert in an office setting",
       icon: UserCircle
     },
     {
@@ -46,7 +46,7 @@ export default function ServicePageClient() {
         </div>
       ),
       image: "/images/mentor-connection.jpg",
-      alt: "Mentor-mentee connection",
+      alt: "Expert connecting with a professional seeking guidance",
       icon: Users
     },
     {
@@ -87,7 +87,7 @@ export default function ServicePageClient() {
 
   const faqItems = [
     {
-      q: "How are mentors vetted?",
+      q: "How are verified experts vetted?",
       a: "Every expert goes through profile verification, domain checks, and trial sessions before joining. We ensure high trust and high quality.",
     },
     {
@@ -95,7 +95,7 @@ export default function ServicePageClient() {
       a: "Yes — with flexible rescheduling and automatic timezone support via our seamless calendar integrations.",
     },
     {
-      q: "Do you support ongoing mentorship?",
+      q: "Do you support ongoing expert guidance?",
       a: "Absolutely. You can book recurring sessions, set long-term goals, and pick up exactly where you left off.",
     },
   ]
@@ -163,7 +163,7 @@ export default function ServicePageClient() {
               {/* Replace with actual image */}
               <Image
                 src="/images/dashboard-mockup.jpg"
-                alt="Mentorship Dashboard showing analytics and team members"
+                alt="Expert Dashboard showing analytics and team members"
                 fill
                 className="object-cover object-top"
               />

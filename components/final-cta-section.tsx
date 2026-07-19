@@ -8,6 +8,7 @@ import { FaLinkedin } from "react-icons/fa"
 import { signIn, useSession } from "@/lib/auth-client"
 import { CheckCircle2, ArrowRight } from "lucide-react"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export function FinalCTASection() {
   const router = useRouter()
@@ -20,17 +21,17 @@ export function FinalCTASection() {
       return
     }
     if (session?.user) {
-      router.push('/registration')
+      router.push(EXPERT_APPLICATION_PATH)
       return
     }
-    router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
+    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -41,7 +42,7 @@ export function FinalCTASection() {
     try {
       await signIn.social({
         provider: 'linkedin',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -61,7 +62,7 @@ export function FinalCTASection() {
             {/* Left Content Side */}
             <div className="px-8 py-12 lg:col-span-3 lg:p-14">
               <h2 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                Join as a Founding Expert
+                Apply for Expert Verification
               </h2>
               <p className="mb-4 text-lg text-slate-600 leading-relaxed">
                 Priority visibility, private lounge access, and early session requests — for experienced practitioners who prefer curated, high-relevance conversations.
@@ -111,7 +112,7 @@ export function FinalCTASection() {
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
 
                     <span className="relative z-20 flex items-center justify-center gap-2">
-                      Request Founding Access
+                      Apply for Expert Verification
                       <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                     </span>
                   </Button>

@@ -23,9 +23,9 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'SharingMinds - Join as an Expert',
+  title: 'SharingMinds - Apply for Expert Verification',
   description:
-    'Empower minds by becoming a mentor. Create your profile, share expertise and connect with mentees.',
+    'Apply for expert verification and connect with professionals seeking guidance on SharingMinds.',
   generator: 'v0.app',
 }
 

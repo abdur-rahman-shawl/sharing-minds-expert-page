@@ -31,13 +31,20 @@ export function BenefitsSection() {
     { ref: card5Ref, isVisible: card5Visible },
   ]
 
+  const expertOutcomes = [
+    "Build your professional reputation",
+    "Expand your influence",
+    "Create measurable impact",
+    "Generate consulting opportunities",
+  ]
+
   const benefits = [
     {
       title: "Build Your Professional Presence",
       icon: UserCircle,
       description: (
         <div className="space-y-3">
-          <p className="text-base font-semibold text-slate-800">Practitioner Profile — A Clear, Practical Snapshot</p>
+          <p className="text-base font-semibold text-slate-800">Expert Profile — A Clear, Practical Snapshot</p>
           <p>
             Share the signals that matter: roles you&apos;ve held, key outcomes you delivered, relevant case examples, and vetted endorsements. Not a CV — a practical portrait that helps leaders decide to speak with you.
           </p>
@@ -50,13 +57,13 @@ export function BenefitsSection() {
       image: "/profesional-mentor-profile.jpeg",
     },
     {
-      title: "Matching & Requests",
+      title: "Professionals Seeking Guidance",
       icon: Users,
       description: (
         <div className="space-y-3">
-          <p className="text-base font-semibold text-slate-800">Better Matches, Better Conversations</p>
+          <p className="text-base font-semibold text-slate-800">Connect with Professionals Seeking Guidance</p>
           <p>
-            We route leaders to practitioners based on the challenge they describe — not random interests. That means fewer low-intent messages and more conversations that start at the right level of relevance.
+            We connect verified experts with professionals based on the challenge they describe — not random interests. That means fewer low-intent messages and more conversations that start at the right level of relevance.
           </p>
           <div className="mt-4 flex items-center gap-2 text-sm font-medium text-amber-600">
             <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-500" />
@@ -101,7 +108,7 @@ export function BenefitsSection() {
       image: "/match-making.jpeg",
     },
     {
-      title: "Feature: Workflow",
+      title: "Expert Dashboard",
       icon: BarChart3,
       description: (
         <div className="space-y-3">
@@ -164,22 +171,34 @@ export function BenefitsSection() {
             <span className="relative inline-block overflow-hidden rounded-full p-[2px]">
               <span className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#6366f1_50%,#E2E8F0_100%)]" />
               <div className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-indigo-600 backdrop-blur-3xl shadow-lg">
-                Why Partner with Us?
+                Verified Expert Community
               </div>
             </span>
           </div>
 
           <h2 className="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl text-balance">
-            Where Experience Meets <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Purposeful Conversation</span>
+            Why Become a <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Verified Expert?</span>
           </h2>
+
+          <ul className="mx-auto mb-10 grid max-w-5xl gap-3 text-left sm:grid-cols-2 lg:grid-cols-4">
+            {expertOutcomes.map((outcome) => (
+              <li
+                key={outcome}
+                className="rounded-2xl border border-indigo-100 bg-white px-5 py-4 text-base font-semibold text-slate-800 shadow-sm"
+              >
+                <span className="mb-3 block h-2 w-2 rounded-full bg-indigo-600" />
+                {outcome}
+              </li>
+            ))}
+          </ul>
 
           {/* Intro text + bullet list */}
           <div className="mx-auto max-w-3xl text-left">
             <p className="text-xl text-slate-600 leading-relaxed text-center mb-4">
-              SharingMinds is designed for practitioners who value depth over noise.
+              SharingMinds is designed for verified experts who value depth over noise.
             </p>
             <p className="text-lg text-slate-600 leading-relaxed text-center mb-6">
-              We connect senior practitioners with founders and business leaders through structured online sessions — 1:1 conversations, curated CXO circles, and focused roundtables. Quietly curated. Clearly useful.
+              We connect verified experts with founders and business leaders through structured online sessions — 1:1 conversations, curated CXO circles, and focused roundtables. Quietly curated. Clearly useful.
             </p>
             <p className="text-base font-semibold text-slate-800 mb-3">What you can expect:</p>
             <ul className="space-y-2.5">

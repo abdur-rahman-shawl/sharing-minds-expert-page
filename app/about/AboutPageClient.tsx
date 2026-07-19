@@ -8,6 +8,7 @@ import { signIn, useSession } from "@/lib/auth-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export default function AboutPageClient() {
   const router = useRouter()
@@ -15,18 +16,18 @@ export default function AboutPageClient() {
 
   const handleBecomeMentor = () => {
     if (session?.user) {
-      router.push('/registration')
+      router.push(EXPERT_APPLICATION_PATH)
       return
     }
 
-    router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/registration')}`)
+    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
   }
 
   const handleGoogleSignIn = async () => {
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -37,7 +38,7 @@ export default function AboutPageClient() {
     try {
       await signIn.social({
         provider: 'linkedin',
-        callbackURL: '/registration'
+        callbackURL: EXPERT_APPLICATION_PATH
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -197,7 +198,7 @@ export default function AboutPageClient() {
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
                   <Image
                     src="/images/mentoring-session.jpg"
-                    alt="Mentoring session"
+                    alt="Expert guidance session"
                     fill
                     className="object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -225,7 +226,7 @@ export default function AboutPageClient() {
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
                   <Image
                     src="/images/workshop-mentor.jpg"
-                    alt="Workshop mentor"
+                    alt="Workshop expert"
                     fill
                     className="object-cover hover:scale-105 transition-transform duration-700"
                   />
@@ -326,7 +327,7 @@ export default function AboutPageClient() {
                     <div key={i} className="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-md -ml-3 hover:scale-110 hover:z-10 transition-transform duration-300">
                       <Image
                         src={`/professional-mentor-headshot-${i + 1}.jpg`}
-                        alt={`Mentor ${i + 1}`}
+                        alt={`Verified Expert ${i + 1}`}
                         width={60}
                         height={60}
                         className="w-full h-full object-cover"
@@ -381,7 +382,7 @@ export default function AboutPageClient() {
                     onClick={handleBecomeMentor}
                     className="w-full h-14 rounded-xl bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 shadow-xl shadow-indigo-500/20 hover:scale-[1.02] transition-all"
                   >
-                    Become a Mentor
+                    Apply for Expert Verification
                   </Button>
 
                   <div className="relative py-2">

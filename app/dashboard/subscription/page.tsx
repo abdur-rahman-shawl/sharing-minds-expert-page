@@ -8,16 +8,16 @@ const PLANS = [
         name: 'Starter',
         price: '$0',
         period: '/mo',
-        description: 'Perfect for getting started with mentoring',
-        features: ['Up to 5 mentees', 'Basic scheduling', 'Standard support', 'Profile listing'],
+        description: 'Perfect for getting started as a verified expert',
+        features: ['Up to 5 active connections', 'Basic scheduling', 'Standard support', 'Profile listing'],
         highlighted: false,
     },
     {
         name: 'Professional',
         price: '$29',
         period: '/mo',
-        description: 'For dedicated mentors who want to grow',
-        features: ['Unlimited mentees', 'Advanced scheduling', 'Priority support', 'Featured listing', 'Analytics dashboard', 'Custom branding'],
+        description: 'For verified experts who want to grow',
+        features: ['Unlimited connections', 'Advanced scheduling', 'Priority support', 'Featured listing', 'Analytics dashboard', 'Custom branding'],
         highlighted: true,
         badge: 'Recommended',
     },
@@ -25,7 +25,7 @@ const PLANS = [
         name: 'Enterprise',
         price: '$79',
         period: '/mo',
-        description: 'For organizations and premium mentors',
+        description: 'For organizations and premium experts',
         features: ['Everything in Pro', 'Team management', 'API access', 'White-label options', 'Dedicated account manager', 'Custom integrations'],
         highlighted: false,
     },
@@ -47,9 +47,9 @@ export default function SubscriptionPage() {
                         <Crown className="h-5 w-5 text-amber-500 dark:text-amber-400" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Founding Mentor Benefit</h3>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Verified Expert Benefit</h3>
                         <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">
-                            As a founding mentor, you&apos;ll receive special early-adopter pricing and exclusive features not available to regular users.
+                            As a verified expert, you&apos;ll receive special early-adopter pricing and exclusive features not available to regular users.
                         </p>
                     </div>
                 </div>
@@ -130,7 +130,7 @@ export default function SubscriptionPage() {
                                 </span>
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
-                                We&apos;re putting the finishing touches on our plans. As a founding mentor, you&apos;ll receive exclusive early-adopter pricing.
+                                We&apos;re putting the finishing touches on our plans. As a verified expert, you&apos;ll receive exclusive early-adopter pricing.
                             </p>
                         </div>
 
@@ -138,7 +138,7 @@ export default function SubscriptionPage() {
                         <div className="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-full px-3 py-1">
                             <Crown className="h-3.5 w-3.5 text-amber-500" />
                             <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                                Your founding mentor benefits are secured
+                                Your verified expert benefits are secured
                             </span>
                         </div>
 

@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
+import { EXPERT_APPLICATION_PATH } from '@/lib/routes'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -31,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
 
         if (!isMentor || !mentor) {
-            router.replace('/registration')
+            router.replace(EXPERT_APPLICATION_PATH)
             return
         }
 
@@ -56,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Derive the current section name from the pathname
     const sectionSegment = pathname.replace('/dashboard', '').replace(/^\//, '') || 'overview'
     const sectionTitle = sectionSegment === 'overview'
-        ? 'Dashboard'
+        ? 'Expert Dashboard'
         : sectionSegment.charAt(0).toUpperCase() + sectionSegment.slice(1).replace(/-/g, ' ')
 
     const handleSignOut = async () => {

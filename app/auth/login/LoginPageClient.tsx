@@ -102,7 +102,7 @@ function SignInForm() {
         // Reduced height on laptop
         className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 mt-2"
       >
-        {isLoading ? 'Signing In...' : 'Sign In to Founding Cohort'}
+        {isLoading ? 'Signing In...' : 'Sign In to Your Expert Account'}
       </Button>
     </form>
   )
@@ -216,7 +216,7 @@ function SignUpForm() {
       {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
       <Button type="submit" disabled={isLoading} className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md mt-2 lg:mt-3">
-        {isLoading ? 'Creating Account...' : 'Request Founding Access'}
+        {isLoading ? 'Creating Account...' : 'Apply for Expert Verification'}
       </Button>
     </form>
   )

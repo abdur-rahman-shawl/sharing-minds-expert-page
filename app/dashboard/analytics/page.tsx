@@ -33,9 +33,9 @@ export default function AnalyticsPage() {
             {/* Metrics */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard icon={Eye} label="Profile Views" value="0" trend="+0%" color="text-blue-400" />
-                <MetricCard icon={Users} label="Mentee Inquiries" value="0" trend="+0%" color="text-emerald-400" />
+                <MetricCard icon={Users} label="Guidance Inquiries" value="0" trend="+0%" color="text-emerald-400" />
                 <MetricCard icon={CalendarDays} label="Sessions Done" value="0" trend="+0%" color="text-purple-400" />
-                <MetricCard icon={Clock} label="Hours Mentored" value="0h" trend="+0%" color="text-amber-400" />
+                <MetricCard icon={Clock} label="Expert Hours" value="0h" trend="+0%" color="text-amber-400" />
             </div>
 
             {/* Charts row */}
@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
             {/* Info */}
             <div className="bg-gray-100 dark:bg-slate-800/30 rounded-xl p-4 border border-gray-200 dark:border-slate-700/30 text-center">
                 <p className="text-xs text-gray-500 dark:text-slate-500">
-                    📊 AI-powered analytics will help you understand your mentoring impact, optimize your schedule, and grow your mentee base.
+                    📊 AI-powered analytics will help you understand your professional impact, optimize your schedule, and grow your network.
                 </p>
             </div>
         </div>

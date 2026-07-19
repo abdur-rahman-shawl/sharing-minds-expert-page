@@ -28,14 +28,14 @@ export default function MenteesPage() {
                     </div>
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Your Mentees</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Professionals Seeking Guidance</h2>
                 <p className="text-gray-500 dark:text-slate-400 text-sm leading-relaxed mb-4 max-w-sm mx-auto">
-                    Once the platform launches, your mentees will appear here. You&apos;ll be able to track progress, manage relationships, and communicate directly.
+                    Once the platform launches, professionals seeking your guidance will appear here. You&apos;ll be able to track progress, manage relationships, and communicate directly.
                 </p>
 
                 <div className="bg-gray-100 dark:bg-slate-800/40 rounded-xl p-3 border border-gray-200 dark:border-slate-700/30 inline-block">
                     <p className="text-xs text-gray-500 dark:text-slate-500">
-                        <span className="text-amber-500 dark:text-amber-400 font-medium">0</span> mentees · Launching soon
+                        <span className="text-amber-500 dark:text-amber-400 font-medium">0</span> active connections · Launching soon
                     </p>
                 </div>
             </div>

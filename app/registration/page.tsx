@@ -1,11 +1,6 @@
-import type { Metadata } from "next"
-import RegistrationForm from "./RegistrationForm"
-
-export const metadata: Metadata = {
-  title: "Expert Application - SharingMinds",
-  description: "Apply to become an expert mentor at SharingMinds.",
-}
+import { permanentRedirect } from "next/navigation"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export default function RegistrationPage() {
-  return <RegistrationForm />
+  permanentRedirect(EXPERT_APPLICATION_PATH)
 }

@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export default function VerifyEmailClient() {
   const router = useRouter()
@@ -19,7 +20,7 @@ export default function VerifyEmailClient() {
   }, [searchParams])
 
   const handleSkip = () => {
-    router.push("/registration")
+    router.push(EXPERT_APPLICATION_PATH)
   }
 
   const handleGoBack = () => {

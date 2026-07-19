@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 const navLinks = [
   { href: "/service", label: "Service" },
@@ -30,8 +31,8 @@ export function Header() {
 
   const isActivePath = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
-  const ctaHref = isMentor ? "/vip-lounge" : "/registration"
-  const ctaLabel = isMentor ? "VIP Lounge" : "Founding Mentor Access"
+  const ctaHref = isMentor ? "/vip-lounge" : EXPERT_APPLICATION_PATH
+  const ctaLabel = isMentor ? "VIP Lounge" : "Apply for Verification"
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)

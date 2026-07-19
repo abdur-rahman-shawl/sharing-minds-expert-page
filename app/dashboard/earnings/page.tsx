@@ -120,7 +120,7 @@ export default function EarningsPage() {
             {/* Payout info */}
             <div className="bg-gray-100 dark:bg-slate-800/30 rounded-xl p-4 border border-gray-200 dark:border-slate-700/30 text-center">
                 <p className="text-xs text-gray-500 dark:text-slate-500">
-                    💰 As a <span className="text-amber-500 dark:text-amber-400 font-medium">Founding Mentor</span>, you&apos;ll earn from 1-on-1 sessions, group workshops, and premium content. Payouts will be processed weekly via your preferred method.
+                    💰 As a <span className="text-amber-500 dark:text-amber-400 font-medium">Verified Expert</span>, you&apos;ll earn from 1-on-1 sessions, group workshops, and premium content. Payouts will be processed weekly via your preferred method.
                 </p>
             </div>
         </div>
