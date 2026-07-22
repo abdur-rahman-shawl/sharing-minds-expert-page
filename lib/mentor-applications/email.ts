@@ -3,6 +3,7 @@ import 'server-only'
 import nodemailer from 'nodemailer'
 
 import type { EmailOtpPurpose } from './constants'
+import { renderMentorApplicationReceivedEmail } from './email-templates'
 
 function escapeHtml(value: string): string {
   return value
@@ -31,6 +32,22 @@ function purposeCopy(purpose: EmailOtpPurpose): { subject: string; action: strin
         action: 'continue your mentor application',
       }
   }
+}
+
+function getPublicUrl(pathname: string): string {
+  const configuredBaseUrl = process.env.APP_BASE_URL || process.env.BETTER_AUTH_URL
+  if (!configuredBaseUrl) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('APP_BASE_URL is required to render mentor application emails')
+    }
+    return new URL(pathname, 'http://localhost:3000').toString()
+  }
+
+  const url = new URL(pathname, configuredBaseUrl)
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new Error('APP_BASE_URL must use HTTP or HTTPS')
+  }
+  return url.toString()
 }
 
 export async function sendEmailOtp(input: {
@@ -79,17 +96,17 @@ export async function sendMentorApplicationReceivedEmail(input: {
     service: 'gmail',
     auth: { user: sender, pass: password },
   })
+  const email = renderMentorApplicationReceivedEmail({
+    email: input.email,
+    fullName: input.fullName,
+    logoUrl: getPublicUrl('/brand/sharingminds-infinity-email.png'),
+  })
 
   await transporter.sendMail({
-    from: `"Sharing Minds" <${sender}>`,
+    from: `"sharingminds" <${sender}>`,
     to: input.email,
-    subject: "We've received your SharingMinds mentor application",
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:24px;color:#172033">
-        <h2 style="color:#5239cc">Application received</h2>
-        <p>Hi ${escapeHtml(input.fullName)},</p>
-        <p>Your mentor application has been submitted successfully. Our team will review it and contact you with the next steps.</p>
-      </div>
-    `,
+    subject: email.subject,
+    text: email.text,
+    html: email.html,
   })
 }

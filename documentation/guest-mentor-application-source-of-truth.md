@@ -205,6 +205,31 @@ current API, or promoted for new applications.
 The server derives the applicant email from the scoped session. Client-supplied email is
 never accepted as proof of identity.
 
+## Application-received email
+
+The first successful, non-replayed submission sends a premium transactional confirmation to
+the OTP-verified applicant email. The saved application remains successful if SMTP delivery
+fails; the server logs the delivery failure for operational follow-up without asking the user
+to resubmit an already accepted application.
+
+- Display name: `sharingminds`; the sender address remains the server-only `GMAIL_APP_USER`.
+- Subject: `Your sharingminds expert application is now under review`.
+- Preheader: receipt confirmation and the approximate 5-10-business-day review window.
+- Content: receipt status, the three-step review process, no-action-required guidance, and the
+  exact-email account-linking reminder. The message intentionally contains no status CTA.
+- Privacy: the email includes only the applicant's name and verified email. It never includes
+  application answers, private file details, review notes, or evidence URLs.
+- Compatibility: table-based responsive HTML with inline styles, meaningful image alt text,
+  hidden preview text, and an equivalent plaintext fallback.
+- Safety: applicant-controlled values are whitespace-normalized and HTML-escaped before
+  interpolation. Links and the hosted logo use the canonical `APP_BASE_URL`.
+- Brand assets: `public/brand/sharingminds-infinity.png` is the canonical supplied artwork;
+  `public/brand/sharingminds-infinity-email.png` is the tightly cropped, email-optimized
+  derivative used by the template.
+
+The OTP email remains intentionally separate and unchanged. This confirmation template must
+not be reused for OTP codes or treated as proof that an application was approved.
+
 ## OTP and abuse controls
 
 - Cryptographically random six-digit code.
@@ -372,9 +397,9 @@ is being prepared; it is not an authentication error or a dependency of expert o
 | `MENTOR_APPLICATION_ALLOWED_ORIGINS` | Cross-origin deployment | Comma-separated trusted origins permitted for mutating requests in addition to canonical app/auth origins |
 | `MENTOR_APPLICATION_COOKIE_NAME` | No | Override scoped cookie name |
 | `SUPABASE_MENTOR_APPLICATIONS_BUCKET` | No | Private bucket name; defaults to `mentor-applications` |
-| `APP_BASE_URL` | Production | Trusted origin for mutation checks and generated links |
-| `GMAIL_APP_USER` | Yes | OTP sender identity |
-| `GMAIL_APP_PASSWORD` | Yes | SMTP app credential |
+| `APP_BASE_URL` | Production | Trusted origin for mutation checks, email CTAs, and hosted email assets |
+| `GMAIL_APP_USER` | Yes | OTP and transactional-email sender address |
+| `GMAIL_APP_PASSWORD` | Yes | Gmail SMTP app credential |
 
 Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 
@@ -448,8 +473,9 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile and 2MB resume, optional evidence, and private delivery |
 | Claiming and promotion | Complete | V2 public/operational fields promote idempotently; historical screening and review data remain application-only |
 | `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, direct legal acknowledgement, and lifecycle views |
+| Application-received email | Complete | Responsive branded HTML, plaintext fallback, safe personalization, private-data minimization, and no applicant CTA |
 | Temporary `/auth/login` experience | Complete | Premium private-access preview; platform auth backend retained and expert OTP onboarding remains independently accessible |
-| Automated verification | Complete | TypeScript, production build, 24 unit tests, and zero known validation regressions |
+| Automated verification | Complete | TypeScript, production build, 28 unit tests, and zero known validation regressions |
 | Browser verification | Complete | Guest home/application navigation, public CTA routing, guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
 | Database-backed E2E verification | Pending | Execute the full OTP-to-v2-submission-to-promotion lifecycle against the applied schema |
 | Private Supabase storage | Complete | User-confirmed creation of the private `mentor-applications` bucket on 22 July 2026 |
@@ -579,3 +605,8 @@ application columns; its read-only verification script remains available for rep
   historical compatibility and are no longer exposed in the applicant response.
 - Simplified final consent so checking the five acknowledgements submits directly. Policy content
   remains available through `/policies`, but there is no modal or scroll-depth requirement.
+- Replaced the basic application-received message with a responsive premium `sharingminds`
+  transactional email, optimized the supplied infinity artwork for email delivery, added an
+  equivalent plaintext fallback and safe personalization, and retained the existing OTP email.
+- Removed the application-status CTA from both confirmation-email formats; the message now
+  provides review expectations and directs applicants to await verified-email follow-up.
