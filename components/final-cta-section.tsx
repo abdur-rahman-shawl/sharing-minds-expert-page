@@ -3,9 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
-import { FcGoogle } from "react-icons/fc"
-import { FaLinkedin } from "react-icons/fa"
-import { signIn, useSession } from "@/lib/auth-client"
+import { useSession } from "@/lib/auth-client"
 import { CheckCircle2, ArrowRight } from "lucide-react"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
@@ -20,33 +18,7 @@ export function FinalCTASection() {
       router.push('/vip-lounge')
       return
     }
-    if (session?.user) {
-      router.push(EXPERT_APPLICATION_PATH)
-      return
-    }
-    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
-  }
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    }
-  }
-
-  const handleLinkedInSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'linkedin',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    }
+    router.push(EXPERT_APPLICATION_PATH)
   }
 
   return (
@@ -117,30 +89,9 @@ export function FinalCTASection() {
                     </span>
                   </Button>
 
-                  {/* Divider */}
-                  <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-slate-200"></div>
-                    <span className="flex-shrink-0 mx-4 text-xs font-semibold text-slate-400 uppercase tracking-widest">Or</span>
-                    <div className="flex-grow border-t border-slate-200"></div>
-                  </div>
-
-                  {/* SECONDARY BUTTON - Tactile Lift Style */}
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    variant="outline"
-                    className="relative w-full h-12 bg-white border-slate-200 text-slate-700 font-medium transition-all duration-300 hover:bg-white hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5"
-                  >
-                    <FcGoogle className="h-5 w-5 mr-3" />
-                    Fast Track with Google
-                  </Button>
-                  <Button
-                    onClick={handleLinkedInSignIn}
-                    variant="outline"
-                    className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A66C2]/90 to-[#004182]/80 text-white border-transparent hover:brightness-110"
-                  >
-                    <FaLinkedin className="h-5 w-5 mr-3" />
-                    Fast Track with LinkedIn
-                  </Button>
+                  <p className="text-center text-sm font-medium text-slate-500">
+                    No account required. Your verified email secures the application.
+                  </p>
                 </div>
               )}
             </div>

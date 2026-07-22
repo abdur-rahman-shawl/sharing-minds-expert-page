@@ -2,9 +2,7 @@
 import { HeartHandshake, Target, Users2, CheckCircle2, ArrowRight, ShieldCheck, Quote } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { useRouter } from "next/navigation"
-import { FcGoogle } from "react-icons/fc"
-import { FaLinkedin } from "react-icons/fa"
-import { signIn, useSession } from "@/lib/auth-client"
+import { useSession } from "@/lib/auth-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
@@ -15,34 +13,7 @@ export default function AboutPageClient() {
   const { data: session, isPending } = useSession()
 
   const handleBecomeMentor = () => {
-    if (session?.user) {
-      router.push(EXPERT_APPLICATION_PATH)
-      return
-    }
-
-    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
-  }
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    }
-  }
-
-  const handleLinkedInSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'linkedin',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    }
+    router.push(EXPERT_APPLICATION_PATH)
   }
 
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
@@ -385,33 +356,9 @@ export default function AboutPageClient() {
                     Apply for Expert Verification
                   </Button>
 
-                  <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-slate-200" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest">
-                      <span className="bg-white px-3 text-slate-400">Or</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Button
-                      onClick={handleGoogleSignIn}
-                      variant="outline"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
-                    >
-                      <FcGoogle className="h-5 w-5" />
-                      Sign Up with Google
-                    </Button>
-                    <Button
-                      onClick={handleLinkedInSignIn}
-                      variant="outline"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
-                    >
-                      <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
-                      Sign Up with LinkedIn
-                    </Button>
-                  </div>
+                  <p className="text-sm font-medium text-slate-500">
+                    No account required. Verify your email and complete the application securely.
+                  </p>
                 </div>
               )}
             </div>

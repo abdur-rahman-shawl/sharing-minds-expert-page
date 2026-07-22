@@ -6,7 +6,7 @@ import {
   useSignOutMutation,
   useRefreshSessionMutation,
 } from '@/hooks/queries/use-session-query'
-import { AuthErrorBoundary, useErrorHandler } from '@/components/common/error-boundary'
+import { useErrorHandler } from '@/components/common/error-boundary'
 import { signIn as betterAuthSignIn } from '@/lib/auth-client'
 import type { MentorProfileData } from '@/lib/mentor-onboarding'
 
@@ -153,11 +153,7 @@ function AuthProviderInner({ children }: AuthProviderProps) {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  return (
-    <AuthErrorBoundary>
-      <AuthProviderInner>{children}</AuthProviderInner>
-    </AuthErrorBoundary>
-  )
+  return <AuthProviderInner>{children}</AuthProviderInner>
 }
 
 export function useAuth() {

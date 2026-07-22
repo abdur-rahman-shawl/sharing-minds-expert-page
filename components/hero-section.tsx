@@ -7,9 +7,7 @@ import Image from "next/image"
 import { Star, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { FcGoogle } from "react-icons/fc"
-import { FaLinkedin } from "react-icons/fa"
-import { signIn, signOut, useSession } from "@/lib/auth-client"
+import { signOut, useSession } from "@/lib/auth-client"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 import { getMentorAccess } from "@/lib/mentor-onboarding"
@@ -22,33 +20,7 @@ export function HeroSection() {
   const mentorAccess = mentor ? getMentorAccess(mentor) : null
 
   const handleRegisterClick = () => {
-    if (session?.user) {
-      router.push(EXPERT_APPLICATION_PATH)
-      return
-    }
-    router.push(`/auth/login?callbackUrl=${encodeURIComponent(EXPERT_APPLICATION_PATH)}`)
-  }
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
-  }
-
-  const handleLinkedInSignIn = async () => {
-    try {
-      await signIn.social({
-        provider: 'linkedin',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
+    router.push(EXPERT_APPLICATION_PATH)
   }
 
   const handleSignOut = async () => {
@@ -232,32 +204,9 @@ export function HeroSection() {
               </span>
             </Button>
 
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-900/10" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-widest font-semibold">
-                <span className="bg-transparent px-2 text-slate-500">or</span>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <Button
-                onClick={handleGoogleSignIn}
-                variant="outline"
-                className="btn-ghost-luxe w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-black/30 to-black/20 text-amber-50 border-amber-200/40"
-              >
-                <FcGoogle className="h-5 w-5" />
-                Fast Track with Google
-              </Button>
-              <Button
-                onClick={handleLinkedInSignIn}
-                variant="outline"
-                className="w-full h-12 font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A66C2]/90 to-[#004182]/80 text-white border-transparent hover:brightness-110"
-              >
-                <FaLinkedin className="h-5 w-5" />
-                Fast Track with LinkedIn
-              </Button>
-            </div>
+            <p className="text-sm font-medium text-slate-600">
+              No platform account required. Verify your email to save and submit your application.
+            </p>
           </div>
         )}
 

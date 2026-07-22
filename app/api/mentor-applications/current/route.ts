@@ -11,6 +11,7 @@ import {
   MentorApplicationSecurityError,
 } from '@/lib/mentor-applications/security'
 import {
+  clearMentorApplicationSessionCookie,
   getMentorApplicationFromSession,
   MentorApplicationSessionError,
 } from '@/lib/mentor-applications/session'
@@ -29,7 +30,12 @@ export async function GET(request: NextRequest) {
       return jsonError(error.message, 403)
     }
     if (error instanceof MentorApplicationSessionError) {
-      return jsonError(error.message, 401)
+      const response = NextResponse.json(
+        { success: true, application: null },
+        { headers: { 'Cache-Control': 'no-store' } },
+      )
+      clearMentorApplicationSessionCookie(response)
+      return response
     }
     console.error('[mentor-applications] Current application lookup failed', error)
     return jsonError('Unable to load the mentor application', 500)

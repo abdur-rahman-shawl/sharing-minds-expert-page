@@ -38,6 +38,9 @@ application verification is not a platform login and does not create a Better Au
     migration 004 provides the version-two application and mentor-profile columns. Guest
     onboarding and application-table integration remain unavailable until
     `MENTOR_APPLICATIONS_ENABLED=true` is deliberately enabled.
+12. Every public expert-registration CTA uses the canonical `/verified-experts` entry directly.
+    Guest CTAs must never require Better Auth login or start Google/LinkedIn authentication;
+    platform authentication remains a later, separate account-linking concern.
 
 ## Lifecycle
 
@@ -97,9 +100,11 @@ Purposes:
 
 A verified applicant receives a random high-entropy opaque token in a `Secure`, `HttpOnly`,
 `SameSite=Lax` cookie. Only its digest is stored. The session is scoped to mentor-application
-routes and contains no platform privileges.
-`DELETE /api/mentor-applications/session` revokes the server-side digest and clears only this
-scoped cookie; it never signs the visitor out of Better Auth.
+routes and contains no platform privileges. Navigating to the public site or using “Back to
+home” must preserve this cookie so returning to `/verified-experts` restores the verified email,
+draft, or submitted status without another OTP. Only the explicit “Use another email” action
+calls `DELETE /api/mentor-applications/session`; that route revokes the server-side digest and
+clears only this scoped cookie, never a Better Auth session.
 
 ### Supporting records
 
@@ -180,8 +185,8 @@ remain application-only and must never be exposed through public mentor payloads
 | `POST` | `/api/mentor-applications/email/request` | Public + rate limits | Create and send an application OTP challenge |
 | `POST` | `/api/mentor-applications/email/verify` | Challenge ID + OTP | Consume OTP and issue application session |
 | `POST` | `/api/mentor-applications/session` | Verified Better Auth session | Establish application session without a second OTP |
-| `DELETE` | `/api/mentor-applications/session` | Application session | Revoke guest application access on this device |
-| `GET` | `/api/mentor-applications/current` | Application session | Load current draft or status |
+| `DELETE` | `/api/mentor-applications/session` | Application session | Explicitly forget verified application access when switching email |
+| `GET` | `/api/mentor-applications/current` | Optional application session | Load the current draft/status, or return `200` with `application: null` when no scoped session exists |
 | `PATCH` | `/api/mentor-applications/current` | Application session | Autosave validated draft fields |
 | `POST` | `/api/mentor-applications/current/submit` | Application session | Upload private files and submit atomically |
 | `POST` | `/api/mentor-applications/claim` | Verified Better Auth session | Claim exact-email application and promote if approved |
@@ -296,6 +301,26 @@ The main SharingMinds repository and this standalone application both declare th
 `mentors` columns. Migration 004 is the shared database authority; neither repository should
 generate or push an independent competing migration for these columns.
 
+### Temporary platform-access experience
+
+`/auth/login` currently presents a premium private-access preview rather than platform login
+controls. This is an intentional product state while the broader SharingMinds member experience
+is being prepared; it is not an authentication error or a dependency of expert onboarding.
+
+- Desktop and mobile navigation continue to link to `/auth/login`, preserving the permanent
+  route contract and avoiding temporary URL rewrites.
+- The page does not render or initiate email/password, Google, or LinkedIn authentication.
+- Better Auth services, account-verification routes, protected-route guards, and database
+  structures remain intact for later activation. Reintroducing login is a presentation-layer
+  change and must not replace the guest application session with a platform session requirement.
+- `/verified-experts` remains the public expert-verification entry point. It uses its own
+  email-OTP application session and does not require a SharingMinds account.
+- Visitors arriving at the private-access page can return home or continue directly to expert
+  verification. No waitlist or lead-capture promise is displayed because no corresponding
+  persistence or operational follow-up workflow currently exists.
+- The temporary route is marked `noindex, nofollow`; it may be made indexable only when the
+  production client-access experience and its canonical metadata are approved.
+
 ## Migration and compatibility policy
 
 - Existing linked `mentors` rows remain unchanged.
@@ -387,6 +412,12 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
   produce validation messages without throwing a browser runtime exception.
 - [x] Missing and invalid step fields produce an accessible summary, individual messages, invalid
   control styling, and focus movement to the first failing control.
+- [x] Header, homepage hero/final, About-page, and related public expert-registration CTAs route
+  directly to `/verified-experts` without a login callback or social-auth detour.
+- [x] Back-to-home navigation preserves the scoped guest session; returning to the application
+  restores the OTP-verified email/application, while “Use another email” explicitly revokes it.
+- [x] A visitor without Better Auth or an application session can use the public site normally;
+  the optional current-application probe returns `200`/`null` rather than an authentication error.
 - [x] Desktop and 390px mobile `/verified-experts` guest-entry states pass compiled-browser verification.
 - [x] With `MENTOR_APPLICATIONS_ENABLED=false`, the compiled page renders the unavailable
   state and application API middleware returns `503` without reaching the database.
@@ -406,8 +437,9 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile/resume, optional evidence, and private delivery |
 | Claiming and promotion | Complete | V2 public/operational fields promote idempotently; sensitive misconduct and review data remain application-only |
 | `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, legal declaration, and lifecycle views |
-| Automated verification | Complete | TypeScript, production build, 22 unit tests, and zero known validation regressions |
-| Browser verification | Complete | Guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
+| Temporary `/auth/login` experience | Complete | Premium private-access preview; platform auth backend retained and expert OTP onboarding remains independently accessible |
+| Automated verification | Complete | TypeScript, production build, 24 unit tests, and zero known validation regressions |
+| Browser verification | Complete | Guest home/application navigation, public CTA routing, guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
 | Database-backed E2E verification | Pending | Execute the full OTP-to-v2-submission-to-promotion lifecycle against the applied schema |
 | Private Supabase storage | Complete | User-confirmed creation of the private `mentor-applications` bucket on 22 July 2026 |
 | Server environment | In progress | Dedicated local secrets are configured; production deployment and trusted-proxy configuration remain pending |
@@ -518,3 +550,13 @@ application columns; its read-only verification script remains available for rep
   to HTTPS, rejected deceptive LinkedIn lookalike hosts, and added regression coverage.
 - Added an accessible step-level validation summary, linked field messages, invalid-state styling,
   stale-error clearing, and automatic scroll/focus to the first field requiring attention.
+- Routed all public expert-registration CTAs directly to the OTP-first `/verified-experts` entry,
+  removed misleading pre-application Google/LinkedIn authentication actions, and restored generic
+  account-creation wording to the standalone login form.
+- Preserved the OTP-issued application session across home navigation, limited revocation to the
+  explicit email-switch action, made optional session restoration return `200`/`null`, and removed
+  the global auth-themed boundary that mislabeled unrelated guest failures as expired login sessions.
+- Replaced the visible `/auth/login` controls with a responsive private-client-access preview,
+  retained the existing workspace image, added direct home and expert-verification actions, and
+  marked the temporary page as non-indexable. Better Auth and account-verification services remain
+  available for future platform-access activation.

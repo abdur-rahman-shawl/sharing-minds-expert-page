@@ -229,7 +229,7 @@ export default function RegistrationForm() {
     }
   }
 
-  const closeApplicationSession = async (destination: 'email' | 'home') => {
+  const switchApplicationEmail = async () => {
     const previousStep = accessStep
     setIsLoading(true)
     setAccessError(null)
@@ -246,13 +246,12 @@ export default function RegistrationForm() {
             : 'Unable to close this application session.',
         )
       }
-      guestAccessStarted.current = destination === 'email'
+      guestAccessStarted.current = true
       setApplication(null)
       setChallengeId(null)
       setOtp('')
       setAccessEmail('')
-      if (destination === 'home') router.push('/')
-      else setAccessStep('email')
+      setAccessStep('email')
     } catch (error) {
       setAccessError(
         error instanceof Error ? error.message : 'Unable to close this application session.',
@@ -290,8 +289,7 @@ export default function RegistrationForm() {
       <ApplicationLifecycleStatus
         application={application}
         onNavigateHome={() => router.push('/')}
-        onUseAnotherEmail={() => void closeApplicationSession('email')}
-        onExitApplication={() => void closeApplicationSession('home')}
+        onUseAnotherEmail={() => void switchApplicationEmail()}
         isClosing={isLoading}
         actionError={accessError}
       />
@@ -308,7 +306,7 @@ export default function RegistrationForm() {
           setApplication(submitted)
           setAccessStep('status')
         }}
-        onExit={() => void closeApplicationSession('home')}
+        onExit={() => router.push('/')}
       />
     )
   }

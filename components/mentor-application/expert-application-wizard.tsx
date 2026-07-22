@@ -1678,7 +1678,7 @@ export function ExpertApplicationWizard({
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Button type="button" variant="ghost" onClick={onExit}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Exit application
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to home
           </Button>
           <div className="flex items-center gap-2 text-sm text-slate-500">
             {autosaveState === 'saving' && <Save className="h-4 w-4 animate-pulse" />}

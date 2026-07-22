@@ -1,377 +1,143 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { signInSchema, signUpSchema } from '@/lib/validations/auth'
-import { useAuth } from '@/contexts/auth-context'
-import { FcGoogle } from 'react-icons/fc'
-import { FaLinkedin } from 'react-icons/fa'
-import { createAuthClient } from 'better-auth/react'
-import { getSafeRedirectPath } from '@/lib/safe-redirect'
+import { ArrowLeft, ArrowUpRight, ShieldCheck } from 'lucide-react'
 
-const client = createAuthClient()
-
-type SignInFormValues = z.infer<typeof signInSchema>
-type SignUpFormValues = z.infer<typeof signUpSchema>
-
-// --- SUB-COMPONENT: SIGN IN FORM ---
-function SignInForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
-  const { signIn } = useAuth()
-
-  const form = useForm<SignInFormValues>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  })
-
-  const onSubmit = async (values: SignInFormValues) => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const result = await signIn('email', values) as {
-        data?: { user?: { emailVerified?: boolean } }
-      }
-
-      if (result?.data?.user?.emailVerified !== true) {
-        router.replace(
-          `/auth/verify-email?callbackUrl=${encodeURIComponent(callbackUrl)}`,
-        )
-        return
-      }
-
-      router.replace(callbackUrl)
-      router.refresh()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  return (
-    // Reduced space-y from 5 to 4 (mobile) and 3 (laptop)
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 lg:space-y-3">
-      <div className="space-y-1.5 lg:space-y-1">
-        <Label htmlFor="email" className="text-gray-600 font-medium ml-1">Email Address</Label>
-        <Input 
-          id="email" 
-          type="email" 
-          {...form.register('email')} 
-          // h-12 on mobile, h-10 on laptop to save vertical space
-          className="rounded-xl h-12 lg:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200" 
-          placeholder="name@example.com"
-        />
-        {form.formState.errors.email && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.email.message}</p>
-        )}
-      </div>
-      <div className="space-y-1.5 lg:space-y-1">
-        <Label htmlFor="password" className="text-gray-600 font-medium ml-1">Password</Label>
-        <div className="relative">
-          <Input 
-            id="password" 
-            type={showPassword ? 'text' : 'password'} 
-            {...form.register('password')} 
-            className="rounded-xl h-12 lg:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white transition-all duration-200 pr-10" 
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
-        </div>
-        {form.formState.errors.password && (
-          <p className="text-sm text-red-500 mt-1 ml-1">{form.formState.errors.password.message}</p>
-        )}
-      </div>
-
-      {error && <p className="text-sm text-red-500 text-center bg-red-50 p-2 rounded-lg border border-red-100">{error}</p>}
-
-      <Button 
-        type="submit" 
-        disabled={isLoading} 
-        // Reduced height on laptop
-        className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 mt-2"
-      >
-        {isLoading ? 'Signing In...' : 'Sign In to Your Expert Account'}
-      </Button>
-    </form>
-  )
-}
-
-// --- SUB-COMPONENT: SIGN UP FORM ---
-function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
-
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
-    mode: 'onTouched',
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-  })
-
-  const onSubmit = async (values: SignUpFormValues) => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await client.signUp.email({
-        email: values.email,
-        password: values.password,
-        name: values.name,
-      })
-
-      if (response.error) {
-        throw new Error(response.error.message)
-      }
-
-      router.push(`/auth/verify-email?callbackUrl=${encodeURIComponent(callbackUrl)}`)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  return (
-    // Tightened spacing significantly for desktop (space-y-2) to fit 4 inputs
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 lg:space-y-2">
-      <div className="space-y-1">
-        <Label htmlFor="name" className="text-gray-600 font-medium ml-1">Full Name</Label>
-        <Input 
-          id="name" 
-          type="text" 
-          {...form.register('name')} 
-          // h-11 mobile, h-9 or h-10 desktop
-          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
-        />
-        {form.formState.errors.name && (
-          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.name.message}</p>
-        )}
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="email" className="text-gray-600 font-medium ml-1">Email Address</Label>
-        <Input 
-          id="email" 
-          type="email" 
-          {...form.register('email')} 
-          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
-        />
-        {form.formState.errors.email && (
-          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.email.message}</p>
-        )}
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="password" className="text-gray-600 font-medium ml-1">Password</Label>
-        <Input 
-          id="password" 
-          type="password" 
-          {...form.register('password')} 
-          className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white" 
-        />
-        {form.formState.errors.password && (
-          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.password.message}</p>
-        )}
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="confirmPassword" className="text-gray-600 font-medium ml-1">Confirm Password</Label>
-        <div className="relative">
-          <Input
-            id="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
-            {...form.register('confirmPassword')}
-            className="rounded-xl h-11 lg:h-9 xl:h-10 text-base border-gray-200 bg-gray-50 focus:bg-white pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-600"
-          >
-            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
-        </div>
-        {form.formState.errors.confirmPassword && (
-          <p className="text-xs text-red-500 mt-0.5 ml-1">{form.formState.errors.confirmPassword.message}</p>
-        )}
-      </div>
-
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-      <Button type="submit" disabled={isLoading} className="w-full h-12 lg:h-10 rounded-xl text-base font-semibold shadow-md mt-2 lg:mt-3">
-        {isLoading ? 'Creating Account...' : 'Apply for Expert Verification'}
-      </Button>
-    </form>
-  )
-}
-
-// --- MAIN PAGE COMPONENT ---
 export default function LoginPageClient() {
-  const [isSigningIn, setIsSigningIn] = useState(true)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
-  const { signIn } = useAuth()
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signIn('social', {
-        provider: 'google',
-        callbackURL: callbackUrl,
-      })
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
-  }
-
-  const handleLinkedInSignIn = async () => {
-    try {
-      await signIn('social', {
-        provider: 'linkedin',
-        callbackURL: callbackUrl,
-      })
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
-  }
-
   return (
-    // Changed: h-screen overflow-hidden ensures it never scrolls the main window
-    <div className="flex flex-col lg:flex-row h-screen max-h-screen bg-white overflow-hidden">
-      
-      {/* 
-        Container Logic:
-        1. overflow-y-auto: Allows scrolling ONLY inside this panel if screen is tiny (phone landscape), 
-           but on laptop it should fit.
-        2. scrollbar-hide: Keeps the clean look even if it overflows slightly.
-        3. justify-center: Vertically centers content.
-      */}
-      <div className="flex-1 flex flex-col justify-center items-center w-full lg:w-1/2 p-6 lg:p-12 relative h-full overflow-y-auto no-scrollbar">
-        
-        {/* Navigation Button */}
-        <div className="absolute top-4 left-4 lg:top-6 lg:left-8 z-20">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 pl-2 pr-4 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-          </Link>
+    <div className="min-h-screen overflow-hidden bg-[#f7f8fa] text-slate-950 lg:grid lg:h-screen lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+      <section className="relative flex min-h-[62svh] flex-col px-6 pb-12 pt-6 sm:px-10 sm:pb-16 sm:pt-8 lg:h-screen lg:min-h-0 lg:overflow-y-auto lg:px-12 lg:pb-6 lg:pt-6 xl:px-14">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <div className="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
+          <div className="absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-cyan-100/40 blur-3xl" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a08_1px,transparent_1px),linear-gradient(to_bottom,#0f172a08_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:linear-gradient(to_bottom,black,transparent_75%)]" />
         </div>
 
-        <div className="w-full max-w-sm lg:max-w-md mx-auto flex flex-col justify-center">
-          {/* Logo Container - Tightened mb */}
-          <Link href="/" className="flex justify-center mb-6 lg:mb-4" aria-label="SharingMinds home">
+        <nav className="relative z-10 flex items-center justify-between" aria-label="Access page">
+          <Link
+            href="/"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full px-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f8fa]"
+          >
+            <ArrowLeft
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform group-hover:-translate-x-0.5"
+            />
+            Back to SharingMinds
+          </Link>
+
+          <span className="hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:flex">
+            <ShieldCheck aria-hidden="true" className="h-4 w-4 text-blue-600" />
+            Private network
+          </span>
+        </nav>
+
+        <main className="relative z-10 my-auto w-full max-w-xl py-12 lg:py-4 2xl:py-8">
+          <Link
+            href="/"
+            className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f8fa]"
+            aria-label="SharingMinds home"
+          >
             <Image
               src="/sharing-minds-logo.png"
-              alt="SharingMinds logo"
-              width={400}
-              height={125}
-              // Shrunk logo height for laptops
-              className="h-20 lg:h-16 xl:h-20 w-auto object-contain transition-all" 
+              alt="SharingMinds — a human intelligence network"
+              width={285}
+              height={132}
+              priority
+              className="h-auto w-[164px] object-contain sm:w-[176px] lg:w-[152px] 2xl:w-[176px]"
             />
           </Link>
-          
-          {/* Headline - Updated Text */}
-          <h1 className="text-3xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-6 lg:mb-4 text-center tracking-tight transition-all leading-tight">
-            Transforming minds into <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">Institutions!</span>
+
+          <div className="mt-7 flex items-center gap-3 lg:mt-4 2xl:mt-6">
+            <span className="h-px w-8 bg-blue-600" aria-hidden="true" />
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+              Private client access
+            </p>
+          </div>
+
+          <h1 className="mt-4 max-w-xl text-4xl font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-5xl lg:text-[2.625rem] xl:text-[2.875rem] 2xl:text-[3.5rem]">
+            A more considered way to connect is taking shape.
           </h1>
-          
-          {/* Google Button - Reduced height and margin */}
-          <div className="space-y-4 mb-6 lg:mb-4">
-            <Button 
-              variant="outline" 
-              className="w-full h-12 lg:h-10 rounded-xl text-base font-medium border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm" 
-              onClick={handleGoogleSignIn}
+
+          <p className="mt-5 max-w-lg text-base leading-7 text-slate-600 xl:text-lg xl:leading-8">
+            SharingMinds is curating a private environment for founders, senior
+            leaders, and verified experts who value relevance, discretion, and
+            high-context exchange.
+          </p>
+
+          <div className="mt-5 inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 px-4 py-2.5 shadow-sm shadow-slate-200/50 backdrop-blur-sm">
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-40" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-blue-600" />
+            </span>
+            <span className="text-sm font-semibold text-slate-700">
+              Invitation-led access opening soon
+            </span>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f8fa] lg:text-[13px] 2xl:px-6 2xl:text-sm"
             >
-              <FcGoogle className="h-5 w-5" />
-
-              Continue with Google
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full py-3 btn-ghost-luxe bg-gradient-to-r from-[#0A66C2]/80 to-[#004182]/70 text-white border-transparent hover:scale-[1.01]"
-              onClick={handleLinkedInSignIn}
+              Return to SharingMinds
+            </Link>
+            <Link
+              href="/verified-experts"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-bold text-slate-800 transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f8fa] lg:text-[13px] 2xl:px-6 2xl:text-sm"
             >
-              <FaLinkedin className="mr-2 h-5 w-5" />
-              Continue with LinkedIn
-            </Button>
+              Apply for expert verification
+              <ArrowUpRight
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </Link>
           </div>
 
-          <div className="relative mb-6 lg:mb-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase tracking-wider">
-              <span className="bg-white px-3 text-gray-400 font-medium">
-                Or continue with
-              </span>
-            </div>
-          </div>
+          <p className="mt-4 max-w-md text-sm leading-6 text-slate-500 lg:mt-3 lg:text-xs lg:leading-5 2xl:mt-4 2xl:text-sm 2xl:leading-6">
+            Expert applications remain open through our secure, email-verified
+            application process. No platform account is required.
+          </p>
+        </main>
 
-          {/* Form Container */}
-          <div className="mb-4 lg:mb-2">
-             {isSigningIn ? <SignInForm /> : <SignUpForm />}
-          </div>
+        <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 lg:hidden 2xl:block">
+          A human intelligence network
+        </p>
+      </section>
 
-          <div className="text-center mt-2">
-            <p className="text-sm text-gray-500">
-              {isSigningIn ? "Don't have an account?" : "Already have an account?"}{' '}
-              <button 
-                onClick={() => setIsSigningIn(!isSigningIn)} 
-                className="font-semibold text-primary hover:text-primary/80 transition-colors ml-1"
-              >
-                {isSigningIn ? "Sign Up" : "Sign In"}
-              </button>
+      <aside className="relative min-h-[38svh] overflow-hidden bg-slate-950 lg:h-screen lg:min-h-0">
+        <Image
+          src="/sign-in-banner.jpeg"
+          alt="Professionals collaborating in the SharingMinds workspace"
+          fill
+          priority
+          sizes="(min-width: 1024px) 54vw, 100vw"
+          className="object-cover object-center"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(135deg,rgba(2,6,23,0.82)_0%,rgba(15,23,42,0.34)_48%,rgba(2,6,23,0.84)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_75%_22%,rgba(59,130,246,0.24),transparent_38%)]"
+        />
+
+        <div className="relative flex h-full min-h-[38svh] flex-col justify-end p-7 sm:p-10 lg:h-screen lg:min-h-0 lg:p-10 xl:p-14">
+          <div className="max-w-2xl border-l border-white/40 pl-5 sm:pl-7">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-blue-200">
+              SharingMinds private network
+            </p>
+            <h2 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-tight tracking-[-0.025em] text-white sm:text-4xl xl:text-5xl">
+              Built for consequential conversations.
+            </h2>
+            <p className="mt-4 text-base font-medium text-slate-200 sm:text-lg">
+              Curated expertise. Clearer decisions. Enduring impact.
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Right Side Image */}
-      <div className="hidden lg:block lg:w-1/2 relative bg-gray-900 h-full">
-        <Image
-          src="/sign-in-banner.jpeg"
-          alt="Connect. Learn. Grow."
-          layout="fill"
-          objectFit="cover"
-          priority
-          className="opacity-90"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white text-center leading-tight px-8">
-            <span className="block mb-2">Your Space for</span>
-            <span className="block text-gray-200">Growth. Purpose. Possibilities</span>
-          </h2>
-        </div>
-      </div>
+      </aside>
     </div>
   )
 }

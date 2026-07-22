@@ -68,7 +68,6 @@ interface ApplicationLifecycleStatusProps {
   application: MentorApplication
   onNavigateHome: () => void
   onUseAnotherEmail: () => void
-  onExitApplication: () => void
   isClosing?: boolean
   actionError?: string | null
 }
@@ -77,7 +76,6 @@ export function ApplicationLifecycleStatus({
   application,
   onNavigateHome,
   onUseAnotherEmail,
-  onExitApplication,
   isClosing = false,
   actionError = null,
 }: ApplicationLifecycleStatusProps) {
@@ -157,10 +155,7 @@ export function ApplicationLifecycleStatus({
             Back to home
           </Button>
           <Button variant="ghost" onClick={onUseAnotherEmail} disabled={isClosing}>
-            Use another email
-          </Button>
-          <Button variant="ghost" onClick={onExitApplication} disabled={isClosing}>
-            {isClosing ? 'Closing application session...' : 'Exit application'}
+            {isClosing ? 'Switching email...' : 'Use another email'}
           </Button>
         </div>
       </main>
