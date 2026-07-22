@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -259,19 +260,23 @@ async function readResponseJson(response: Response): Promise<Record<string, unkn
 }
 
 function SearchableSelect({
+  id,
   value,
   onChange,
   options,
   placeholder,
   searchPlaceholder,
   disabled,
+  error,
 }: {
+  id?: string
   value: string
   onChange: (value: string) => void
   options: SearchableOption[]
   placeholder: string
   searchPlaceholder: string
   disabled?: boolean
+  error?: string
 }) {
   const [open, setOpen] = useState(false)
   const label = options.find(option => option.value === value)?.label
@@ -280,12 +285,19 @@ function SearchableSelect({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           type="button"
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error && id ? `${id}-error` : undefined}
+          data-validation-field={id}
           disabled={disabled}
-          className="h-11 w-full justify-between bg-white font-normal"
+          className={cn(
+            'h-11 w-full justify-between bg-white font-normal',
+            error && 'border-red-500 focus-visible:ring-red-500',
+          )}
         >
           <span className="truncate">{label || placeholder}</span>
           <ChevronsUpDown className="h-4 w-4 opacity-50" aria-hidden="true" />
@@ -329,19 +341,26 @@ function RadioCards({
   options,
   onChange,
   columns = 3,
+  error,
 }: {
   name: string
   value: string
   options: readonly MentorApplicationOption[]
   onChange: (value: string) => void
   columns?: 2 | 3 | 4
+  error?: string
 }) {
   return (
     <RadioGroup
+      id={name}
       value={value}
       onValueChange={onChange}
+      aria-invalid={Boolean(error)}
+      aria-describedby={error ? `${name}-error` : undefined}
+      data-validation-field={name}
       className={cn(
-        'grid gap-3',
+        'grid gap-3 rounded-xl',
+        error && 'ring-2 ring-red-200 ring-offset-4',
         columns === 2 && 'sm:grid-cols-2',
         columns === 3 && 'sm:grid-cols-2 lg:grid-cols-3',
         columns === 4 && 'sm:grid-cols-2 lg:grid-cols-4',
@@ -376,15 +395,26 @@ function CheckboxCards({
   options,
   onChange,
   max,
+  error,
 }: {
   name: string
   values: string[]
   options: readonly MentorApplicationOption[]
   onChange: (values: string[]) => void
   max?: number
+  error?: string
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      id={name}
+      aria-invalid={Boolean(error)}
+      aria-describedby={error ? `${name}-error` : undefined}
+      data-validation-field={name}
+      className={cn(
+        'grid gap-3 rounded-xl sm:grid-cols-2 lg:grid-cols-3',
+        error && 'ring-2 ring-red-200 ring-offset-4',
+      )}
+    >
       {options.map(option => {
         const selected = values.includes(option.value)
         const disabled = Boolean(max && values.length >= max && !selected)
@@ -423,8 +453,12 @@ function CheckboxCards({
   )
 }
 
-function FieldError({ error }: { error?: string }) {
-  return error ? <p className="text-sm font-medium text-red-600">{error}</p> : null
+function FieldError({ field, error }: { field: string; error?: string }) {
+  return error ? (
+    <p id={`${field}-error`} className="text-sm font-medium text-red-600">
+      {error}
+    </p>
+  ) : null
 }
 
 function TextareaField({
@@ -458,9 +492,13 @@ function TextareaField({
         rows={5}
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
-        className="resize-none bg-white"
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={cn(
+          'resize-none bg-white',
+          error && 'border-red-500 focus-visible:ring-red-500',
+        )}
       />
-      <FieldError error={error} />
+      <FieldError field={id} error={error} />
     </div>
   )
 }
@@ -472,6 +510,7 @@ function FileField({
   file,
   existingUrl,
   onChange,
+  error,
 }: {
   id: string
   label: string
@@ -479,9 +518,16 @@ function FileField({
   file: File | null
   existingUrl?: string | null
   onChange: (file: File | null) => void
+  error?: string
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div
+      data-validation-field={id}
+      className={cn(
+        'rounded-xl border bg-white p-4',
+        error ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200',
+      )}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Label htmlFor={id} className="font-semibold text-slate-800">
@@ -500,6 +546,8 @@ function FileField({
           id={id}
           type="file"
           accept=".pdf,application/pdf"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
           className="sr-only"
           onChange={event => onChange(event.target.files?.[0] || null)}
         />
@@ -559,18 +607,55 @@ export function ExpertApplicationWizard({
   const lastSavedPayload = useRef(JSON.stringify(buildDraftPayload(form)))
   const autosaveController = useRef<AbortController | null>(null)
   const idempotencyKey = useRef<string | null>(null)
+  const validationSummaryRef = useRef<HTMLDivElement | null>(null)
+
+  const clearFieldErrors = (...fields: string[]) => {
+    setErrors(previous => {
+      if (!fields.some(field => previous[field])) return previous
+
+      const next = { ...previous }
+      for (const field of fields) delete next[field]
+      return next
+    })
+    setSubmissionError(null)
+  }
+
+  const focusValidationField = (field: string) => {
+    window.setTimeout(() => {
+      const validationContainer = document.querySelector<HTMLElement>(
+        `[data-validation-field="${field}"]`,
+      )
+      const target = validationContainer || document.getElementById(field)
+
+      if (!target) {
+        validationSummaryRef.current?.focus()
+        return
+      }
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const focusTarget = target.matches('button, input, textarea, select, [tabindex]')
+        ? target
+        : target.querySelector<HTMLElement>('button, input, textarea, select, [tabindex]')
+      focusTarget?.focus({ preventScroll: true })
+    }, 0)
+  }
 
   const updateForm = <K extends keyof ExpertApplicationFormData>(
     field: K,
     value: ExpertApplicationFormData[K],
   ) => {
     setForm(previous => ({ ...previous, [field]: value }))
-    setErrors(previous => {
-      if (!previous[field]) return previous
-      const next = { ...previous }
-      delete next[field]
-      return next
-    })
+    const dependentFields =
+      field === 'industries'
+        ? ['otherIndustry']
+        : field === 'expertise'
+          ? ['otherExpertise']
+          : field === 'languages'
+            ? ['otherLanguage']
+            : field === 'hasProfessionalMisconduct'
+              ? ['misconductExplanation']
+              : []
+    clearFieldErrors(String(field), ...dependentFields)
   }
 
   const countryOptions = useMemo(
@@ -784,8 +869,11 @@ export function ExpertApplicationWizard({
       }
     }
 
+    const invalidFields = Object.keys(nextErrors)
     setErrors(nextErrors)
-    return Object.keys(nextErrors).length === 0
+    setSubmissionError(null)
+    if (invalidFields.length > 0) focusValidationField(invalidFields[0])
+    return invalidFields.length === 0
   }
 
   const goForward = () => {
@@ -802,19 +890,32 @@ export function ExpertApplicationWizard({
       const firstIssue = result.error.issues[0]
       const firstField = String(firstIssue.path[0] || '')
       const targetStep = STEP_FIELDS.findIndex(fields => fields.has(firstField))
-      setErrors({ [firstField]: firstIssue.message })
+      const nextErrors: Record<string, string> = {}
+      for (const issue of result.error.issues) {
+        const field = String(issue.path[0] || '')
+        if (
+          !nextErrors[field] &&
+          (targetStep < 0 || STEP_FIELDS[targetStep].has(field))
+        ) {
+          nextErrors[field] = issue.message
+        }
+      }
+      setErrors(nextErrors)
       if (targetStep >= 0) setStep(targetStep)
-      setSubmissionError('Review the highlighted required information before submitting.')
+      setSubmissionError(null)
+      focusValidationField(firstField)
       return
     }
     if (!form.profilePicture && !application.profileImageUrl) {
       setStep(0)
       setErrors({ profilePicture: 'Profile photo is required' })
+      focusValidationField('profilePicture')
       return
     }
     if (!form.resume && !application.resumeUrl) {
       setStep(5)
       setErrors({ resume: 'Resume is required' })
+      focusValidationField('resume')
       return
     }
 
@@ -877,7 +978,7 @@ export function ExpertApplicationWizard({
       return (
         <div className="space-y-7">
           <div className="grid gap-6 md:grid-cols-[10rem_1fr]">
-            <div className="space-y-3">
+            <div className="space-y-3" data-validation-field="profilePicture">
               <Label htmlFor="profilePicture" className="font-semibold">
                 Profile photo <span className="text-red-500">*</span>
               </Label>
@@ -897,6 +998,8 @@ export function ExpertApplicationWizard({
                 id="profilePicture"
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                aria-invalid={Boolean(errors.profilePicture)}
+                aria-describedby={errors.profilePicture ? 'profilePicture-error' : undefined}
                 className="sr-only"
                 onChange={event => {
                   const file = event.target.files?.[0] || null
@@ -906,7 +1009,7 @@ export function ExpertApplicationWizard({
                 }}
               />
               <p className="text-xs text-slate-500">JPEG, PNG or WebP. Maximum 5MB.</p>
-              <FieldError error={errors.profilePicture} />
+              <FieldError field="profilePicture" error={errors.profilePicture} />
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
@@ -917,9 +1020,14 @@ export function ExpertApplicationWizard({
                   value={form.fullName}
                   onChange={event => updateForm('fullName', event.target.value)}
                   autoComplete="name"
-                  className="h-11 bg-white"
+                  aria-invalid={Boolean(errors.fullName)}
+                  aria-describedby={errors.fullName ? 'fullName-error' : undefined}
+                  className={cn(
+                    'h-11 bg-white',
+                    errors.fullName && 'border-red-500 focus-visible:ring-red-500',
+                  )}
                 />
-                <FieldError error={errors.fullName} />
+                <FieldError field="fullName" error={errors.fullName} />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="professionalHeadline">Professional headline *</Label>
@@ -928,9 +1036,20 @@ export function ExpertApplicationWizard({
                   value={form.professionalHeadline}
                   onChange={event => updateForm('professionalHeadline', event.target.value)}
                   placeholder="e.g. Growth strategist helping founders scale responsibly"
-                  className="h-11 bg-white"
+                  aria-invalid={Boolean(errors.professionalHeadline)}
+                  aria-describedby={
+                    errors.professionalHeadline ? 'professionalHeadline-error' : undefined
+                  }
+                  className={cn(
+                    'h-11 bg-white',
+                    errors.professionalHeadline &&
+                      'border-red-500 focus-visible:ring-red-500',
+                  )}
                 />
-                <FieldError error={errors.professionalHeadline} />
+                <FieldError
+                  field="professionalHeadline"
+                  error={errors.professionalHeadline}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Verified email</Label>
@@ -940,6 +1059,7 @@ export function ExpertApplicationWizard({
                 <Label htmlFor="phone">Mobile number *</Label>
                 <div className="grid grid-cols-[9rem_1fr] gap-2">
                   <SearchableSelect
+                    id="phoneCountryCode"
                     value={form.phoneCountryCode}
                     onChange={value => updateForm('phoneCountryCode', value)}
                     options={phoneCodeOptions}
@@ -951,10 +1071,15 @@ export function ExpertApplicationWizard({
                     inputMode="tel"
                     value={form.phone}
                     onChange={event => updateForm('phone', event.target.value.replace(/\D/g, ''))}
-                    className="h-11 bg-white"
+                    aria-invalid={Boolean(errors.phone)}
+                    aria-describedby={errors.phone ? 'phone-error' : undefined}
+                    className={cn(
+                      'h-11 bg-white',
+                      errors.phone && 'border-red-500 focus-visible:ring-red-500',
+                    )}
                   />
                 </div>
-                <FieldError error={errors.phone} />
+                <FieldError field="phone" error={errors.phone} />
               </div>
             </div>
           </div>
@@ -965,42 +1090,50 @@ export function ExpertApplicationWizard({
               <div className="space-y-2">
                 <Label>Country</Label>
                 <SearchableSelect
+                  id="countryId"
                   value={form.countryId}
                   onChange={value => {
                     setForm(previous => ({ ...previous, countryId: value, stateId: '', cityId: '' }))
+                    clearFieldErrors('countryId', 'stateId', 'cityId')
                   }}
                   options={countryOptions}
                   placeholder="Select country"
                   searchPlaceholder="Search countries..."
                   disabled={locationLoading.countries}
+                  error={errors.countryId}
                 />
-                <FieldError error={errors.countryId} />
+                <FieldError field="countryId" error={errors.countryId} />
               </div>
               <div className="space-y-2">
                 <Label>State</Label>
                 <SearchableSelect
+                  id="stateId"
                   value={form.stateId}
                   onChange={value => {
                     setForm(previous => ({ ...previous, stateId: value, cityId: '' }))
+                    clearFieldErrors('stateId', 'cityId')
                   }}
                   options={stateOptions}
                   placeholder="Select state"
                   searchPlaceholder="Search states..."
                   disabled={!form.countryId || locationLoading.states}
+                  error={errors.stateId}
                 />
-                <FieldError error={errors.stateId} />
+                <FieldError field="stateId" error={errors.stateId} />
               </div>
               <div className="space-y-2">
                 <Label>City</Label>
                 <SearchableSelect
+                  id="cityId"
                   value={form.cityId}
                   onChange={value => updateForm('cityId', value)}
                   options={cityOptions}
                   placeholder="Select city"
                   searchPlaceholder="Search cities..."
                   disabled={!form.stateId || locationLoading.cities}
+                  error={errors.cityId}
                 />
-                <FieldError error={errors.cityId} />
+                <FieldError field="cityId" error={errors.cityId} />
               </div>
             </div>
           </fieldset>
@@ -1013,10 +1146,15 @@ export function ExpertApplicationWizard({
                 type="url"
                 value={form.linkedinUrl}
                 onChange={event => updateForm('linkedinUrl', event.target.value)}
-                placeholder="https://www.linkedin.com/in/..."
-                className="h-11 bg-white"
+                placeholder="linkedin.com/in/..."
+                aria-invalid={Boolean(errors.linkedinUrl)}
+                aria-describedby={errors.linkedinUrl ? 'linkedinUrl-error' : undefined}
+                className={cn(
+                  'h-11 bg-white',
+                  errors.linkedinUrl && 'border-red-500 focus-visible:ring-red-500',
+                )}
               />
-              <FieldError error={errors.linkedinUrl} />
+              <FieldError field="linkedinUrl" error={errors.linkedinUrl} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="websiteUrl">Website or portfolio URL</Label>
@@ -1025,10 +1163,15 @@ export function ExpertApplicationWizard({
                 type="url"
                 value={form.websiteUrl}
                 onChange={event => updateForm('websiteUrl', event.target.value)}
-                placeholder="https://..."
-                className="h-11 bg-white"
+                placeholder="yourwebsite.com"
+                aria-invalid={Boolean(errors.websiteUrl)}
+                aria-describedby={errors.websiteUrl ? 'websiteUrl-error' : undefined}
+                className={cn(
+                  'h-11 bg-white',
+                  errors.websiteUrl && 'border-red-500 focus-visible:ring-red-500',
+                )}
               />
-              <FieldError error={errors.websiteUrl} />
+              <FieldError field="websiteUrl" error={errors.websiteUrl} />
             </div>
           </div>
         </div>
@@ -1045,9 +1188,14 @@ export function ExpertApplicationWizard({
                 id="title"
                 value={form.title}
                 onChange={event => updateForm('title', event.target.value)}
-                className="h-11 bg-white"
+                aria-invalid={Boolean(errors.title)}
+                aria-describedby={errors.title ? 'title-error' : undefined}
+                className={cn(
+                  'h-11 bg-white',
+                  errors.title && 'border-red-500 focus-visible:ring-red-500',
+                )}
               />
-              <FieldError error={errors.title} />
+              <FieldError field="title" error={errors.title} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="company">Current organization *</Label>
@@ -1056,9 +1204,14 @@ export function ExpertApplicationWizard({
                 value={form.company}
                 onChange={event => updateForm('company', event.target.value)}
                 placeholder="Use Independent or Retired when applicable"
-                className="h-11 bg-white"
+                aria-invalid={Boolean(errors.company)}
+                aria-describedby={errors.company ? 'company-error' : undefined}
+                className={cn(
+                  'h-11 bg-white',
+                  errors.company && 'border-red-500 focus-visible:ring-red-500',
+                )}
               />
-              <FieldError error={errors.company} />
+              <FieldError field="company" error={errors.company} />
             </div>
           </div>
 
@@ -1069,8 +1222,9 @@ export function ExpertApplicationWizard({
               value={form.employmentType}
               options={EMPLOYMENT_TYPE_OPTIONS}
               onChange={value => updateForm('employmentType', value)}
+              error={errors.employmentType}
             />
-            <FieldError error={errors.employmentType} />
+            <FieldError field="employmentType" error={errors.employmentType} />
           </fieldset>
 
           <fieldset className="space-y-3">
@@ -1082,8 +1236,9 @@ export function ExpertApplicationWizard({
               options={EXPERIENCE_BAND_OPTIONS}
               onChange={value => updateForm('experienceBand', value)}
               columns={4}
+              error={errors.experienceBand}
             />
-            <FieldError error={errors.experienceBand} />
+            <FieldError field="experienceBand" error={errors.experienceBand} />
           </fieldset>
 
           <fieldset className="space-y-3">
@@ -1093,8 +1248,9 @@ export function ExpertApplicationWizard({
               values={form.industries}
               options={INDUSTRY_OPTIONS}
               onChange={values => updateForm('industries', values)}
+              error={errors.industries}
             />
-            <FieldError error={errors.industries} />
+            <FieldError field="industries" error={errors.industries} />
             {form.industries.includes('OTHER') && (
               <div className="max-w-xl space-y-2">
                 <Label htmlFor="otherIndustry">Other industry *</Label>
@@ -1102,9 +1258,14 @@ export function ExpertApplicationWizard({
                   id="otherIndustry"
                   value={form.otherIndustry}
                   onChange={event => updateForm('otherIndustry', event.target.value)}
-                  className="h-11 bg-white"
+                  aria-invalid={Boolean(errors.otherIndustry)}
+                  aria-describedby={errors.otherIndustry ? 'otherIndustry-error' : undefined}
+                  className={cn(
+                    'h-11 bg-white',
+                    errors.otherIndustry && 'border-red-500 focus-visible:ring-red-500',
+                  )}
                 />
-                <FieldError error={errors.otherIndustry} />
+                <FieldError field="otherIndustry" error={errors.otherIndustry} />
               </div>
             )}
           </fieldset>
@@ -1129,8 +1290,9 @@ export function ExpertApplicationWizard({
             options={EXPERTISE_OPTIONS}
             onChange={values => updateForm('expertise', values)}
             max={5}
+            error={errors.expertise}
           />
-          <FieldError error={errors.expertise} />
+          <FieldError field="expertise" error={errors.expertise} />
           {form.expertise.includes('OTHER') && (
             <div className="max-w-xl space-y-2">
               <Label htmlFor="otherExpertise">Other expertise *</Label>
@@ -1138,9 +1300,14 @@ export function ExpertApplicationWizard({
                 id="otherExpertise"
                 value={form.otherExpertise}
                 onChange={event => updateForm('otherExpertise', event.target.value)}
-                className="h-11 bg-white"
+                aria-invalid={Boolean(errors.otherExpertise)}
+                aria-describedby={errors.otherExpertise ? 'otherExpertise-error' : undefined}
+                className={cn(
+                  'h-11 bg-white',
+                  errors.otherExpertise && 'border-red-500 focus-visible:ring-red-500',
+                )}
               />
-              <FieldError error={errors.otherExpertise} />
+              <FieldError field="otherExpertise" error={errors.otherExpertise} />
             </div>
           )}
         </fieldset>
@@ -1215,40 +1382,48 @@ export function ExpertApplicationWizard({
             file={form.resume}
             existingUrl={application.resumeUrl}
             onChange={file => updateForm('resume', file)}
+            error={errors.resume}
           />
-          <FieldError error={errors.resume} />
+          <FieldError field="resume" error={errors.resume} />
           <FileField
             id="portfolio"
             label="Portfolio"
             file={form.portfolio}
             existingUrl={application.portfolioUrl}
             onChange={file => updateForm('portfolio', file)}
+            error={errors.portfolio}
           />
-          <FieldError error={errors.portfolio} />
+          <FieldError field="portfolio" error={errors.portfolio} />
           <FileField
             id="caseStudy"
             label="Case study"
             file={form.caseStudy}
             existingUrl={application.caseStudyUrl}
             onChange={file => updateForm('caseStudy', file)}
+            error={errors.caseStudy}
           />
-          <FieldError error={errors.caseStudy} />
+          <FieldError field="caseStudy" error={errors.caseStudy} />
           <FileField
             id="presentation"
             label="Presentation"
             file={form.presentation}
             existingUrl={application.presentationUrl}
             onChange={file => updateForm('presentation', file)}
+            error={errors.presentation}
           />
-          <FieldError error={errors.presentation} />
+          <FieldError field="presentation" error={errors.presentation} />
           <FileField
             id="awardsCertifications"
             label="Awards and certifications"
             file={form.awardsCertifications}
             existingUrl={application.awardsCertificationsUrl}
             onChange={file => updateForm('awardsCertifications', file)}
+            error={errors.awardsCertifications}
           />
-          <FieldError error={errors.awardsCertifications} />
+          <FieldError
+            field="awardsCertifications"
+            error={errors.awardsCertifications}
+          />
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
             Supporting documents are optional and private. Video introduction is intentionally
             deferred for future review.
@@ -1267,8 +1442,9 @@ export function ExpertApplicationWizard({
               values={form.serviceInterests}
               options={SERVICE_INTEREST_OPTIONS}
               onChange={values => updateForm('serviceInterests', values)}
+              error={errors.serviceInterests}
             />
-            <FieldError error={errors.serviceInterests} />
+            <FieldError field="serviceInterests" error={errors.serviceInterests} />
           </fieldset>
           <fieldset className="space-y-3">
             <legend className="text-base font-semibold text-slate-800">
@@ -1280,8 +1456,12 @@ export function ExpertApplicationWizard({
               options={SESSION_MODE_OPTIONS}
               onChange={value => updateForm('preferredSessionMode', value)}
               columns={3}
+              error={errors.preferredSessionMode}
             />
-            <FieldError error={errors.preferredSessionMode} />
+            <FieldError
+              field="preferredSessionMode"
+              error={errors.preferredSessionMode}
+            />
           </fieldset>
           <fieldset className="space-y-3">
             <legend className="text-base font-semibold text-slate-800">
@@ -1292,8 +1472,9 @@ export function ExpertApplicationWizard({
               values={form.languages}
               options={LANGUAGE_OPTIONS}
               onChange={values => updateForm('languages', values)}
+              error={errors.languages}
             />
-            <FieldError error={errors.languages} />
+            <FieldError field="languages" error={errors.languages} />
             {form.languages.includes('OTHER') && (
               <div className="max-w-xl space-y-2">
                 <Label htmlFor="otherLanguage">Other language *</Label>
@@ -1301,9 +1482,14 @@ export function ExpertApplicationWizard({
                   id="otherLanguage"
                   value={form.otherLanguage}
                   onChange={event => updateForm('otherLanguage', event.target.value)}
-                  className="h-11 bg-white"
+                  aria-invalid={Boolean(errors.otherLanguage)}
+                  aria-describedby={errors.otherLanguage ? 'otherLanguage-error' : undefined}
+                  className={cn(
+                    'h-11 bg-white',
+                    errors.otherLanguage && 'border-red-500 focus-visible:ring-red-500',
+                  )}
                 />
-                <FieldError error={errors.otherLanguage} />
+                <FieldError field="otherLanguage" error={errors.otherLanguage} />
               </div>
             )}
           </fieldset>
@@ -1317,8 +1503,12 @@ export function ExpertApplicationWizard({
               options={WEEKLY_AVAILABILITY_OPTIONS}
               onChange={value => updateForm('weeklyAvailabilityBand', value)}
               columns={4}
+              error={errors.weeklyAvailabilityBand}
             />
-            <FieldError error={errors.weeklyAvailabilityBand} />
+            <FieldError
+              field="weeklyAvailabilityBand"
+              error={errors.weeklyAvailabilityBand}
+            />
           </fieldset>
         </div>
       )
@@ -1345,8 +1535,12 @@ export function ExpertApplicationWizard({
             ]}
             onChange={value => updateForm('hasPriorMentoringExperience', value === 'YES')}
             columns={2}
+            error={errors.hasPriorMentoringExperience}
           />
-          <FieldError error={errors.hasPriorMentoringExperience} />
+          <FieldError
+            field="hasPriorMentoringExperience"
+            error={errors.hasPriorMentoringExperience}
+          />
         </fieldset>
 
         <fieldset className="space-y-3">
@@ -1371,8 +1565,12 @@ export function ExpertApplicationWizard({
               if (value === 'NO') updateForm('misconductExplanation', '')
             }}
             columns={2}
+            error={errors.hasProfessionalMisconduct}
           />
-          <FieldError error={errors.hasProfessionalMisconduct} />
+          <FieldError
+            field="hasProfessionalMisconduct"
+            error={errors.hasProfessionalMisconduct}
+          />
         </fieldset>
 
         {form.hasProfessionalMisconduct && (
@@ -1386,7 +1584,14 @@ export function ExpertApplicationWizard({
           />
         )}
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div
+          id="consents"
+          data-validation-field="consents"
+          className={cn(
+            'rounded-2xl border bg-slate-50 p-5',
+            errors.consents ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200',
+          )}
+        >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-semibold text-slate-900">Policies and declaration</h3>
@@ -1435,12 +1640,13 @@ export function ExpertApplicationWizard({
                 <Checkbox
                   id={`consent-${document.id}`}
                   checked={consents[document.id]}
-                  onCheckedChange={checked =>
+                  onCheckedChange={checked => {
                     setConsents(previous => ({
                       ...previous,
                       [document.id]: checked === true,
                     }))
-                  }
+                    clearFieldErrors('consents')
+                  }}
                   className="mt-0.5"
                 />
                 <span>
@@ -1449,7 +1655,7 @@ export function ExpertApplicationWizard({
               </Label>
             ))}
           </div>
-          <FieldError error={errors.consents} />
+          <FieldError field="consents" error={errors.consents} />
         </div>
 
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
@@ -1466,6 +1672,7 @@ export function ExpertApplicationWizard({
   }
 
   const currentStep = STEPS[step]
+  const validationEntries = Object.entries(errors)
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
@@ -1560,6 +1767,39 @@ export function ExpertApplicationWizard({
               <p className="mt-1 text-sm text-slate-500">{currentStep.description}</p>
             </div>
             <CardContent className="bg-slate-50/60 p-5 sm:p-8">
+              {validationEntries.length > 0 && (
+                <div
+                  ref={validationSummaryRef}
+                  id="application-validation-summary"
+                  role="alert"
+                  aria-live="assertive"
+                  tabIndex={-1}
+                  className="mb-6 rounded-xl border border-red-300 bg-red-50 p-4 text-red-900 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <p className="font-semibold">
+                        Please correct {validationEntries.length}{' '}
+                        {validationEntries.length === 1 ? 'field' : 'fields'} before continuing.
+                      </p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                        {validationEntries.map(([field, message]) => (
+                          <li key={field}>
+                            <button
+                              type="button"
+                              onClick={() => focusValidationField(field)}
+                              className="text-left underline decoration-red-300 underline-offset-2 hover:decoration-red-700"
+                            >
+                              {message}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
               {submissionError && (
                 <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                   {submissionError}

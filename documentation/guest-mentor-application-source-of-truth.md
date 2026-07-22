@@ -147,6 +147,14 @@ Control semantics for the next form revision:
   professional misconduct.
 - Resume and profile photo are required at submission. Supporting portfolio, case-study,
   presentation, and award/certification files remain optional.
+- LinkedIn and optional website controls accept either an absolute HTTP(S) URL or a familiar
+  host-first value such as `www.linkedin.com/in/name`; host-first input is normalized to HTTPS
+  before persistence. URL parsing is exception-safe, and LinkedIn validation accepts only the
+  `linkedin.com` host or its subdomains, never lookalike suffixes.
+- Every step transition runs the same shared validation contract used by final submission.
+  Failures keep the applicant on the current step, display a prominent accessible error summary,
+  retain field-level messages and invalid-control styling, and scroll/focus the first invalid
+  control. Correcting a field removes its stale error state.
 
 The implemented version-two application fields include a distinct professional headline, website,
 employment type, experience band, industries, challenge solved, measurable outcomes, guidance
@@ -375,6 +383,10 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 - [x] Expertise option cards enforce one-to-five selections and disable a sixth selection.
 - [x] Radio and checkbox cards hydrate and change state correctly at desktop and 390px widths.
 - [x] The version-two wizard has no horizontal overflow at 390px.
+- [x] Bare LinkedIn/website hostnames normalize to HTTPS; malformed and lookalike LinkedIn URLs
+  produce validation messages without throwing a browser runtime exception.
+- [x] Missing and invalid step fields produce an accessible summary, individual messages, invalid
+  control styling, and focus movement to the first failing control.
 - [x] Desktop and 390px mobile `/verified-experts` guest-entry states pass compiled-browser verification.
 - [x] With `MENTOR_APPLICATIONS_ENABLED=false`, the compiled page renders the unavailable
   state and application API middleware returns `503` without reaching the database.
@@ -389,23 +401,25 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Phase | Status | Notes |
 | --- | --- | --- |
 | Architecture and invariants | Complete | Approved design captured above |
-| Drizzle schema and SQL migration | Code complete; DB pending | Migration 003 is applied; additive migration 004 and its verification queries are ready for manual execution |
+| Drizzle schema and SQL migration | Applied | Migrations 003 and 004 are active in the connected database; the supplied read-only verification remains the canonical audit |
 | OTP and application-session services | Complete | Purpose-bound OTP, scoped cookie, revocation, rate limits, and trusted-origin checks |
 | Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile/resume, optional evidence, and private delivery |
 | Claiming and promotion | Complete | V2 public/operational fields promote idempotently; sensitive misconduct and review data remain application-only |
 | `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, legal declaration, and lifecycle views |
-| Automated verification | Complete | TypeScript, production build, 20 unit tests, and zero known validation regressions |
-| Browser verification | Complete | Guest bootstrap, hydrated radio/checkbox state, five-expertise limit, and 390px overflow checks pass |
-| Database-backed E2E verification | Pending | Apply migration 004, then execute the full OTP-to-v2-submission-to-promotion lifecycle |
+| Automated verification | Complete | TypeScript, production build, 22 unit tests, and zero known validation regressions |
+| Browser verification | Complete | Guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
+| Database-backed E2E verification | Pending | Execute the full OTP-to-v2-submission-to-promotion lifecycle against the applied schema |
 | Private Supabase storage | Complete | User-confirmed creation of the private `mentor-applications` bucket on 22 July 2026 |
 | Server environment | In progress | Dedicated local secrets are configured; production deployment and trusted-proxy configuration remain pending |
 | Malware scanning | Future enhancement | Runtime callback, quarantine, and promotion gates were removed; database scan columns remain dormant |
 | Retention jobs | Pending deployment | Product/legal retention durations and cleanup schedules remain to be implemented |
-| Production database migration | Partially complete | Migration 003 is verified; migration 004 remains pending manual execution |
+| Production database migration | Applied | Migration 003 is verified and migration 004 columns are active in the connected database |
 
 Current environment note: the earlier local `DATABASE_URL` authentication failure did not
 prevent manual execution in Supabase. On 22 July 2026, the user confirmed that migration 003
 and all supplied post-migration verification queries completed with the expected results.
+Migration 004 is now active, as confirmed by successful runtime access to its version-two
+application columns; its read-only verification script remains available for repeatable auditing.
 
 ## Change log
 
@@ -500,3 +514,7 @@ and all supplied post-migration verification queries completed with the expected
   migration 004 columns so both applications use the same post-promotion profile contract.
 - Increased the documented and enforced multipart ceiling from 11MB to 31MB to accommodate the
   required files and four optional 5MB evidence categories.
+- Made LinkedIn and optional website parsing exception-safe, normalized familiar host-first input
+  to HTTPS, rejected deceptive LinkedIn lookalike hosts, and added regression coverage.
+- Added an accessible step-level validation summary, linked field messages, invalid-state styling,
+  stale-error clearing, and automatic scroll/focus to the first field requiring attention.

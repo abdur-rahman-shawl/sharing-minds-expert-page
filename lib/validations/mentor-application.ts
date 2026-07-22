@@ -34,20 +34,61 @@ const normalizedEmailSchema = z
   .email('Enter a valid email address')
   .max(254)
 
-const optionalUrlSchema = z.union([
-  z.literal(''),
-  z.string().trim().url('Enter a valid URL').max(2048),
-])
+function normalizeHttpUrl(value: string) {
+  const trimmedValue = value.trim()
+  if (!trimmedValue || /^[a-z][a-z\d+.-]*:\/\//i.test(trimmedValue)) {
+    return trimmedValue
+  }
+
+  return `https://${trimmedValue}`
+}
+
+function parseHttpUrl(value: string) {
+  // Browsers may percent-encode whitespace in hostnames while Node rejects it.
+  // Reject whitespace first so shared client/server validation stays deterministic.
+  if (/\s/.test(value)) return null
+
+  try {
+    const parsedUrl = new URL(value)
+    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:'
+      ? parsedUrl
+      : null
+  } catch {
+    return null
+  }
+}
+
+const optionalUrlSchema = z
+  .string()
+  .trim()
+  .max(2048)
+  .transform(value => (value ? normalizeHttpUrl(value) : ''))
+  .refine(value => !value || Boolean(parseHttpUrl(value)), 'Enter a valid URL')
 
 const linkedinUrlSchema = z
   .string()
   .trim()
-  .url('Enter a valid LinkedIn URL')
+  .min(1, 'LinkedIn profile is required')
   .max(2048)
-  .refine(value => {
-    const hostname = new URL(value).hostname.toLowerCase()
-    return hostname === 'linkedin.com' || hostname.endsWith('.linkedin.com')
-  }, 'Enter a LinkedIn URL')
+  .transform(normalizeHttpUrl)
+  .superRefine((value, context) => {
+    const parsedUrl = parseHttpUrl(value)
+    if (!parsedUrl) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Enter a valid LinkedIn URL',
+      })
+      return
+    }
+
+    const hostname = parsedUrl.hostname.toLowerCase()
+    if (hostname !== 'linkedin.com' && !hostname.endsWith('.linkedin.com')) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Enter a LinkedIn URL',
+      })
+    }
+  })
 
 export const requestMentorApplicationOtpSchema = z.object({
   email: normalizedEmailSchema,
