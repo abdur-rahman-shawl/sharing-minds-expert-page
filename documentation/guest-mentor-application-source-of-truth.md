@@ -339,9 +339,9 @@ generate or push an independent competing migration for these columns.
 
 ### Temporary platform-access experience
 
-`/auth/login` currently presents a premium private-access preview rather than platform login
-controls. This is an intentional product state while the broader SharingMinds member experience
-is being prepared; it is not an authentication error or a dependency of expert onboarding.
+`/auth/login` currently presents a concise verified-access notice rather than platform login
+controls. It explains that expert sign-in and dashboard access are activated only after
+application approval; it is not an authentication error or a dependency of expert onboarding.
 
 - Desktop and mobile navigation continue to link to `/auth/login`, preserving the permanent
   route contract and avoiding temporary URL rewrites.
@@ -354,6 +354,11 @@ is being prepared; it is not an authentication error or a dependency of expert o
 - Visitors arriving at the private-access page can return home or continue directly to expert
   verification. No waitlist or lead-capture promise is displayed because no corresponding
   persistence or operational follow-up workflow currently exists.
+- Visitors are told that approved sign-in and dashboard access will be communicated to their
+  verified email.
+- The temporary page is constrained to one viewport with no document scrolling. Its supporting
+  image is desktop-only, actions stack in narrow laptop columns, and the brand mark is omitted on
+  very short screens so the access message and actions never overlap or clip.
 - The temporary route is marked `noindex, nofollow`; it may be made indexable only when the
   production client-access experience and its canonical metadata are approved.
 
@@ -610,3 +615,7 @@ application columns; its read-only verification script remains available for rep
   equivalent plaintext fallback and safe personalization, and retained the existing OTP email.
 - Removed the application-status CTA from both confirmation-email formats; the message now
   provides review expectations and directs applicants to await verified-email follow-up.
+- Reframed the temporary `/auth/login` page as a brief verification-gated access notice:
+  approved experts receive sign-in and dashboard access by verified-email notification.
+- Made the temporary access page height-aware and viewport-bounded for lower-resolution laptops,
+  removed the nonessential submitted-application card, and prevented narrow-column action overflow.

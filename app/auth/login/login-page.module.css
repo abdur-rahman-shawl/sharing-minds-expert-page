@@ -1,0 +1,21 @@
+.viewport {
+  height: 100vh;
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-height: 640px) {
+  .brand {
+    display: none;
+  }
+
+  .eyebrow {
+    margin-top: 0;
+  }
+
+  .main {
+    padding-bottom: 0;
+    padding-top: 0;
+  }
+}

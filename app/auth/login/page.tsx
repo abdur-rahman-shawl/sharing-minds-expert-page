@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import LoginPageClient from './LoginPageClient'
 
 export const metadata: Metadata = {
-  title: 'Private Client Access - SharingMinds',
+  title: 'Verified Expert Access - sharingminds',
   description:
-    'Private access to the SharingMinds network is being prepared for business leaders and verified experts.',
+    'Sign-in and dashboard access are activated after expert verification and approval.',
   robots: {
     index: false,
     follow: false,
