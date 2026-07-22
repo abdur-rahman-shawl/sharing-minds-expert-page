@@ -71,9 +71,6 @@ export type MentorApplicationResponse = {
   languages: string[]
   otherLanguage: string
   weeklyAvailabilityBand: string
-  hasPriorMentoringExperience: boolean | null
-  hasProfessionalMisconduct: boolean | null
-  misconductExplanation: string
   profileImageUrl: string | null
   resumeUrl: string | null
   portfolioUrl: string | null
@@ -376,15 +373,6 @@ function toApplicationValues(
     ...(input.weeklyAvailabilityBand === undefined
       ? {}
       : { weeklyAvailabilityBand: input.weeklyAvailabilityBand || null }),
-    ...(input.hasPriorMentoringExperience === undefined
-      ? {}
-      : { hasPriorMentoringExperience: input.hasPriorMentoringExperience }),
-    ...(input.hasProfessionalMisconduct === undefined
-      ? {}
-      : { hasProfessionalMisconduct: input.hasProfessionalMisconduct }),
-    ...(input.misconductExplanation === undefined
-      ? {}
-      : { misconductExplanation: input.misconductExplanation || null }),
   }
 }
 
@@ -660,9 +648,6 @@ export async function submitMentorApplication(input: {
       languages: updated.languages,
       otherLanguage: updated.otherLanguage,
       weeklyAvailabilityBand: updated.weeklyAvailabilityBand,
-      hasPriorMentoringExperience: updated.hasPriorMentoringExperience,
-      hasProfessionalMisconduct: updated.hasProfessionalMisconduct,
-      misconductExplanation: updated.misconductExplanation,
       files: {
         current: currentFiles.map(file => ({ id: file.id, kind: file.kind })),
         uploaded: insertedFileIds,
@@ -770,9 +755,6 @@ export async function serializeMentorApplication(
     languages: application.languages || [],
     otherLanguage: application.otherLanguage || '',
     weeklyAvailabilityBand: application.weeklyAvailabilityBand || '',
-    hasPriorMentoringExperience: application.hasPriorMentoringExperience,
-    hasProfessionalMisconduct: application.hasProfessionalMisconduct,
-    misconductExplanation: application.misconductExplanation || '',
     profileImageUrl,
     resumeUrl,
     portfolioUrl: fileUrl(portfolioFile),

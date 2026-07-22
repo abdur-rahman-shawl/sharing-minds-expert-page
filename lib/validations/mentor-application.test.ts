@@ -34,9 +34,6 @@ const validApplication = {
   languages: ['ENGLISH'],
   otherLanguage: '',
   weeklyAvailabilityBand: 'HOURS_1_2',
-  hasPriorMentoringExperience: false,
-  hasProfessionalMisconduct: false,
-  misconductExplanation: '',
 }
 
 describe('mentor application validation boundaries', () => {
@@ -48,7 +45,6 @@ describe('mentor application validation boundaries', () => {
       professionalHeadline: '',
       industries: [],
       expertise: [],
-      hasPriorMentoringExperience: null,
     })
 
     expect(result.success).toBe(true)
@@ -123,21 +119,17 @@ describe('mentor application validation boundaries', () => {
     expect(result.success).toBe(false)
   })
 
-  it('requires an explanation when misconduct is reported', () => {
-    const partial = patchMentorApplicationSchema.safeParse({
-      hasProfessionalMisconduct: true,
-      misconductExplanation: '',
-    })
-    expect(partial.success).toBe(true)
-
-    const result = mentorApplicationDraftFieldsSchema.safeParse({
-      ...validApplication,
-      expertise: ['PRODUCT'],
-      hasProfessionalMisconduct: true,
-      misconductExplanation: '',
-    })
-
-    expect(result.success).toBe(false)
+  it('does not collect the removed mentoring and misconduct screening fields', () => {
+    expect(
+      patchMentorApplicationSchema.safeParse({
+        hasPriorMentoringExperience: true,
+      }).success,
+    ).toBe(false)
+    expect(
+      patchMentorApplicationSchema.safeParse({
+        hasProfessionalMisconduct: false,
+      }).success,
+    ).toBe(false)
   })
 
   it('accepts every current legal document exactly at its current version', () => {

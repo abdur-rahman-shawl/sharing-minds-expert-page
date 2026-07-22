@@ -27,19 +27,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { legalDocuments, type LegalDocumentId } from '@/lib/legal-documents'
@@ -60,7 +51,6 @@ import type { MentorApplication } from './types'
 
 type AutosaveState = 'idle' | 'saving' | 'saved' | 'error'
 type SearchableOption = { value: string; label: string }
-type NullableBoolean = boolean | null
 
 type ExpertApplicationFormData = {
   fullName: string
@@ -90,9 +80,6 @@ type ExpertApplicationFormData = {
   languages: string[]
   otherLanguage: string
   weeklyAvailabilityBand: string
-  hasPriorMentoringExperience: NullableBoolean
-  hasProfessionalMisconduct: NullableBoolean
-  misconductExplanation: string
   profilePicture: File | null
   resume: File | null
   portfolio: File | null
@@ -147,14 +134,12 @@ const STEP_FIELDS = [
     'otherLanguage',
     'weeklyAvailabilityBand',
   ]),
-  new Set([
-    'hasPriorMentoringExperience',
-    'hasProfessionalMisconduct',
-    'misconductExplanation',
-  ]),
+  new Set<string>(),
 ] as const
 
-const MAX_FILE_BYTES = 5 * 1024 * 1024
+const PROFILE_IMAGE_MAX_BYTES = 5 * 1024 * 1024
+const RESUME_MAX_BYTES = 2 * 1024 * 1024
+const SUPPORTING_DOCUMENT_MAX_BYTES = 5 * 1024 * 1024
 
 function splitStoredPhone(phone?: string | null) {
   if (!phone) return { phone: '', phoneCountryCode: '' }
@@ -195,9 +180,6 @@ function createInitialForm(application: MentorApplication): ExpertApplicationFor
     languages: application.languages || [],
     otherLanguage: application.otherLanguage || '',
     weeklyAvailabilityBand: application.weeklyAvailabilityBand || '',
-    hasPriorMentoringExperience: application.hasPriorMentoringExperience ?? null,
-    hasProfessionalMisconduct: application.hasProfessionalMisconduct ?? null,
-    misconductExplanation: application.misconductExplanation || '',
     profilePicture: null,
     resume: null,
     portfolio: null,
@@ -235,9 +217,6 @@ function buildApplicationValues(form: ExpertApplicationFormData) {
     languages: form.languages,
     otherLanguage: form.otherLanguage,
     weeklyAvailabilityBand: form.weeklyAvailabilityBand,
-    hasPriorMentoringExperience: form.hasPriorMentoringExperience,
-    hasProfessionalMisconduct: form.hasProfessionalMisconduct,
-    misconductExplanation: form.misconductExplanation,
   }
 }
 
@@ -509,6 +488,7 @@ function FileField({
   required,
   file,
   existingUrl,
+  maxSizeMb = 5,
   onChange,
   error,
 }: {
@@ -517,6 +497,7 @@ function FileField({
   required?: boolean
   file: File | null
   existingUrl?: string | null
+  maxSizeMb?: number
   onChange: (file: File | null) => void
   error?: string
 }) {
@@ -533,7 +514,9 @@ function FileField({
           <Label htmlFor={id} className="font-semibold text-slate-800">
             {label} {required && <span className="text-red-500">*</span>}
           </Label>
-          <p className="mt-1 text-xs text-slate-500">PDF only, maximum 5MB</p>
+          <p className="mt-1 text-xs text-slate-500">
+            PDF only, maximum {maxSizeMb}MB
+          </p>
         </div>
         <Label
           htmlFor={id}
@@ -652,9 +635,7 @@ export function ExpertApplicationWizard({
           ? ['otherExpertise']
           : field === 'languages'
             ? ['otherLanguage']
-            : field === 'hasProfessionalMisconduct'
-              ? ['misconductExplanation']
-              : []
+            : []
     clearFieldErrors(String(field), ...dependentFields)
   }
 
@@ -836,7 +817,7 @@ export function ExpertApplicationWizard({
       nextErrors.profilePicture = 'Profile photo is required'
     }
     if (currentStep === 0 && form.profilePicture) {
-      if (form.profilePicture.size > MAX_FILE_BYTES) {
+      if (form.profilePicture.size > PROFILE_IMAGE_MAX_BYTES) {
         nextErrors.profilePicture = 'Profile photo must be 5MB or less'
       } else if (
         form.profilePicture.type &&
@@ -847,14 +828,21 @@ export function ExpertApplicationWizard({
     }
     if (currentStep === 5) {
       if (!form.resume && !application.resumeUrl) nextErrors.resume = 'Resume is required'
-      for (const [field, file] of Object.entries({
-        resume: form.resume,
-        portfolio: form.portfolio,
-        caseStudy: form.caseStudy,
-        presentation: form.presentation,
-        awardsCertifications: form.awardsCertifications,
-      })) {
-        if (file && file.size > MAX_FILE_BYTES) nextErrors[field] = 'File must be 5MB or less'
+      for (const [field, file, maxBytes, maxSizeMb] of [
+        ['resume', form.resume, RESUME_MAX_BYTES, 2],
+        ['portfolio', form.portfolio, SUPPORTING_DOCUMENT_MAX_BYTES, 5],
+        ['caseStudy', form.caseStudy, SUPPORTING_DOCUMENT_MAX_BYTES, 5],
+        ['presentation', form.presentation, SUPPORTING_DOCUMENT_MAX_BYTES, 5],
+        [
+          'awardsCertifications',
+          form.awardsCertifications,
+          SUPPORTING_DOCUMENT_MAX_BYTES,
+          5,
+        ],
+      ] as const) {
+        if (file && file.size > maxBytes) {
+          nextErrors[field] = `File must be ${maxSizeMb}MB or less`
+        }
         if (file && file.type && file.type !== 'application/pdf') {
           nextErrors[field] = 'File must be a PDF'
         }
@@ -1381,6 +1369,7 @@ export function ExpertApplicationWizard({
             required
             file={form.resume}
             existingUrl={application.resumeUrl}
+            maxSizeMb={2}
             onChange={file => updateForm('resume', file)}
             error={errors.resume}
           />
@@ -1516,74 +1505,6 @@ export function ExpertApplicationWizard({
 
     return (
       <div className="space-y-7">
-        <fieldset className="space-y-3">
-          <legend className="text-base font-semibold text-slate-800">
-            Have you previously mentored or advised people? *
-          </legend>
-          <RadioCards
-            name="hasPriorMentoringExperience"
-            value={
-              form.hasPriorMentoringExperience === null
-                ? ''
-                : form.hasPriorMentoringExperience
-                  ? 'YES'
-                  : 'NO'
-            }
-            options={[
-              { value: 'YES', label: 'Yes' },
-              { value: 'NO', label: 'No' },
-            ]}
-            onChange={value => updateForm('hasPriorMentoringExperience', value === 'YES')}
-            columns={2}
-            error={errors.hasPriorMentoringExperience}
-          />
-          <FieldError
-            field="hasPriorMentoringExperience"
-            error={errors.hasPriorMentoringExperience}
-          />
-        </fieldset>
-
-        <fieldset className="space-y-3">
-          <legend className="text-base font-semibold text-slate-800">
-            Have you ever been involved in professional misconduct? *
-          </legend>
-          <RadioCards
-            name="hasProfessionalMisconduct"
-            value={
-              form.hasProfessionalMisconduct === null
-                ? ''
-                : form.hasProfessionalMisconduct
-                  ? 'YES'
-                  : 'NO'
-            }
-            options={[
-              { value: 'NO', label: 'No' },
-              { value: 'YES', label: 'Yes' },
-            ]}
-            onChange={value => {
-              updateForm('hasProfessionalMisconduct', value === 'YES')
-              if (value === 'NO') updateForm('misconductExplanation', '')
-            }}
-            columns={2}
-            error={errors.hasProfessionalMisconduct}
-          />
-          <FieldError
-            field="hasProfessionalMisconduct"
-            error={errors.hasProfessionalMisconduct}
-          />
-        </fieldset>
-
-        {form.hasProfessionalMisconduct && (
-          <TextareaField
-            id="misconductExplanation"
-            label="Please provide a brief explanation"
-            value={form.misconductExplanation}
-            onChange={value => updateForm('misconductExplanation', value)}
-            placeholder="This answer is private and available only to authorized reviewers."
-            error={errors.misconductExplanation}
-          />
-        )}
-
         <div
           id="consents"
           data-validation-field="consents"
@@ -1596,39 +1517,14 @@ export function ExpertApplicationWizard({
             <div>
               <h3 className="font-semibold text-slate-900">Policies and declaration</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Review and accept each current document before submitting.
+                Accept each current document before submitting.
               </p>
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button type="button" variant="outline">
-                  <FileText className="mr-2 h-4 w-4" /> Read documents
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-h-[90vh] max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>SharingMinds application documents</DialogTitle>
-                  <DialogDescription>
-                    These exact versions are recorded with your submission.
-                  </DialogDescription>
-                </DialogHeader>
-                <ScrollArea className="h-[65vh] pr-5">
-                  <div className="space-y-10">
-                    {legalDocuments.map(document => (
-                      <article key={document.id}>
-                        <h3 className="text-lg font-bold text-slate-900">{document.label}</h3>
-                        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">
-                          Version {document.version}
-                        </p>
-                        <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">
-                          {document.content}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </DialogContent>
-            </Dialog>
+            <Button type="button" variant="outline" asChild>
+              <a href="/policies" target="_blank" rel="noreferrer">
+                <FileText className="mr-2 h-4 w-4" /> View documents
+              </a>
+            </Button>
           </div>
           <div className="mt-5 space-y-3">
             {legalDocuments.map(document => (
@@ -1650,7 +1546,7 @@ export function ExpertApplicationWizard({
                   className="mt-0.5"
                 />
                 <span>
-                  I have read and accept the <strong>{document.label}</strong>.
+                  I accept the <strong>{document.label}</strong>.
                 </span>
               </Label>
             ))}

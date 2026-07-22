@@ -138,18 +138,23 @@ Confirmed product decisions on 22 July 2026:
 - Video introduction is excluded from the next implementation. A video URL or direct-to-private-
   storage upload may be reviewed as a future enhancement; no video field, upload kind, or
   submission requirement is added now.
+- The prior mentoring/advisory question and the professional-misconduct question are removed from
+  the applicant experience and from the current draft/submit API contract. Their nullable database
+  columns remain only for backward compatibility with historical records and require no migration.
+- The five current legal acknowledgements remain required, but checking them is sufficient. Policy
+  review is available through an optional link; there is no document modal, reopen behavior, or
+  scroll-to-bottom gate.
 
 Control semantics for the next form revision:
 
 - Radio groups are used for bounded single-choice values such as employment type, experience
-  band, preferred session mode, weekly availability, and yes/no declarations.
+  band, preferred session mode, and weekly availability.
 - Checkbox groups are used for industries, expertise, credibility indicators, mentoring
   interests, and other multi-select values. Expertise permits at most five selections; it does
   not require five selections.
 - Searchable normalized selectors remain in use for country, state, and city. Large language
   catalogs must also use a searchable multi-select rather than hundreds of radio controls.
-- Conditional text is required when an applicant selects an `Other` option or reports prior
-  professional misconduct.
+- Conditional text is required when an applicant selects an `Other` option.
 - Resume and profile photo are required at submission. Supporting portfolio, case-study,
   presentation, and award/certification files remain optional.
 - LinkedIn and optional website controls accept either an absolute HTTP(S) URL or a familiar
@@ -164,7 +169,7 @@ Control semantics for the next form revision:
 The implemented version-two application fields include a distinct professional headline, website,
 employment type, experience band, industries, challenge solved, measurable outcomes, guidance
 value proposition, credibility signals, service interests, preferred session mode, languages,
-weekly availability band, prior-mentoring indicator, and application-only misconduct answers.
+and weekly availability band.
 The exact field contract is introduced by additive migration 004 and
 `application_schema_version = 2`; migration 003 remains immutable.
 
@@ -175,8 +180,10 @@ New durable mentor fields are required for multi-industry experience, experience
 credibility, service interests, preferred session mode, languages, weekly availability band,
 and the additional guidance/outcome narratives. Exact `experienceYears` must remain null when
 only a range was supplied, and `hourlyRate` remains null until later pricing onboarding.
-Misconduct answers, internal review data, declarations, and supporting verification evidence
-remain application-only and must never be exposed through public mentor payloads.
+Internal review data, declarations, and supporting verification evidence remain application-only
+and must never be exposed through public mentor payloads. Historical screening responses remain
+in nullable application columns but are not returned to the current applicant UI, written by the
+current API, or promoted for new applications.
 
 ## API contract
 
@@ -244,11 +251,13 @@ actor, records `mentor_id` and `promoted_at`, and appends an audit event atomica
   issues a short-lived signed redirect.
 - Object names use application/file UUIDs and never contain email addresses.
 - Profile images: JPEG, PNG, or WebP, checked by file signature and size.
-- Resumes: required PDF, checked by `%PDF` signature and size.
+- Resumes: required PDF, checked by `%PDF` signature and limited to 2MB on both the client and
+  server.
 - Portfolio, case-study, presentation, and award/certification evidence: optional PDF, checked
   by `%PDF` signature and size. One current file per category is retained.
-- Each file is limited to 5MB. The complete multipart request is limited to 31MB so the required
-  profile/resume and four optional evidence categories can be submitted together.
+- Profile images and optional evidence files are limited to 5MB each; resumes are limited to 2MB.
+  The complete multipart request remains limited to 31MB so the required profile/resume and four
+  optional evidence categories can be submitted together.
 - Upload uses `upsert: false`; partial failures clean up newly uploaded objects.
 - The current release accepts files immediately after the size, MIME, and signature checks
   above. It does not perform malware scanning and does not gate file delivery or promotion on
@@ -260,6 +269,8 @@ actor, records `mentor_id` and `promoted_at`, and appends an audit event atomica
   That work is explicitly deferred and is not a current rollout gate.
 - Legal consent is accepted per document ID and version and written by the submission route,
   not a fire-and-forget client beacon.
+- Selecting all five consent checkboxes is the complete acceptance action. Opening policy text and
+  scrolling through it are not submission prerequisites.
 - Each legal document carries its own version in `lib/legal-documents.ts`. The platform policies
   currently use `2025-11`; the expert-application declaration uses `2026-07`. A version must
   change whenever that document's content changes.
@@ -434,9 +445,9 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Architecture and invariants | Complete | Approved design captured above |
 | Drizzle schema and SQL migration | Applied | Migrations 003 and 004 are active in the connected database; the supplied read-only verification remains the canonical audit |
 | OTP and application-session services | Complete | Purpose-bound OTP, scoped cookie, revocation, rate limits, and trusted-origin checks |
-| Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile/resume, optional evidence, and private delivery |
-| Claiming and promotion | Complete | V2 public/operational fields promote idempotently; sensitive misconduct and review data remain application-only |
-| `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, legal declaration, and lifecycle views |
+| Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile and 2MB resume, optional evidence, and private delivery |
+| Claiming and promotion | Complete | V2 public/operational fields promote idempotently; historical screening and review data remain application-only |
+| `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, direct legal acknowledgement, and lifecycle views |
 | Temporary `/auth/login` experience | Complete | Premium private-access preview; platform auth backend retained and expert OTP onboarding remains independently accessible |
 | Automated verification | Complete | TypeScript, production build, 24 unit tests, and zero known validation regressions |
 | Browser verification | Complete | Guest home/application navigation, public CTA routing, guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
@@ -560,3 +571,11 @@ application columns; its read-only verification script remains available for rep
   retained the existing workspace image, added direct home and expert-verification actions, and
   marked the temporary page as non-indexable. Better Auth and account-verification services remain
   available for future platform-access activation.
+- Reduced the expert-application resume limit from 5MB to 2MB in client guidance, client validation,
+  and server-side storage enforcement while retaining the 5MB limit for profile and supporting
+  evidence files.
+- Removed the prior mentoring/advisory and professional-misconduct questions from the wizard and
+  current API validation contract. The existing nullable database columns remain untouched for
+  historical compatibility and are no longer exposed in the applicant response.
+- Simplified final consent so checking the five acknowledgements submits directly. Policy content
+  remains available through `/policies`, but there is no modal or scroll-depth requirement.

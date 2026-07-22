@@ -162,13 +162,6 @@ const mentorApplicationV2Fields = {
   weeklyAvailabilityBand: z.enum(weeklyAvailabilityBands, {
     required_error: 'Weekly availability is required',
   }),
-  hasPriorMentoringExperience: z.boolean({
-    required_error: 'Select whether you have mentored or advised before',
-  }),
-  hasProfessionalMisconduct: z.boolean({
-    required_error: 'Answer the professional misconduct question',
-  }),
-  misconductExplanation: z.string().trim().max(1000),
 }
 
 export const mentorApplicationDraftFieldsSchema = z
@@ -193,13 +186,6 @@ export const mentorApplicationDraftFieldsSchema = z
         code: z.ZodIssueCode.custom,
         path: ['otherLanguage'],
         message: 'Specify the other language',
-      })
-    }
-    if (value.hasProfessionalMisconduct && !value.misconductExplanation) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['misconductExplanation'],
-        message: 'Please provide a brief explanation',
       })
     }
   })
@@ -237,9 +223,6 @@ export const patchMentorApplicationSchema = z
     weeklyAvailabilityBand: z
       .union([z.literal(''), z.enum(weeklyAvailabilityBands)])
       .optional(),
-    hasPriorMentoringExperience: z.boolean().nullable().optional(),
-    hasProfessionalMisconduct: z.boolean().nullable().optional(),
-    misconductExplanation: z.string().trim().max(1000).optional(),
   })
   .strict()
   .refine(value => Object.keys(value).length > 0, 'At least one field is required')

@@ -39,9 +39,6 @@ export interface MentorApplication {
   languages?: string[] | null
   otherLanguage?: string | null
   weeklyAvailabilityBand?: string | null
-  hasPriorMentoringExperience?: boolean | null
-  hasProfessionalMisconduct?: boolean | null
-  misconductExplanation?: string | null
   profileImageUrl?: string | null
   resumeUrl?: string | null
   portfolioUrl?: string | null

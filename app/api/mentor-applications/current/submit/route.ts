@@ -57,13 +57,6 @@ function jsonValue(formData: FormData, name: string): unknown {
   }
 }
 
-function booleanValue(formData: FormData, name: string): boolean | null {
-  const value = stringValue(formData, name)
-  if (value === 'true') return true
-  if (value === 'false') return false
-  return null
-}
-
 function nonEmptyFile(value: FormDataEntryValue | null): File | null {
   return typeof File !== 'undefined' && value instanceof File && value.size > 0
     ? value
@@ -139,15 +132,6 @@ export async function POST(request: NextRequest) {
       languages: jsonValue(formData, 'languages'),
       otherLanguage: stringValue(formData, 'otherLanguage'),
       weeklyAvailabilityBand: stringValue(formData, 'weeklyAvailabilityBand'),
-      hasPriorMentoringExperience: booleanValue(
-        formData,
-        'hasPriorMentoringExperience',
-      ),
-      hasProfessionalMisconduct: booleanValue(
-        formData,
-        'hasProfessionalMisconduct',
-      ),
-      misconductExplanation: stringValue(formData, 'misconductExplanation'),
     })
     if (!parsedApplication.success) return validationError(parsedApplication.error)
 

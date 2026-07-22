@@ -108,7 +108,10 @@ export async function uploadApplicationFile(input: {
     throw new ApplicationFileValidationError('The selected file is empty')
   }
   if (file.size > maxSize) {
-    throw new ApplicationFileValidationError('The selected file exceeds the 5MB limit')
+    const maxSizeMb = maxSize / (1024 * 1024)
+    throw new ApplicationFileValidationError(
+      `The selected file exceeds the ${maxSizeMb}MB limit`,
+    )
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer())
