@@ -13,6 +13,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { EXPERT_APPLICATION_PATH } from '@/lib/routes'
+import { getMentorAccess } from '@/lib/mentor-onboarding'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -21,6 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { isMentor, mentor, isLoading: mentorLoading } = useMentorStatus()
 
     const isLoading = sessionLoading || mentorLoading
+    const canAccessDashboard = mentor ? getMentorAccess(mentor).canAccessDashboard : false
 
     // Gate-keeping: redirect non-verified users
     useEffect(() => {
@@ -36,14 +38,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             return
         }
 
-        if (mentor.verificationStatus !== 'VERIFIED') {
-            router.replace('/vip-lounge')
+        if (!canAccessDashboard) {
+            router.replace(EXPERT_APPLICATION_PATH)
             return
         }
-    }, [isLoading, session, isMentor, mentor, router])
+    }, [canAccessDashboard, isLoading, session, isMentor, mentor, router])
 
     // Show loader while checking auth / mentor status, or while redirecting
-    if (isLoading || !session?.user || !isMentor || !mentor || mentor.verificationStatus !== 'VERIFIED') {
+    if (isLoading || !session?.user || !isMentor || !mentor || !canAccessDashboard) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center">
                 <div className="text-center">

@@ -6,6 +6,7 @@ import { VipInvitation } from '@/components/vip/vip-invitation'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
 import { Button } from '@/components/ui/button'
 import { EXPERT_APPLICATION_PATH } from '@/lib/routes'
+import { getMentorAccess } from '@/lib/mentor-onboarding'
 
 export default function VipLoungePage() {
   const router = useRouter()
@@ -22,18 +23,19 @@ export default function VipLoungePage() {
     )
   }
 
-  if (!mentor || !isMentor) {
+  const access = mentor ? getMentorAccess(mentor) : null
+
+  if (!mentor || !isMentor || !access?.canAccessVipLounge) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-white">
         <div className="max-w-xl space-y-4">
           <h1 className="text-3xl font-semibold">VIP access is reserved</h1>
           <p className="text-base text-slate-200">
-            This section is curated exclusively for verified experts who have already completed the SharingMinds
-            application process. Please log in with your expert account or finish your application to unlock the experience.
+            This section is curated for verified experts with active expert access. Review your application status to see whether any action is required.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button onClick={() => router.push(EXPERT_APPLICATION_PATH)} className="bg-amber-400/90 text-black hover:bg-amber-300">
-              Apply for Verification
+              Review Application Status
             </Button>
             <Button variant="outline" onClick={() => router.push('/')} className="border-white/30 text-white hover:bg-white/10">
               Back to Home
@@ -44,14 +46,12 @@ export default function VipLoungePage() {
     )
   }
 
-  const canAccessDashboard = mentor.verificationStatus === 'VERIFIED'
-
   return (
     <VipInvitation
       mentor={mentor}
       onNavigateHome={() => router.push('/')}
-      canAccessDashboard={canAccessDashboard}
-      onNavigateDashboard={canAccessDashboard ? () => router.push('/dashboard') : undefined}
+      canAccessDashboard={access.canAccessDashboard}
+      onNavigateDashboard={access.canAccessDashboard ? () => router.push('/dashboard') : undefined}
     />
   )
 }

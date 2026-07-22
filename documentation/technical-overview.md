@@ -1,5 +1,8 @@
 # SharingMinds - Technical Documentation
 
+> The authoritative design and implementation status for guest mentor onboarding is
+> [Guest Mentor Application - Source of Truth](./guest-mentor-application-source-of-truth.md).
+
 > **Mentor Onboarding Platform** - A Next.js application for expert/mentor registration and onboarding for the SharingMinds mentor-mentee connect platform.
 
 ---

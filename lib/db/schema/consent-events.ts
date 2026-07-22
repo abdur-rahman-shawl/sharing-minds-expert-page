@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, uuid, jsonb, pgEnum, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users';
+import { mentorApplications } from './mentor-applications';
 
 export const consentActionEnum = pgEnum('consent_action', [
   'granted',
@@ -18,6 +19,10 @@ export const consentSourceEnum = pgEnum('consent_source', [
 export const consentEvents = pgTable('consent_events', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  mentorApplicationId: uuid('mentor_application_id').references(
+    () => mentorApplications.id,
+    { onDelete: 'set null' },
+  ),
   userEmail: text('user_email'),
   userRole: text('user_role'),
   consentType: text('consent_type').notNull(),
@@ -38,12 +43,21 @@ export const consentEvents = pgTable('consent_events', {
     table.consentType,
     table.createdAt
   ),
+  applicationTypeCreatedIdx: index('consent_events_application_type_created_idx').on(
+    table.mentorApplicationId,
+    table.consentType,
+    table.createdAt
+  ),
 }));
 
 export const consentEventsRelations = relations(consentEvents, ({ one }) => ({
   user: one(users, {
     fields: [consentEvents.userId],
     references: [users.id],
+  }),
+  mentorApplication: one(mentorApplications, {
+    fields: [consentEvents.mentorApplicationId],
+    references: [mentorApplications.id],
   }),
 }));
 

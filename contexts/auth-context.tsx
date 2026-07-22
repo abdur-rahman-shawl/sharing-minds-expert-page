@@ -8,50 +8,19 @@ import {
 } from '@/hooks/queries/use-session-query'
 import { AuthErrorBoundary, useErrorHandler } from '@/components/common/error-boundary'
 import { signIn as betterAuthSignIn } from '@/lib/auth-client'
+import type { MentorProfileData } from '@/lib/mentor-onboarding'
 
 type UserRole = {
   name: string
   displayName: string
 }
 
-type MentorProfile = {
-  verificationStatus: string
-  id: string
-  profileImageUrl?: string
-  bannerImageUrl?: string
-  resumeUrl?: string
-  fullName?: string
-  title?: string
-  company?: string
-  email?: string
-  phone?: string
-  city?: string
-  state?: string
-  country?: string
-  industry?: string
-  expertise?: string
-  experience?: number
-  about?: string
-  linkedinUrl?: string
-  githubUrl?: string
-  websiteUrl?: string
-  hourlyRate?: string
-  currency?: string
-  availability?: string
-  headline?: string
-  maxMentees?: number
-  isAvailable?: boolean
-  verificationNotes?: string
-  createdAt?: string
-  updatedAt?: string
-} | null
-
 type AuthState = {
   session: unknown
   isSessionLoading: boolean
   roles: UserRole[]
   primaryRole: UserRole | null
-  mentorProfile: MentorProfile
+  mentorProfile: MentorProfileData | null
   isRolesLoading: boolean
   isAuthenticated: boolean
   isLoading: boolean

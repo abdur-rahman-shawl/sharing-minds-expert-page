@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { FcGoogle } from 'react-icons/fc'
 import { FaLinkedin } from 'react-icons/fa'
 import { createAuthClient } from 'better-auth/react'
+import { getSafeRedirectPath } from '@/lib/safe-redirect'
 
 const client = createAuthClient()
 
@@ -29,7 +30,7 @@ function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
   const { signIn } = useAuth()
 
   const form = useForm<SignInFormValues>({
@@ -45,7 +46,17 @@ function SignInForm() {
     setError(null)
 
     try {
-      await signIn('email', values)
+      const result = await signIn('email', values) as {
+        data?: { user?: { emailVerified?: boolean } }
+      }
+
+      if (result?.data?.user?.emailVerified !== true) {
+        router.replace(
+          `/auth/verify-email?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+        )
+        return
+      }
+
       router.replace(callbackUrl)
       router.refresh()
     } catch (err) {
@@ -115,7 +126,7 @@ function SignUpForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -143,7 +154,7 @@ function SignUpForm() {
         throw new Error(response.error.message)
       }
 
-      router.push(`/auth/verify-email?email=${encodeURIComponent(values.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+      router.push(`/auth/verify-email?callbackUrl=${encodeURIComponent(callbackUrl)}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred')
     } finally {
@@ -227,7 +238,7 @@ export default function LoginPageClient() {
   const [isSigningIn, setIsSigningIn] = useState(true)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'))
   const { signIn } = useAuth()
 
   const handleGoogleSignIn = async () => {

@@ -1,35 +1,41 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/auth-client'
-
-interface MentorData {
-  id: string
-  registeredAt: string
-  verificationStatus: string
-  fullName: string
-  email: string
-}
+import type {
+  MentorApplicationStatusData,
+  MentorStatusData,
+} from '@/lib/mentor-onboarding'
 
 interface MentorStatus {
   isMentor: boolean
-  mentor: MentorData | null
+  mentor: MentorStatusData | null
+  isApplicant: boolean
+  application: MentorApplicationStatusData | null
   isLoading: boolean
   error: string | null
   refetch: () => Promise<void>
 }
 
 export function useMentorStatus(): MentorStatus {
-  const { data: session } = useSession()
+  const { data: session, isPending: isSessionPending } = useSession()
   const [isMentor, setIsMentor] = useState(false)
-  const [mentor, setMentor] = useState<MentorData | null>(null)
+  const [mentor, setMentor] = useState<MentorStatusData | null>(null)
+  const [isApplicant, setIsApplicant] = useState(false)
+  const [application, setApplication] =
+    useState<MentorApplicationStatusData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchMentorStatus = async () => {
+  const fetchMentorStatus = useCallback(async () => {
+    if (isSessionPending) return
+
     if (!session?.user) {
       setIsMentor(false)
       setMentor(null)
+      setIsApplicant(false)
+      setApplication(null)
+      setError(null)
       setIsLoading(false)
       return
     }
@@ -38,36 +44,47 @@ export function useMentorStatus(): MentorStatus {
     setError(null)
 
     try {
-      const response = await fetch('/api/mentors/status')
+      const response = await fetch('/api/mentors/status', {
+        credentials: 'include',
+        cache: 'no-store',
+      })
       const data = await response.json()
 
-      if (data.success) {
-        setIsMentor(data.isMentor)
-        setMentor(data.mentor)
-      } else {
-        setError(data.error || 'Failed to check mentor status')
-        setIsMentor(false)
-        setMentor(null)
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to check mentor status')
       }
-    } catch (err) {
-      console.error('Error fetching mentor status:', err)
-      setError('Failed to check mentor status')
+
+      setIsMentor(Boolean(data.isMentor))
+      setMentor(data.mentor ?? null)
+      setIsApplicant(Boolean(data.isApplicant))
+      setApplication(data.application ?? null)
+    } catch (requestError) {
+      console.error('Error fetching mentor status:', requestError)
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Failed to check mentor status',
+      )
       setIsMentor(false)
       setMentor(null)
+      setIsApplicant(false)
+      setApplication(null)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [isSessionPending, session?.user?.id])
 
   useEffect(() => {
-    fetchMentorStatus()
-  }, [session])
+    void fetchMentorStatus()
+  }, [fetchMentorStatus])
 
   return {
     isMentor,
     mentor,
-    isLoading,
+    isApplicant,
+    application,
+    isLoading: isLoading || isSessionPending,
     error,
-    refetch: fetchMentorStatus
+    refetch: fetchMentorStatus,
   }
 }

@@ -12,12 +12,14 @@ import { FaLinkedin } from "react-icons/fa"
 import { signIn, signOut, useSession } from "@/lib/auth-client"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
+import { getMentorAccess } from "@/lib/mentor-onboarding"
 
 export function HeroSection() {
   const [reveal, setReveal] = useState(false)
   const router = useRouter()
   const { data: session, isPending } = useSession()
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
+  const mentorAccess = mentor ? getMentorAccess(mentor) : null
 
   const handleRegisterClick = () => {
     if (session?.user) {
@@ -120,7 +122,9 @@ export function HeroSection() {
                       <Star className="h-7 w-7 text-indigo-600 fill-indigo-600 animate-[spin_10s_linear_infinite]" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900">
-                      Welcome, Verified Expert
+                      {mentorAccess?.canAccessDashboard
+                        ? 'Welcome, Verified Expert'
+                        : 'Expert Application Received'}
                     </h3>
                   </div>
 
@@ -134,19 +138,23 @@ export function HeroSection() {
                       </Avatar>
                       <div className="text-left">
                         <p className="font-medium text-slate-900 text-sm">{mentor?.fullName || session.user.name}</p>
-                        <p className="text-xs text-slate-500 font-medium">Verified Expert</p>
+                        <p className="text-xs text-slate-500 font-medium">
+                          {mentor?.verificationStatus.replace(/_/g, ' ')}
+                        </p>
                       </div>
                     </div>
-                    <Image
-                      src="/vip-access.jpeg"
-                      alt="VIP Access"
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full border border-amber-200/60 object-cover shadow-md shadow-amber-500/30"
-                    />
+                    {mentorAccess?.canAccessVipLounge && (
+                      <Image
+                        src="/vip-access.jpeg"
+                        alt="VIP Access"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full border border-amber-200/60 object-cover shadow-md shadow-amber-500/30"
+                      />
+                    )}
                   </div>
 
-                  {mentor?.verificationStatus === 'VERIFIED' && (
+                  {mentorAccess?.canAccessDashboard ? (
                     <div className="mt-4">
                       <Button
                         onClick={() => router.push('/dashboard')}
@@ -157,6 +165,16 @@ export function HeroSection() {
                         </span>
                         {/* Shine Effect */}
                         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 ease-in-out" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <Button
+                        onClick={() => router.push(EXPERT_APPLICATION_PATH)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        View Application Status
                       </Button>
                     </div>
                   )}

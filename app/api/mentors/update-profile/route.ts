@@ -4,6 +4,12 @@ import { db } from '@/lib/db'
 import { mentors, mentorsProfileAudit } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+    normalizeMentorSearchValue,
+    parseExpertiseList,
+    parseMentorAvailabilityCadence,
+    serializeMentorAvailability,
+} from '@/lib/mentor-onboarding'
 
 export const dynamic = 'force-dynamic'
 
@@ -176,9 +182,33 @@ export async function POST(request: NextRequest) {
                 mentorUpdateData[drizzleKey] = isNaN(num) ? null : num
             } else if (inputKey === 'hourlyRate') {
                 const num = Number(value)
-                mentorUpdateData[drizzleKey] = isNaN(num) ? null : String(num)
+                mentorUpdateData[drizzleKey] = isNaN(num) ? null : num.toFixed(2)
             } else if (inputKey === 'isAvailable') {
                 mentorUpdateData[drizzleKey] = value === true || value === 'true'
+            } else if (inputKey === 'title' || inputKey === 'industry') {
+                const textValue = typeof value === 'string' ? value.trim() : ''
+                mentorUpdateData[drizzleKey] = textValue || null
+                if (inputKey === 'title') {
+                    mentorUpdateData.normalizedTitle = textValue
+                        ? normalizeMentorSearchValue(textValue)
+                        : null
+                } else {
+                    mentorUpdateData.normalizedIndustry = textValue
+                        ? normalizeMentorSearchValue(textValue)
+                        : null
+                }
+            } else if (inputKey === 'expertise') {
+                const expertise = typeof value === 'string' ? parseExpertiseList(value) : []
+                mentorUpdateData[drizzleKey] = expertise.length > 0
+                    ? JSON.stringify(expertise)
+                    : null
+            } else if (inputKey === 'availability') {
+                const cadence = parseMentorAvailabilityCadence(
+                    typeof value === 'string' ? value : null,
+                )
+                mentorUpdateData[drizzleKey] = cadence
+                    ? serializeMentorAvailability(cadence)
+                    : null
             } else {
                 // Convert empty strings to null
                 mentorUpdateData[drizzleKey] = (value === '' || value === null || value === undefined) ? null : value

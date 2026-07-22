@@ -1,6 +1,7 @@
 export type LegalDocument = {
   id: string
   label: string
+  version: string
   content: string
 }
 
@@ -8,6 +9,7 @@ export const legalDocuments = [
   {
     id: 'terms-of-use',
     label: 'Terms of Use',
+    version: '2025-11',
     content: `Terms of Use | SharingMinds
 
 Effective Date: November 2025
@@ -89,6 +91,7 @@ For queries regarding these Terms:
   {
     id: 'privacy-policy',
     label: 'Privacy Policy',
+    version: '2025-11',
     content: `Privacy Policy | SharingMinds
 
 Effective Date: November 2025
@@ -173,6 +176,7 @@ For privacy-related questions:
   {
     id: 'pricing-policy',
     label: 'Pricing Policy',
+    version: '2025-11',
     content: `Pricing Policy | SharingMinds
 
 Effective Date: November 2025
@@ -240,6 +244,7 @@ For pricing or billing support:
   {
     id: 'community-conduct-policy',
     label: 'Community & Conduct Policy',
+    version: '2025-11',
     content: `Community & Conduct Policy | SharingMinds
 
 Effective Date: November 2025
@@ -312,6 +317,6 @@ Contact
 For concerns or feedback regarding this policy, please contact:
 📧 community@sharingminds.in`,
   },
-] as const satisfies LegalDocument[]
+] as const satisfies readonly LegalDocument[]
 
 export type LegalDocumentId = (typeof legalDocuments)[number]['id']

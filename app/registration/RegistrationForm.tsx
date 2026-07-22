@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,26 +22,159 @@ import {
   CommandItem,
   CommandList
 } from "@/components/ui/command"
-import SuccessMessage from "@/components/common/SuccessMessage"
-import { useSession, signIn } from "@/lib/auth-client"
+import { MentorApplicationStatus } from "@/components/mentor/mentor-application-status"
+import { ApplicationAccessCard } from "@/components/mentor-application/application-access-card"
+import { ApplicationLifecycleStatus } from "@/components/mentor-application/application-lifecycle-status"
+import {
+  EDITABLE_APPLICATION_STATUSES,
+  type MentorApplication,
+} from "@/components/mentor-application/types"
+import { useSession } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
-import { FcGoogle } from "react-icons/fc"
-import { FaLinkedin } from "react-icons/fa"
-import { 
-  ArrowLeft, Check, ChevronsUpDown, User, ArrowRight, Sparkles, 
-  FileText, Shield, CreditCard, Users, Mail, Scale 
+import {
+  ArrowLeft, Check, ChevronsUpDown, User, ArrowRight, Sparkles,
+  AlertCircle, FileText, Shield, CreditCard, Users, Mail, Scale
 } from "lucide-react"
 import { mentorApplicationSchema } from "@/lib/validations/mentor"
 import { z } from "zod"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { legalDocuments, type LegalDocumentId } from "@/lib/legal-documents"
-import { logConsentEvents } from "@/lib/consent-client"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 // --- TYPES & HELPERS ---
 
 type SearchableOption = { value: string; label: string }
+
+type AccessStep = 'loading' | 'email' | 'otp' | 'form' | 'status'
+type AutosaveState = 'idle' | 'saving' | 'saved' | 'error'
+
+interface MentorFormData {
+  fullName: string
+  email: string
+  phone: string
+  phoneCountryCode: string
+  countryId: string
+  stateId: string
+  cityId: string
+  title: string
+  company: string
+  industry: string
+  otherIndustry: string
+  experience: string
+  hourlyRate: string
+  expertise: string
+  about: string
+  linkedinUrl: string
+  profilePicture: File | null
+  resume: File | null
+  termsAccepted: boolean
+  availability: string
+}
+
+const EMPTY_FORM_DATA: MentorFormData = {
+  fullName: '',
+  email: '',
+  phone: '',
+  phoneCountryCode: '',
+  countryId: '',
+  stateId: '',
+  cityId: '',
+  title: '',
+  company: '',
+  industry: '',
+  otherIndustry: '',
+  experience: '',
+  hourlyRate: '',
+  expertise: '',
+  about: '',
+  linkedinUrl: '',
+  profilePicture: null,
+  resume: null,
+  termsAccepted: false,
+  availability: '',
+}
+
+const INDUSTRY_VALUES = new Set([
+  'ITSoftware',
+  'Marketing',
+  'Finance',
+  'Education',
+  'Healthcare',
+  'Entrepreneurship',
+  'Design',
+  'Sales',
+  'HR',
+  'Other',
+])
+
+function splitStoredPhone(phone?: string | null) {
+  if (!phone) return { phone: '', phoneCountryCode: '' }
+
+  const match = /^\+(\d{1,4})-(.+)$/.exec(phone)
+  if (!match) return { phone, phoneCountryCode: '' }
+
+  return { phone: match[2], phoneCountryCode: match[1] }
+}
+
+function mapApplicationToForm(application: MentorApplication): Partial<MentorFormData> {
+  const storedPhone = splitStoredPhone(application.phone)
+  const industry = application.industry ?? ''
+  const isKnownIndustry = INDUSTRY_VALUES.has(industry)
+
+  return {
+    fullName: application.fullName ?? '',
+    email: application.email,
+    phone: storedPhone.phone,
+    phoneCountryCode:
+      application.phoneCountryCode?.replace(/^\+/, '') ?? storedPhone.phoneCountryCode,
+    countryId: application.countryId?.toString() ?? '',
+    stateId: application.stateId?.toString() ?? '',
+    cityId: application.cityId?.toString() ?? '',
+    title: application.title ?? '',
+    company: application.company ?? '',
+    industry: isKnownIndustry ? industry : industry ? 'Other' : '',
+    otherIndustry: isKnownIndustry ? '' : industry,
+    experience: (application.experience ?? application.experienceYears)?.toString() ?? '',
+    hourlyRate:
+      (application.hourlyRate ?? application.requestedHourlyRate)?.toString() ?? '',
+    expertise: Array.isArray(application.expertise)
+      ? application.expertise.join(', ')
+      : application.expertise ?? '',
+    about: application.about ?? '',
+    linkedinUrl: application.linkedinUrl ?? '',
+    availability: application.availability ?? '',
+  }
+}
+
+function buildDraftPayload(form: MentorFormData) {
+  return {
+    fullName: form.fullName,
+    phone: form.phone,
+    phoneCountryCode: form.phoneCountryCode
+      ? `+${form.phoneCountryCode.replace(/^\+/, '')}`
+      : '',
+    countryId: form.countryId,
+    stateId: form.stateId,
+    cityId: form.cityId,
+    title: form.title,
+    company: form.company,
+    industry: form.industry === 'Other' ? form.otherIndustry : form.industry,
+    expertise: form.expertise,
+    experience: form.experience,
+    hourlyRate: form.hourlyRate,
+    about: form.about,
+    linkedinUrl: form.linkedinUrl,
+    availability: form.availability,
+  }
+}
+
+async function readResponseJson(response: Response): Promise<Record<string, unknown>> {
+  try {
+    return (await response.json()) as Record<string, unknown>
+  } catch {
+    return {}
+  }
+}
 
 function SearchableSelect({
   value,
@@ -148,15 +281,29 @@ const getDocumentIcon = (id: string) => {
 // --- MAIN COMPONENT ---
 
 export default function RegistrationForm() {
-  const [showMentorForm, setShowMentorForm] = useState(false)
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<z.ZodError | null>(null)
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
+  const [accessStep, setAccessStep] = useState<AccessStep>('loading')
+  const [application, setApplication] = useState<MentorApplication | null>(null)
+  const [accessEmail, setAccessEmail] = useState('')
+  const [challengeId, setChallengeId] = useState<string | null>(null)
+  const [otp, setOtp] = useState('')
+  const [accessError, setAccessError] = useState<string | null>(null)
+  const [resendSeconds, setResendSeconds] = useState(0)
+  const [autosaveState, setAutosaveState] = useState<AutosaveState>('idle')
+  const lastSavedPayloadRef = useRef<string>('')
+  const submissionIdempotencyKeyRef = useRef<string | null>(null)
   const [legalConsents, setLegalConsents] = useState<Record<LegalDocumentId, boolean>>(() => createLegalConsentState())
   const [activeLegalDocument, setActiveLegalDocument] = useState<LegalDocumentId>(legalDocuments[0].id)
   const [showOtherIndustryInput, setShowOtherIndustryInput] = useState(false)
+  const guestAccessStartedRef = useRef(false)
+  const bootstrapAbortControllerRef = useRef<AbortController | null>(null)
+  const autosaveAbortControllerRef = useRef<AbortController | null>(null)
 
   const [countries, setCountries] = useState<{ id: number; name: string; phone_code?: string | null; code?: string | null }[]>([])
   const [states, setStates] = useState<{ id: number; name: string }[]>([])
@@ -167,47 +314,7 @@ export default function RegistrationForm() {
     cities: false,
   })
 
-  const [mentorFormData, setMentorFormData] = useState<{
-    fullName: string
-    email: string
-    phone: string
-    phoneCountryCode: string
-    countryId: string
-    stateId: string
-    cityId: string
-    title: string
-    company: string
-    industry: string
-    otherIndustry: string
-    experience: string
-    expertise: string
-    about: string
-    linkedinUrl: string
-    profilePicture: File | null
-    resume: File | null
-    termsAccepted: boolean
-    availability: string
-  }>({
-    fullName: "",
-    email: "",
-    phone: "",
-    phoneCountryCode: "",
-    countryId: "",
-    stateId: "",
-    cityId: "",
-    title: "",
-    company: "",
-    industry: "",
-    otherIndustry: "",
-    experience: "",
-    expertise: "",
-    about: "",
-    linkedinUrl: "",
-    profilePicture: null,
-    resume: null,
-    termsAccepted: false,
-    availability: "",
-  })
+  const [mentorFormData, setMentorFormData] = useState<MentorFormData>(EMPTY_FORM_DATA)
 
   const countryOptions = useMemo<SearchableOption[]>(
     () => countries.map(country => ({ value: country.id.toString(), label: country.name })),
@@ -215,9 +322,11 @@ export default function RegistrationForm() {
   )
 
   const phoneCodeOptions = useMemo<SearchableOption[]>(() => {
-    const codes = countries
-      .filter(country => country.phone_code)
-      .map(country => ({ value: country.phone_code, label: `+${country.phone_code} (${country.name})` }))
+    const codes = countries.flatMap(country =>
+      country.phone_code
+        ? [{ value: country.phone_code, label: `+${country.phone_code} (${country.name})` }]
+        : [],
+    )
 
     return codes.length > 0 ? codes : [{ value: '91', label: '+91 (India)' }]
   }, [countries])
@@ -261,13 +370,18 @@ export default function RegistrationForm() {
       setLocationsLoading(prev => ({ ...prev, countries: true }))
       try {
         const response = await fetch('/api/locations/countries')
+        if (!response.ok) throw new Error('Failed to load countries')
         const data = await response.json()
         const countriesData = Array.isArray(data) ? data : []
         setCountries(countriesData)
         
         const india = countriesData.find((c: { name: string }) => c.name === 'India')
         if (india) {
-          setMentorFormData(prev => ({ ...prev, countryId: india.id.toString(), phoneCountryCode: india.phone_code || prev.phoneCountryCode || '91' }))
+          setMentorFormData(prev => ({
+            ...prev,
+            countryId: prev.countryId || india.id.toString(),
+            phoneCountryCode: prev.phoneCountryCode || india.phone_code || '91',
+          }))
         } else if (countriesData.length > 0 && countriesData[0].phone_code && !mentorFormData.phoneCountryCode) {
           setMentorFormData(prev => ({ ...prev, phoneCountryCode: countriesData[0].phone_code }))
         }
@@ -286,9 +400,9 @@ export default function RegistrationForm() {
         setLocationsLoading(prev => ({ ...prev, states: true }))
         setStates([])
         setCities([])
-        setMentorFormData(prev => ({ ...prev, stateId: "", cityId: "" }))
         try {
           const response = await fetch(`/api/locations/states?countryId=${mentorFormData.countryId}`)
+          if (!response.ok) throw new Error('Failed to load states')
           const data = await response.json()
           setStates(Array.isArray(data) ? data : [])
         } catch (error) {
@@ -306,9 +420,9 @@ export default function RegistrationForm() {
       const fetchCities = async () => {
         setLocationsLoading(prev => ({ ...prev, cities: true }))
         setCities([])
-        setMentorFormData(prev => ({ ...prev, cityId: "" }))
         try {
           const response = await fetch(`/api/locations/cities?stateId=${mentorFormData.stateId}`)
+          if (!response.ok) throw new Error('Failed to load cities')
           const data = await response.json()
           setCities(Array.isArray(data) ? data : [])
         } catch (error) {
@@ -320,12 +434,6 @@ export default function RegistrationForm() {
       fetchCities()
     }
   }, [mentorFormData.stateId])
-
-  const [otp, setOtp] = useState("")
-  const [showOtpInput, setShowOtpInput] = useState(false)
-  const [isEmailVerified, setIsEmailVerified] = useState(false)
-  const [otpError, setOtpError] = useState<string | null>(null)
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mentorFormData.email)
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
@@ -341,146 +449,375 @@ export default function RegistrationForm() {
     }
   }
 
-  const handleSendOtp = async () => {
-    try {
-      setOtpError(null)
-      const res = await fetch("/api/auth/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: mentorFormData.email }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to send OTP")
-      
-      if (data.otp) console.log("Development OTP:", data.otp)
-      setShowOtpInput(true)
-      startCountdown()
-    } catch (err) {
-      setOtpError(err instanceof Error ? err.message : "Failed to send OTP")
-    }
-  }
+  const activateApplication = useCallback((nextApplication: MentorApplication) => {
+    const formPatch = mapApplicationToForm(nextApplication)
 
-  const handleVerifyOtp = async () => {
-    if (!otp) return alert("Please enter the OTP")
-    try {
-      const res = await fetch("/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: mentorFormData.email, otp }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setIsEmailVerified(true)
-        setShowOtpInput(false)
-        setOtpError(null)
-      } else {
-        setOtpError(data.error || "Invalid or expired OTP.")
+    setApplication(nextApplication)
+    setAccessEmail(nextApplication.email)
+    setMentorFormData(previous => {
+      const nextForm: MentorFormData = {
+        ...EMPTY_FORM_DATA,
+        ...formPatch,
       }
-    } catch (err) {
-      setOtpError("An unexpected error occurred.")
-    }
-  }
 
-  const [countdown, setCountdown] = useState(10)
-  const [isCountingDown, setIsCountingDown] = useState(false)
+      if (!nextForm.countryId) nextForm.countryId = previous.countryId
+      if (!nextForm.phoneCountryCode) {
+        nextForm.phoneCountryCode = previous.phoneCountryCode
+      }
+
+      lastSavedPayloadRef.current = JSON.stringify(buildDraftPayload(nextForm))
+      return nextForm
+    })
+    setProfilePicturePreview(nextApplication.profileImageUrl ?? null)
+    setAutosaveState('idle')
+    setAccessStep(
+      EDITABLE_APPLICATION_STATUSES.includes(nextApplication.status) ? 'form' : 'status',
+    )
+  }, [])
 
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (isCountingDown && countdown > 0) {
-      timer = setTimeout(() => setCountdown(prev => prev - 1), 1000)
-    } else if (countdown === 0) {
-      setIsCountingDown(false)
-    }
-    return () => clearTimeout(timer)
-  }, [isCountingDown, countdown])
+    if (accessStep !== 'loading' || isLoading) return
 
-  const startCountdown = () => {
-    setCountdown(30)
-    setIsCountingDown(true)
+    // Authentication is an enhancement for this standalone entry point. If
+    // Better Auth or the mentor-status request stalls, guests must still be
+    // able to begin email verification.
+    const fallbackTimer = window.setTimeout(() => {
+      setAccessStep(current => (current === 'loading' ? 'email' : current))
+    }, 2_500)
+
+    return () => window.clearTimeout(fallbackTimer)
+  }, [accessStep, isLoading])
+
+  useEffect(() => {
+    if (isPending || mentorStatusLoading || isMentor) return
+    if (guestAccessStartedRef.current) return
+
+    let cancelled = false
+    const controller = new AbortController()
+    bootstrapAbortControllerRef.current?.abort()
+    bootstrapAbortControllerRef.current = controller
+
+    const restoreApplicationAccess = async () => {
+      setAccessStep('loading')
+      setAccessError(null)
+
+      const signedInEmail = session?.user?.email ?? ''
+      const isSignedInEmailVerified = Boolean(session?.user?.emailVerified)
+
+      try {
+        if (session?.user && isSignedInEmailVerified) {
+          const sessionResponse = await fetch('/api/mentor-applications/session', {
+            method: 'POST',
+            credentials: 'include',
+            signal: controller.signal,
+          })
+          const sessionResult = await readResponseJson(sessionResponse)
+
+          if (guestAccessStartedRef.current) return
+
+          if (!sessionResponse.ok || sessionResult.success !== true) {
+            if (!cancelled) {
+              setAccessEmail(signedInEmail)
+              setAccessError(
+                typeof sessionResult.error === 'string'
+                  ? sessionResult.error
+                  : 'We could not connect your verified account. Verify your email to continue.',
+              )
+              setAccessStep('email')
+            }
+            return
+          }
+        }
+
+        const currentResponse = await fetch('/api/mentor-applications/current', {
+          credentials: 'include',
+          cache: 'no-store',
+          signal: controller.signal,
+        })
+        const currentResult = await readResponseJson(currentResponse)
+
+        if (
+          !cancelled &&
+          !guestAccessStartedRef.current &&
+          currentResponse.ok &&
+          currentResult.success === true &&
+          currentResult.application
+        ) {
+          const currentApplication = currentResult.application as MentorApplication
+          activateApplication(currentApplication)
+          if (session?.user?.name && !currentApplication.fullName) {
+            setMentorFormData(previous => ({
+              ...previous,
+              fullName: session.user.name,
+            }))
+          }
+          return
+        }
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return
+        console.error('Failed to restore expert application access:', error)
+      }
+
+      if (!cancelled && !guestAccessStartedRef.current) {
+        setAccessEmail(signedInEmail)
+        setMentorFormData(prev => ({
+          ...prev,
+          email: signedInEmail || prev.email,
+          fullName: session?.user?.name || prev.fullName,
+        }))
+        setAccessStep('email')
+      }
+    }
+
+    void restoreApplicationAccess()
+    return () => {
+      cancelled = true
+      controller.abort()
+      if (bootstrapAbortControllerRef.current === controller) {
+        bootstrapAbortControllerRef.current = null
+      }
+    }
+  }, [
+    activateApplication,
+    isMentor,
+    isPending,
+    mentorStatusLoading,
+    session?.user?.email,
+    session?.user?.emailVerified,
+    session?.user?.id,
+    session?.user?.name,
+  ])
+
+  useEffect(() => {
+    if (resendSeconds <= 0) return
+
+    const timer = window.setInterval(() => {
+      setResendSeconds(current => Math.max(0, current - 1))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [resendSeconds])
+
+  const requestOtp = async (email: string) => {
+    const response = await fetch('/api/mentor-applications/email/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: email.trim() }),
+    })
+    const result = await readResponseJson(response)
+
+    if (!response.ok || result.success !== true || typeof result.challengeId !== 'string') {
+      throw new Error(
+        typeof result.error === 'string'
+          ? result.error
+          : 'We could not send a verification code. Please try again shortly.',
+      )
+    }
+
+    setChallengeId(result.challengeId)
+    setOtp('')
+    setResendSeconds(60)
+    setAccessStep('otp')
+  }
+
+  const handleRequestOtp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    guestAccessStartedRef.current = true
+    bootstrapAbortControllerRef.current?.abort()
+    setIsLoading(true)
+    setAccessError(null)
+
+    try {
+      await requestOtp(accessEmail)
+    } catch (error) {
+      setAccessError(error instanceof Error ? error.message : 'Unable to send a code.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleResendOtp = async () => {
-    if (!isCountingDown) {
-      setOtpError(null)
-      try {
-        const res = await fetch("/api/auth/send-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: mentorFormData.email }),
-        })
-        const data = await res.json()
-        if (data.success) {
-          if (data.otp) console.log("Development OTP:", data.otp)
-          startCountdown()
-        } else {
-          alert(data.error || "Failed to resend OTP")
-        }
-      } catch (err) {
-        console.error("Error resending OTP:", err)
-      }
+    if (resendSeconds > 0) return
+
+    setIsLoading(true)
+    setAccessError(null)
+
+    try {
+      await requestOtp(accessEmail)
+    } catch (error) {
+      setAccessError(error instanceof Error ? error.message : 'Unable to resend the code.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const { data: session, isPending } = useSession()
-  const router = useRouter()
+  const handleVerifyOtp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setAccessError(null)
+
+    if (!challengeId) {
+      setAccessError('This verification request is no longer valid. Please request a new code.')
+      setAccessStep('email')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/mentor-applications/email/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ challengeId, code: otp }),
+      })
+      const result = await readResponseJson(response)
+
+      if (!response.ok || result.success !== true || !result.application) {
+        throw new Error(
+          typeof result.error === 'string'
+            ? result.error
+            : 'That code is invalid or expired. Please try again.',
+        )
+      }
+
+      activateApplication(result.application as MentorApplication)
+    } catch (error) {
+      setAccessError(error instanceof Error ? error.message : 'Unable to verify the code.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleChangeEmail = () => {
+    setChallengeId(null)
+    setOtp('')
+    setResendSeconds(0)
+    setAccessError(null)
+    setAccessStep('email')
+  }
+
+  const closeApplicationSession = async (destination: 'email' | 'home') => {
+    const previousStep = accessStep
+    bootstrapAbortControllerRef.current?.abort()
+    autosaveAbortControllerRef.current?.abort()
+    setIsLoading(true)
+    setAccessError(null)
+    setSubmissionError(null)
+    setAccessStep('loading')
+
+    try {
+      const response = await fetch('/api/mentor-applications/session', {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const result = await readResponseJson(response)
+      if (!response.ok || result.success !== true) {
+        throw new Error(
+          typeof result.error === 'string'
+            ? result.error
+            : 'Unable to close this application session.',
+        )
+      }
+
+      guestAccessStartedRef.current = destination === 'email'
+      setApplication(null)
+      setAccessEmail('')
+      setChallengeId(null)
+      setOtp('')
+      setResendSeconds(0)
+      setProfilePicturePreview(null)
+      setAutosaveState('idle')
+      lastSavedPayloadRef.current = ''
+      submissionIdempotencyKeyRef.current = null
+      setLegalConsents(createLegalConsentState())
+      setMentorFormData(previous => ({
+        ...EMPTY_FORM_DATA,
+        countryId: previous.countryId,
+        phoneCountryCode: previous.phoneCountryCode,
+      }))
+
+      if (destination === 'home') {
+        router.push('/')
+      } else {
+        setAccessStep('email')
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to close this application session.'
+      if (previousStep === 'status') setAccessError(message)
+      else setSubmissionError(message)
+      setAccessStep(previousStep)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const draftPayload = useMemo(() => buildDraftPayload(mentorFormData), [mentorFormData])
 
   useEffect(() => {
-    if (session?.user) {
-      if (session.user.email && !mentorFormData.email) {
-        setMentorFormData(prev => ({
-          ...prev,
-          email: session.user.email || '',
-          fullName: session.user.name || prev.fullName
-        }))
-        setIsEmailVerified(true)
+    // A retry of the same payload reuses its key. Editing any submitted value
+    // creates a new logical attempt and therefore gets a fresh key.
+    submissionIdempotencyKeyRef.current = null
+  }, [draftPayload, legalConsents, mentorFormData.profilePicture, mentorFormData.resume])
+
+  useEffect(() => {
+    if (accessStep !== 'form' || !application) return
+    if (!EDITABLE_APPLICATION_STATUSES.includes(application.status)) return
+
+    const serializedPayload = JSON.stringify(draftPayload)
+    if (serializedPayload === lastSavedPayloadRef.current) return
+
+    setAutosaveState('saving')
+    const controller = new AbortController()
+    autosaveAbortControllerRef.current?.abort()
+    autosaveAbortControllerRef.current = controller
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch('/api/mentor-applications/current', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          signal: controller.signal,
+          body: serializedPayload,
+        })
+        const result = await readResponseJson(response)
+
+        if (!response.ok || result.success !== true) {
+          throw new Error('Draft could not be saved')
+        }
+
+        lastSavedPayloadRef.current = serializedPayload
+        setAutosaveState('saved')
+        if (result.application) {
+          setApplication(result.application as MentorApplication)
+        }
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Expert application autosave failed:', error)
+          setAutosaveState('error')
+        }
       }
-      setShowMentorForm(true)
-    }
-  }, [session])
+    }, 900)
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true)
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    } finally {
-      setIsLoading(false)
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+      if (autosaveAbortControllerRef.current === controller) {
+        autosaveAbortControllerRef.current = null
+      }
     }
-  }
-
-  const handleLinkedInSignIn = async () => {
-    setIsLoading(true)
-    try {
-      await signIn.social({
-        provider: 'linkedin',
-        callbackURL: EXPERT_APPLICATION_PATH
-      })
-    } catch (error) {
-      console.error("Sign in error:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [accessStep, application, draftPayload])
 
   const handleMentorFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrors(null)
+    setSubmissionError(null)
 
     try {
-      if (!session?.user?.id) {
-        alert('Please log in before submitting the form')
-        setIsLoading(false)
-        return
-      }
-
       const preparedIndustry = mentorFormData.industry === 'Other' ? mentorFormData.otherIndustry : mentorFormData.industry
 
-      const validatedData = mentorApplicationSchema.parse({
+      const validationPayload = {
         ...mentorFormData,
         industry: preparedIndustry,
         otherIndustry: mentorFormData.otherIndustry,
@@ -488,23 +825,14 @@ export default function RegistrationForm() {
         state: mentorFormData.stateId,
         city: mentorFormData.cityId,
         phone: `+${mentorFormData.phoneCountryCode}-${mentorFormData.phone}`,
-      })
-
-      logConsentEvents(
-        legalDocuments.map(doc => ({
-          consentType: doc.id,
-          action: legalConsents[doc.id] ? 'granted' : 'denied',
-          source: 'ui',
-          userRole: 'mentor',
-          context: {
-            label: doc.label,
-            location: 'registration',
-          },
-        }))
-      )
+      }
+      const validatedData = application?.profileImageUrl && !mentorFormData.profilePicture
+        ? mentorApplicationSchema.omit({ profilePicture: true }).parse(validationPayload)
+        : mentorApplicationSchema.parse(validationPayload)
+      const idempotencyKey = submissionIdempotencyKeyRef.current ?? crypto.randomUUID()
+      submissionIdempotencyKeyRef.current = idempotencyKey
 
       const formData = new FormData()
-      formData.append('userId', session.user.id)
       formData.append('fullName', validatedData.fullName)
       formData.append('email', validatedData.email)
       formData.append('phone', validatedData.phone)
@@ -516,98 +844,88 @@ export default function RegistrationForm() {
       formData.append('industry', validatedData.industry)
       formData.append('expertise', validatedData.expertise)
       formData.append('experience', validatedData.experience)
+      formData.append('hourlyRate', validatedData.hourlyRate)
       formData.append('about', validatedData.about || '')
       formData.append('linkedinUrl', validatedData.linkedinUrl)
       formData.append('availability', validatedData.availability)
-      formData.append('profilePicture', validatedData.profilePicture)
+      if (mentorFormData.profilePicture) {
+        formData.append('profilePicture', mentorFormData.profilePicture)
+      }
       if (validatedData.resume) formData.append('resume', validatedData.resume)
+      formData.append('termsAccepted', String(validatedData.termsAccepted))
+      formData.append('consents', JSON.stringify(
+        legalDocuments.map(doc => ({
+          documentId: doc.id,
+          version: doc.version,
+          accepted: legalConsents[doc.id],
+        })),
+      ))
 
-      const res = await fetch('/api/mentors/apply', {
+      const res = await fetch('/api/mentor-applications/current/submit', {
         method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey },
         body: formData,
         credentials: 'include',
       })
       const result = await res.json()
 
       if (!result.success) {
-        alert('Failed to submit application: ' + result.error)
+        setSubmissionError(result.error || 'Failed to submit your application.')
         setIsLoading(false)
         return
       }
 
-      setShowSuccessMessage(true)
+      submissionIdempotencyKeyRef.current = null
+      if (!result.application) {
+        setSubmissionError('Your application was submitted, but its status could not be loaded.')
+        return
+      }
+
+      activateApplication(result.application as MentorApplication)
     } catch (error) {
       if (error instanceof z.ZodError) {
         setErrors(error)
       } else {
-        alert('Something went wrong while submitting your application.')
+        setSubmissionError('Something went wrong while submitting your application.')
       }
     } finally {
       setIsLoading(false)
     }
   }
 
-  useEffect(() => {
-    if (showSuccessMessage) {
-      const timer = setTimeout(() => {
-        router.push('/')
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [showSuccessMessage, router])
-
-  if (!mentorStatusLoading && isMentor) {
-    const canAccessDashboard = mentor?.verificationStatus === 'VERIFIED'
+  if (!mentorStatusLoading && isMentor && mentor) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
-        <div className="max-w-xl w-full rounded-2xl border border-slate-200 bg-white/90 shadow-lg p-8 space-y-4">
-          <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide">Already a verified expert</p>
-          <h1 className="text-2xl font-bold text-slate-900">You already have expert access</h1>
-          <p className="text-slate-600">
-            You’re signed in as a verified expert, so you don’t need to submit another application. Head to the VIP lounge to continue.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
-              onClick={() => router.push('/vip-lounge')}
-            >
-              Go to VIP Lounge
-            </Button>
-            {canAccessDashboard && (
-              <Button
-                variant="outline"
-                className="flex-1 border-slate-200 text-slate-700 hover:text-slate-900"
-                onClick={() => router.push('/dashboard')}
-              >
-                Open Dashboard
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              className="flex-1 text-slate-600 hover:text-slate-900"
-              onClick={() => router.push('/')}
-            >
-              Back Home
-            </Button>
-          </div>
-        </div>
-      </div>
+      <MentorApplicationStatus
+        mentor={mentor}
+        onNavigateHome={() => router.push('/')}
+        onNavigateDashboard={() => router.push('/dashboard')}
+        onNavigateVipLounge={() => router.push('/vip-lounge')}
+      />
     )
   }
 
-  if (mentorStatusLoading) {
+  if (accessStep === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600 font-medium">Checking verification status...</p>
+          <p className="mt-4 text-slate-600 font-medium">Loading your application securely...</p>
         </div>
       </div>
     )
   }
 
-  if (showSuccessMessage) {
-    return <SuccessMessage message="Application submitted successfully! We will review your application and get back to you soon." />
+  if (accessStep === 'status' && application) {
+    return (
+      <ApplicationLifecycleStatus
+        application={application}
+        onNavigateHome={() => router.push('/')}
+        onUseAnotherEmail={() => void closeApplicationSession('email')}
+        onExitApplication={() => void closeApplicationSession('home')}
+        isClosing={isLoading}
+        actionError={accessError}
+      />
+    )
   }
 
   const termsAcceptedError = errors?.errors.find(e => e.path[0] === 'termsAccepted')
@@ -628,6 +946,55 @@ export default function RegistrationForm() {
       )
     }
     return text;
+  }
+
+  if (accessStep === 'email' || accessStep === 'otp') {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900">
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-slate-50 to-white" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_bottom,transparent_0%,black_15%,black_100%)]" />
+
+        <main className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/')}
+                className="mb-6 inline-flex items-center gap-2 rounded-full px-4 text-slate-500 hover:bg-white/50 hover:text-indigo-600"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                Back to Home
+              </Button>
+              <h1 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+                Expert{' '}
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Verification Application
+                </span>
+              </h1>
+              <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                Apply independently today. We can connect your approved application to your
+                SharingMinds account when you join the platform later.
+              </p>
+            </div>
+
+            <ApplicationAccessCard
+              step={accessStep}
+              email={accessEmail}
+              otp={otp}
+              error={accessError}
+              isLoading={isLoading}
+              resendSeconds={resendSeconds}
+              onEmailChange={setAccessEmail}
+              onOtpChange={value => setOtp(value.replace(/\D/g, '').slice(0, 6))}
+              onRequestOtp={handleRequestOtp}
+              onVerifyOtp={handleVerifyOtp}
+              onResendOtp={handleResendOtp}
+              onChangeEmail={handleChangeEmail}
+            />
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -651,19 +1018,37 @@ export default function RegistrationForm() {
               Back to Home
             </Button>
 
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
               Expert <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Verification Application</span>
-            </h2>
+            </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Join a private circle of category-defining experts. Help shape the next generation by sharing your expertise.
             </p>
             
-            {session?.user && (
-              <div className="mt-6 flex justify-center">
+            {application?.email && (
+              <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
                 <Badge variant="outline" className="px-4 py-1.5 rounded-full border-indigo-200 bg-indigo-50/50 text-indigo-700 text-sm font-medium">
-                  <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
-                  Signed in as {session.user.email}
+                  <Check className="mr-2 h-4 w-4 text-emerald-600" aria-hidden="true" />
+                  Verified email: {application.email}
                 </Badge>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isLoading}
+                  onClick={() => void closeApplicationSession('email')}
+                >
+                  Use another email
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isLoading}
+                  onClick={() => void closeApplicationSession('home')}
+                >
+                  Exit application
+                </Button>
               </div>
             )}
           </div>
@@ -676,48 +1061,77 @@ export default function RegistrationForm() {
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <CardTitle className="text-xl font-bold text-slate-900">Application Form</CardTitle>
+                {application && (
+                  <Badge variant="outline" className="ml-auto">
+                    {application.status.replace(/_/g, ' ')}
+                  </Badge>
+                )}
               </div>
-              <CardDescription className="text-slate-500 text-base">
-                Please provide accurate details about your professional background.
-              </CardDescription>
+              <div className="flex flex-col gap-1 text-base text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                <CardDescription className="text-slate-500 text-base">
+                  Please provide accurate details about your professional background.
+                </CardDescription>
+                <p className="text-xs" aria-live="polite">
+                  {autosaveState === 'saving' && 'Saving draft…'}
+                  {autosaveState === 'saved' && 'Draft saved'}
+                  {autosaveState === 'error' && 'Draft not saved — retrying after your next change'}
+                </p>
+              </div>
             </CardHeader>
             
             <CardContent className="p-8 sm:p-10">
-              {!session?.user && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800 mb-3">
-                    Sign in with Google or LinkedIn to skip email verification and auto-fill your information
-                  </p>
-                  <div className="space-y-2">
-                    <Button
-                      type="button"
-                      onClick={handleGoogleSignIn}
-                      disabled={isLoading || isPending}
-                      className="w-full flex items-center justify-center gap-2"
-                      variant="outline"
-                    >
-                      <FcGoogle className="h-5 w-5" />
-                      {isLoading || isPending ? "Signing in..." : "Sign in with Google"}
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleLinkedInSignIn}
-                      disabled={isLoading || isPending}
-                      className="w-full flex items-center justify-center gap-2"
-                      variant="outline"
-                    >
-                      <FaLinkedin className="h-5 w-5" />
-                      {isLoading || isPending ? "Signing in..." : "Sign in with LinkedIn"}
-                    </Button>
-                  </div>
-                </div>
-              )}
-
               <form onSubmit={handleMentorFormSubmit} className="space-y-8" encType="multipart/form-data">
+                {application?.status === 'DRAFT' && (
+                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 text-sm text-indigo-900">
+                    <p className="font-semibold">Draft application</p>
+                    <p className="mt-1 leading-relaxed">
+                      Your progress is saved automatically. Submit the form when every required
+                      detail is ready for review.
+                    </p>
+                  </div>
+                )}
+                {application?.status === 'CHANGES_REQUESTED' && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                      <div>
+                        <p className="font-semibold">Changes requested</p>
+                        <p className="mt-1 leading-relaxed">
+                          {application.applicantVisibleNotes || application.verificationNotes ||
+                            'Please review your details, make the requested updates, and resubmit your application.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {submissionError && (
+                  <div
+                    role="alert"
+                    className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                  >
+                    {submissionError}
+                  </div>
+                )}
+                {errors && (
+                  <div
+                    role="alert"
+                    className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                  >
+                    <p className="font-semibold">Please review the following fields:</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5">
+                      {errors.errors.map((error, index) => (
+                        <li key={`${error.path.join('.')}-${index}`}>{error.message}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 
                 {/* Profile Picture */}
                 <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl hover:border-indigo-300 transition-colors bg-slate-50/50">
-                  <Label htmlFor="profilePicture" className="mb-4 text-slate-600 font-medium">Profile Picture <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="profilePicture" className="mb-4 text-slate-600 font-medium">
+                    Profile Picture
+                    {!application?.profileImageUrl && <span className="text-red-500"> *</span>}
+                  </Label>
                   <label htmlFor="profilePicture" className="cursor-pointer group relative">
                     <Avatar className="h-28 w-28 ring-4 ring-white shadow-lg transition-transform group-hover:scale-105">
                       <AvatarImage src={profilePicturePreview || undefined} alt="Profile Picture" className="object-cover" />
@@ -732,9 +1146,9 @@ export default function RegistrationForm() {
                   <input
                     id="profilePicture"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleProfilePictureChange}
-                    required
+                    required={!application?.profileImageUrl}
                     className="hidden"
                   />
                   <Button type="button" onClick={() => document.getElementById('profilePicture')?.click()} variant="link" className="mt-2 text-indigo-600">
@@ -768,77 +1182,17 @@ export default function RegistrationForm() {
                           id="email"
                           type="email"
                           value={mentorFormData.email}
-                          onChange={e => {
-                            if (!session?.user) {
-                              setMentorFormData(prev => ({ ...prev, email: e.target.value }))
-                              setIsEmailVerified(false)
-                              setOtp("")
-                            }
-                          }}
+                          onChange={() => undefined}
                           placeholder="name@company.com"
                           required
-                          disabled={session?.user?.email ? true : isEmailVerified}
-                          readOnly={session?.user?.email ? true : false}
+                          disabled
+                          readOnly
                           className="h-11 bg-white/50 focus:bg-white border-slate-200 transition-all"
                         />
-                        {!session?.user && (
-                          <Button
-                            type="button"
-                            onClick={handleSendOtp}
-                            disabled={!isValidEmail || isEmailVerified}
-                            variant="secondary"
-                            className="h-11 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          >
-                            {isEmailVerified ? <Check className="w-4 h-4 text-green-600" /> : "Verify"}
-                          </Button>
-                        )}
-                        {session?.user && (
-                          <div className="h-11 px-3 flex items-center justify-center bg-green-50 rounded-md border border-green-100">
-                             <Check className="w-4 h-4 text-green-600" />
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* OTP Section styling */}
-                      {showOtpInput && (
-                        <div className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="text"
-                              placeholder="Enter 6-digit OTP"
-                              value={otp}
-                              onChange={(e) => {
-                                setOtp(e.target.value)
-                                setOtpError(null)
-                              }}
-                              maxLength={6}
-                              className="bg-white"
-                            />
-                            <Button
-                              type="button"
-                              onClick={handleVerifyOtp}
-                              disabled={otp.length !== 6}
-                              className="bg-slate-900 text-white"
-                            >
-                              Confirm
-                            </Button>
-                          </div>
-                          {otpError && <p className="text-sm text-red-500 mt-2">{otpError}</p>}
-                          <p className="text-xs text-slate-500 mt-2">
-                            {isCountingDown ? (
-                              `Resend code in ${countdown}s`
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={handleResendOtp}
-                                className="text-indigo-600 hover:underline font-medium"
-                              >
-                                Resend OTP
-                              </button>
-                            )}
-                          </p>
+                        <div className="h-11 px-3 flex items-center justify-center bg-green-50 rounded-md border border-green-100">
+                           <Check className="w-4 h-4 text-green-600" />
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
 
@@ -1039,23 +1393,49 @@ export default function RegistrationForm() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="availability" className="text-slate-700">Availability <span className="text-red-500">*</span></Label>
-                    <Select
-                      value={mentorFormData.availability || ''}
-                      onValueChange={value => setMentorFormData(prev => ({ ...prev, availability: value }))}
-                      required
-                    >
-                      <SelectTrigger id="availability" className="h-11 bg-white/50 border-slate-200">
-                        <SelectValue placeholder="Select expected commitment..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Weekly">Weekly (~1 hour/week)</SelectItem>
-                        <SelectItem value="BiWeekly">Bi-weekly (~1 hour/2 weeks)</SelectItem>
-                        <SelectItem value="Monthly">Monthly (~1 hour/month)</SelectItem>
-                        <SelectItem value="AsNeeded">Flexible / As Needed</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="hourlyRate" className="text-slate-700">
+                        Preferred Hourly Rate (USD) <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="hourlyRate"
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        inputMode="decimal"
+                        value={mentorFormData.hourlyRate}
+                        onChange={event => setMentorFormData(prev => ({
+                          ...prev,
+                          hourlyRate: event.target.value,
+                        }))}
+                        placeholder="e.g. 75.00"
+                        required
+                        className="h-11 bg-white/50 focus:bg-white border-slate-200"
+                      />
+                      <p className="text-xs text-slate-500">
+                        Administrators may adjust this rate with a documented reason.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="availability" className="text-slate-700">Availability <span className="text-red-500">*</span></Label>
+                      <Select
+                        value={mentorFormData.availability || ''}
+                        onValueChange={value => setMentorFormData(prev => ({ ...prev, availability: value }))}
+                        required
+                      >
+                        <SelectTrigger id="availability" className="h-11 bg-white/50 border-slate-200">
+                          <SelectValue placeholder="Select expected commitment..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="WEEKLY">Weekly (~1 hour/week)</SelectItem>
+                          <SelectItem value="BIWEEKLY">Bi-weekly (~1 hour/2 weeks)</SelectItem>
+                          <SelectItem value="MONTHLY">Monthly (~1 hour/month)</SelectItem>
+                          <SelectItem value="AS_NEEDED">Flexible / As Needed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -1063,11 +1443,18 @@ export default function RegistrationForm() {
                     <Input
                       id="resume"
                       type="file"
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf,application/pdf"
                       onChange={e => setMentorFormData(prev => ({ ...prev, resume: e.target.files?.[0] || null }))}
                       className="bg-white/50 border-slate-200 file:text-indigo-600 file:font-medium hover:file:bg-indigo-50"
                     />
-                    <p className="text-xs text-slate-500">PDF, DOC, DOCX (Max 5MB)</p>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                      <span>PDF only (Max 5MB)</span>
+                      {application?.resumeUrl && (
+                        <span className="font-medium text-emerald-700">
+                          A resume is already on file. Upload a new PDF to replace it.
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1220,11 +1607,15 @@ export default function RegistrationForm() {
                 {/* Submit Button - FIX 2: Content Aware / Responsive */}
                 <Button
                   type="submit"
-                  disabled={isLoading || (!session?.user && !isEmailVerified) || !mentorFormData.termsAccepted}
+                  disabled={isLoading || !mentorFormData.termsAccepted}
                   className="group relative w-full min-h-[3.5rem] h-auto py-3 overflow-hidden rounded-xl bg-slate-900 text-white shadow-xl shadow-indigo-500/20 transition-all duration-300 hover:bg-slate-800 hover:shadow-indigo-500/40 hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2 text-base sm:text-lg font-semibold tracking-wide whitespace-normal text-center leading-tight">
-                    {isLoading ? "Submitting Application..." : "Submit Expert Verification Application"}
+                    {isLoading
+                      ? "Submitting Application..."
+                      : application?.status === 'CHANGES_REQUESTED'
+                        ? 'Resubmit Expert Verification Application'
+                        : "Submit Expert Verification Application"}
                     {!isLoading && <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />}
                   </span>
                   

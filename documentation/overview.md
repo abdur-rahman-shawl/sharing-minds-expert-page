@@ -1,5 +1,8 @@
 # SharingMinds — Mentor Onboarding Platform Overview
 
+> Guest mentor applications, OTP verification, later account claiming, and promotion are
+> governed by [Guest Mentor Application - Source of Truth](./guest-mentor-application-source-of-truth.md).
+
 ## 1. Purpose & Context
 
 SharingMinds is a **mentor-mentee connect platform** currently in its **pre-launch phase**. This particular application serves as the **mentor onboarding portal** — its sole job is to attract, register, and onboard expert mentors _before_ the main platform launches, ensuring there is a critical mass of mentors ready on day one.

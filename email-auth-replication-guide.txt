@@ -121,3 +121,9 @@ Ensure middleware rules (middleware.ts:5-155) are mirrored if you need route pro
 - Run pnpm lint and pnpm build to ensure mirrored code compiles; smoke-test both apps against the same DB to catch schema drift.
 
 Keep this document updated if auth code changes; sharing the auth modules through a workspace package is recommended to avoid divergence.
+DEPRECATED SECURITY NOTE (20 July 2026)
+=======================================
+This historical replication guide describes the retired plaintext `email_verifications` flow.
+Do not copy or re-enable that implementation. The authoritative guest application and account
+OTP design is `documentation/guest-mentor-application-source-of-truth.md`, implemented through
+`email_otp_challenges` and `lib/mentor-applications/otp.ts`.

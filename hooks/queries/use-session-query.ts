@@ -1,11 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/react-query'
+import type {
+  MentorApplicationStatusData,
+  MentorProfileData,
+} from '@/lib/mentor-onboarding'
 
 interface SessionWithRolesData {
   session: unknown
   user: unknown
   roles: Array<{ name: string; displayName: string }>
-  mentorProfile: unknown
+  mentorProfile: MentorProfileData | null
+  mentorApplication: MentorApplicationStatusData | null
   isAdmin: boolean
   isMentor: boolean
   isMentee: boolean
@@ -37,20 +42,6 @@ export function useSessionWithRolesQuery() {
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-  })
-}
-
-export function useSignInMutation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ provider, credentials }: { provider: string; credentials: unknown }) => {
-      const { signIn } = await import('@/lib/auth-client')
-      return signIn(provider, credentials)
-    },
-    onSuccess: () => {
-      return queryClient.invalidateQueries({ queryKey: queryKeys.sessionWithRoles })
-    },
   })
 }
 

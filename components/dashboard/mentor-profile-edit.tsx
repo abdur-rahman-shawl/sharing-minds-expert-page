@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useSession } from '@/lib/auth-client'
+import { formatStoredExpertise } from '@/lib/mentor-onboarding'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     Loader2,
@@ -117,7 +118,7 @@ export function MentorProfileEdit() {
                 state: mentorProfile.state || '',
                 country: mentorProfile.country || '',
                 industry: mentorProfile.industry || '',
-                expertise: mentorProfile.expertise || '',
+                expertise: formatStoredExpertise(mentorProfile.expertise),
                 experience: mentorProfile.experience?.toString() || '',
                 about: mentorProfile.about || '',
                 linkedinUrl: mentorProfile.linkedinUrl || '',

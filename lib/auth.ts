@@ -5,6 +5,62 @@ import { db } from './db';
 import { users } from './db/schema/users';
 import { betterAuthAccounts, betterAuthSessions, betterAuthVerifications } from './db/schema/auth';
 import { roles, userRoles } from './db/schema';
+import { areMentorApplicationsEnabled } from './mentor-applications/feature';
+import { claimMentorApplicationForVerifiedUser } from './mentor-applications/promotion';
+
+async function assignDefaultMenteeRole(userId: string) {
+  const existingRoles = await db
+    .select()
+    .from(userRoles)
+    .where(eq(userRoles.userId, userId));
+
+  if (existingRoles.length > 0) return;
+
+  const [menteeRole] = await db
+    .select()
+    .from(roles)
+    .where(eq(roles.name, 'mentee'))
+    .limit(1);
+
+  if (!menteeRole) return;
+
+  await db
+    .insert(userRoles)
+    .values({
+      userId,
+      roleId: menteeRole.id,
+      assignedBy: userId,
+    })
+    .onConflictDoNothing();
+}
+
+async function reconcileVerifiedMentorApplication(userId: string) {
+  if (!areMentorApplicationsEnabled()) return;
+
+  const [user] = await db
+    .select({
+      email: users.email,
+      emailVerified: users.emailVerified,
+      isActive: users.isActive,
+      isBlocked: users.isBlocked,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (
+    !user ||
+    user.emailVerified !== true ||
+    user.isActive === false ||
+    user.isBlocked === true
+  ) {
+    return;
+  }
+
+  await claimMentorApplicationForVerifiedUser({
+    userId,
+  });
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -46,37 +102,18 @@ export const auth = betterAuth({
           }
 
           try {
-            const existingRoles = await db
-              .select()
-              .from(userRoles)
-              .where(eq(userRoles.userId, session.userId));
-
-            if (existingRoles.length > 0) {
-              return;
-            }
-
-            const [menteeRole] = await db
-              .select()
-              .from(roles)
-              .where(eq(roles.name, 'mentee'))
-              .limit(1);
-
-            if (!menteeRole) {
-              return;
-            }
-
-            await db
-              .insert(userRoles)
-              .values({
-                userId: session.userId,
-                roleId: menteeRole.id,
-                assignedBy: session.userId,
-              })
-              .onConflictDoNothing();
-
-            console.info(`[auth] Auto-assigned mentee role to user ${session.userId}`);
+            await assignDefaultMenteeRole(session.userId);
           } catch (error) {
             console.error('[auth] Failed to auto-assign mentee role', error);
+          }
+
+          try {
+            await reconcileVerifiedMentorApplication(session.userId);
+          } catch (error) {
+            // Login must remain available if reconciliation needs a retry or
+            // manual conflict resolution. The explicit claim route is the
+            // user-facing retry path.
+            console.error('[auth] Failed to reconcile mentor application', error);
           }
         },
       },
