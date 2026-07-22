@@ -8,10 +8,17 @@ import {
   MENTOR_APPLICATION_BUCKET,
   PROFILE_IMAGE_MAX_BYTES,
   RESUME_MAX_BYTES,
+  SUPPORTING_DOCUMENT_MAX_BYTES,
 } from './constants'
 import { sha256Hex } from './security'
 
-export type ApplicationFileKind = 'PROFILE_IMAGE' | 'RESUME'
+export type ApplicationFileKind =
+  | 'PROFILE_IMAGE'
+  | 'RESUME'
+  | 'PORTFOLIO'
+  | 'CASE_STUDY'
+  | 'PRESENTATION'
+  | 'AWARDS_CERTIFICATIONS'
 
 export type UploadedApplicationFile = {
   storageBucket: string
@@ -90,7 +97,12 @@ export async function uploadApplicationFile(input: {
   await assertPrivateApplicationBucket()
 
   const { file, kind, applicationId } = input
-  const maxSize = kind === 'PROFILE_IMAGE' ? PROFILE_IMAGE_MAX_BYTES : RESUME_MAX_BYTES
+  const maxSize =
+    kind === 'PROFILE_IMAGE'
+      ? PROFILE_IMAGE_MAX_BYTES
+      : kind === 'RESUME'
+        ? RESUME_MAX_BYTES
+        : SUPPORTING_DOCUMENT_MAX_BYTES
 
   if (!file || file.size <= 0) {
     throw new ApplicationFileValidationError('The selected file is empty')
@@ -100,12 +112,13 @@ export async function uploadApplicationFile(input: {
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer())
-  const detected = kind === 'PROFILE_IMAGE' ? detectProfileImage(bytes) : detectResume(bytes)
+  const detected =
+    kind === 'PROFILE_IMAGE' ? detectProfileImage(bytes) : detectResume(bytes)
   if (!detected) {
     throw new ApplicationFileValidationError(
       kind === 'PROFILE_IMAGE'
         ? 'Profile image must be a valid JPEG, PNG, or WebP file'
-        : 'Resume must be a valid PDF file',
+        : 'Application documents must be valid PDF files',
     )
   }
 

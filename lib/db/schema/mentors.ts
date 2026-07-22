@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer, decimal, pgEnum, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, integer, decimal, jsonb, pgEnum, uuid } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users';
 
@@ -31,10 +31,13 @@ export const mentors = pgTable('mentors', {
   title: text('title'), // e.g., "Senior Software Engineer"
   company: text('company'),
   industry: text('industry'),
+  industries: jsonb('industries').$type<string[]>(),
   normalizedIndustry: text('normalized_industry'),
   normalizedTitle: text('normalized_title'),
   expertise: text('expertise'), // JSON array of expertise areas
   experience: integer('experience_years'), // Years of experience
+  experienceBand: text('experience_band'),
+  employmentType: text('employment_type'),
 
   // Mentoring details
   hourlyRate: decimal('hourly_rate', { precision: 10, scale: 2 }),
@@ -49,11 +52,20 @@ export const mentors = pgTable('mentors', {
   }),
   currency: text('currency').default('USD'),
   availability: text('availability'), // JSON for availability schedule
+  weeklyAvailabilityBand: text('weekly_availability_band'),
+  preferredSessionMode: text('preferred_session_mode'),
+  serviceInterests: jsonb('service_interests').$type<string[]>(),
+  languages: jsonb('languages').$type<string[]>(),
   maxMentees: integer('max_mentees').default(10),
 
   // Profile details
   headline: text('headline'), // Short professional headline
   about: text('about'), // Detailed about section
+  challengeSolved: text('challenge_solved'),
+  measurableOutcomes: text('measurable_outcomes'),
+  guidanceValueProposition: text('guidance_value_proposition'),
+  credibilitySignals: jsonb('credibility_signals').$type<string[]>(),
+  hasPriorMentoringExperience: boolean('has_prior_mentoring_experience'),
   linkedinUrl: text('linkedin_url'),
   githubUrl: text('github_url'),
   websiteUrl: text('website_url'),

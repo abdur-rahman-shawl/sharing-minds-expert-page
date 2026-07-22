@@ -16,6 +16,10 @@ import { mentorApplications } from './mentor-applications';
 export const mentorApplicationFileKindEnum = pgEnum('mentor_application_file_kind', [
   'PROFILE_IMAGE',
   'RESUME',
+  'PORTFOLIO',
+  'CASE_STUDY',
+  'PRESENTATION',
+  'AWARDS_CERTIFICATIONS',
 ]);
 
 export const mentorApplicationFileScanStatusEnum = pgEnum(

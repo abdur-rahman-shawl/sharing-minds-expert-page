@@ -2,11 +2,30 @@ import { z } from 'zod'
 
 import { legalDocuments } from '@/lib/legal-documents'
 import {
-  MENTOR_AVAILABILITY_CADENCES,
-  parseExpertiseList,
-} from '@/lib/mentor-onboarding'
+  CREDIBILITY_SIGNAL_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  EXPERIENCE_BAND_OPTIONS,
+  EXPERTISE_OPTIONS,
+  INDUSTRY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  optionValues,
+  SERVICE_INTEREST_OPTIONS,
+  SESSION_MODE_OPTIONS,
+  WEEKLY_AVAILABILITY_OPTIONS,
+} from '@/lib/mentor-application-options'
 
 export const MENTOR_APPLICATION_LEGAL_VERSION = '2025-11'
+export const MENTOR_APPLICATION_SCHEMA_VERSION = 2
+
+const employmentTypes = optionValues(EMPLOYMENT_TYPE_OPTIONS)
+const experienceBands = optionValues(EXPERIENCE_BAND_OPTIONS)
+const industries = optionValues(INDUSTRY_OPTIONS)
+const expertiseAreas = optionValues(EXPERTISE_OPTIONS)
+const credibilitySignals = optionValues(CREDIBILITY_SIGNAL_OPTIONS)
+const serviceInterests = optionValues(SERVICE_INTEREST_OPTIONS)
+const sessionModes = optionValues(SESSION_MODE_OPTIONS)
+const languages = optionValues(LANGUAGE_OPTIONS)
+const weeklyAvailabilityBands = optionValues(WEEKLY_AVAILABILITY_OPTIONS)
 
 const normalizedEmailSchema = z
   .string()
@@ -14,6 +33,21 @@ const normalizedEmailSchema = z
   .toLowerCase()
   .email('Enter a valid email address')
   .max(254)
+
+const optionalUrlSchema = z.union([
+  z.literal(''),
+  z.string().trim().url('Enter a valid URL').max(2048),
+])
+
+const linkedinUrlSchema = z
+  .string()
+  .trim()
+  .url('Enter a valid LinkedIn URL')
+  .max(2048)
+  .refine(value => {
+    const hostname = new URL(value).hostname.toLowerCase()
+    return hostname === 'linkedin.com' || hostname.endsWith('.linkedin.com')
+  }, 'Enter a LinkedIn URL')
 
 export const requestMentorApplicationOtpSchema = z.object({
   email: normalizedEmailSchema,
@@ -24,46 +58,113 @@ export const verifyMentorApplicationOtpSchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, 'Enter the six-digit verification code'),
 })
 
-export const mentorApplicationDraftFieldsSchema = z.object({
-  fullName: z.string().trim().min(2).max(120),
+const mentorApplicationV2Fields = {
+  fullName: z.string().trim().min(2, 'Full name is required').max(120),
   phone: z.string().trim().regex(/^\+\d{1,4}-\d{6,15}$/, 'Invalid phone number format'),
   countryId: z.string().trim().regex(/^\d+$/, 'Country is required'),
   stateId: z.string().trim().regex(/^\d+$/, 'State is required'),
   cityId: z.string().trim().regex(/^\d+$/, 'City is required'),
-  title: z.string().trim().min(2).max(160),
-  company: z.string().trim().min(2).max(160),
-  industry: z.string().trim().min(1).max(160),
+  professionalHeadline: z
+    .string()
+    .trim()
+    .min(2, 'Professional headline is required')
+    .max(160),
+  title: z.string().trim().min(2, 'Current designation is required').max(160),
+  company: z.string().trim().min(2, 'Current organization is required').max(160),
+  websiteUrl: optionalUrlSchema,
+  employmentType: z.enum(employmentTypes, {
+    required_error: 'Employment type is required',
+  }),
+  experienceBand: z.enum(experienceBands, {
+    required_error: 'Experience range is required',
+  }),
+  industries: z
+    .array(z.enum(industries))
+    .min(1, 'Select at least one industry')
+    .max(10, 'Select no more than 10 industries'),
+  otherIndustry: z.string().trim().max(160),
   expertise: z
+    .array(z.enum(expertiseAreas))
+    .min(1, 'Select at least one area of expertise')
+    .max(5, 'Select no more than five areas of expertise'),
+  otherExpertise: z.string().trim().max(160),
+  about: z
     .string()
     .trim()
-    .min(1, 'Expertise is required')
-    .max(500)
-    .refine(value => parseExpertiseList(value).length >= 5, {
-      message: 'List at least five unique areas of expertise',
-    })
-    .refine(value => parseExpertiseList(value).length <= 25, {
-      message: 'List no more than 25 areas of expertise',
-    }),
-  experience: z.coerce.number().int().min(2).max(80),
-  hourlyRate: z
-    .union([z.string(), z.number()])
-    .transform(value => String(value).trim())
-    .pipe(z.string().regex(/^\d{1,8}(\.\d{1,2})?$/, 'Enter a valid hourly rate'))
-    .refine(value => Number(value) > 0, 'Hourly rate must be greater than zero'),
-  about: z.string().trim().max(3000).optional().default(''),
-  linkedinUrl: z
+    .min(20, 'Tell us a little more about your professional journey')
+    .max(1000, 'Professional journey must not exceed 1,000 characters'),
+  challengeSolved: z
     .string()
     .trim()
-    .url('Enter a valid LinkedIn URL')
-    .refine(value => {
-      const hostname = new URL(value).hostname.toLowerCase()
-      return hostname === 'linkedin.com' || hostname.endsWith('.linkedin.com')
-    }, 'Enter a LinkedIn URL'),
-  availability: z.enum(MENTOR_AVAILABILITY_CADENCES),
-})
+    .min(20, 'Describe one challenge people seek your guidance on')
+    .max(1000),
+  measurableOutcomes: z
+    .string()
+    .trim()
+    .min(20, 'Describe the measurable outcomes you have contributed to')
+    .max(1000),
+  guidanceValueProposition: z
+    .string()
+    .trim()
+    .min(20, 'Explain what makes your guidance distinctive')
+    .max(1000),
+  credibilitySignals: z.array(z.enum(credibilitySignals)).max(14),
+  linkedinUrl: linkedinUrlSchema,
+  serviceInterests: z
+    .array(z.enum(serviceInterests))
+    .min(1, 'Select at least one mentoring interest'),
+  preferredSessionMode: z.enum(sessionModes, {
+    required_error: 'Preferred session mode is required',
+  }),
+  languages: z.array(z.enum(languages)).min(1, 'Select at least one language'),
+  otherLanguage: z.string().trim().max(100),
+  weeklyAvailabilityBand: z.enum(weeklyAvailabilityBands, {
+    required_error: 'Weekly availability is required',
+  }),
+  hasPriorMentoringExperience: z.boolean({
+    required_error: 'Select whether you have mentored or advised before',
+  }),
+  hasProfessionalMisconduct: z.boolean({
+    required_error: 'Answer the professional misconduct question',
+  }),
+  misconductExplanation: z.string().trim().max(1000),
+}
 
-// Drafts intentionally allow incomplete values. Final constraints live in
-// mentorApplicationDraftFieldsSchema and are enforced at submission.
+export const mentorApplicationDraftFieldsSchema = z
+  .object(mentorApplicationV2Fields)
+  .superRefine((value, context) => {
+    if (value.industries.includes('OTHER') && !value.otherIndustry) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['otherIndustry'],
+        message: 'Specify the other industry',
+      })
+    }
+    if (value.expertise.includes('OTHER') && !value.otherExpertise) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['otherExpertise'],
+        message: 'Specify the other area of expertise',
+      })
+    }
+    if (value.languages.includes('OTHER') && !value.otherLanguage) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['otherLanguage'],
+        message: 'Specify the other language',
+      })
+    }
+    if (value.hasProfessionalMisconduct && !value.misconductExplanation) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['misconductExplanation'],
+        message: 'Please provide a brief explanation',
+      })
+    }
+  })
+
+// Autosave accepts incomplete values while still rejecting unknown option keys
+// and over-sized payloads. Final constraints are enforced by the schema above.
 export const patchMentorApplicationSchema = z
   .object({
     fullName: z.string().trim().max(120).optional(),
@@ -72,22 +173,32 @@ export const patchMentorApplicationSchema = z
     countryId: z.string().trim().max(30).regex(/^\d*$/).optional(),
     stateId: z.string().trim().max(30).regex(/^\d*$/).optional(),
     cityId: z.string().trim().max(30).regex(/^\d*$/).optional(),
+    professionalHeadline: z.string().trim().max(160).optional(),
     title: z.string().trim().max(160).optional(),
     company: z.string().trim().max(160).optional(),
-    industry: z.string().trim().max(160).optional(),
-    expertise: z.string().trim().max(500).optional(),
-    experience: z
-      .union([z.literal(''), z.coerce.number().int().min(0).max(80)])
-      .optional(),
-    hourlyRate: z
-      .string()
-      .trim()
-      .max(11)
-      .regex(/^(?:$|\d{1,8}(?:\.\d{0,2})?)$/)
-      .optional(),
-    about: z.string().trim().max(3000).optional(),
+    websiteUrl: z.string().trim().max(2048).optional(),
+    employmentType: z.union([z.literal(''), z.enum(employmentTypes)]).optional(),
+    experienceBand: z.union([z.literal(''), z.enum(experienceBands)]).optional(),
+    industries: z.array(z.enum(industries)).max(10).optional(),
+    otherIndustry: z.string().trim().max(160).optional(),
+    expertise: z.array(z.enum(expertiseAreas)).max(5).optional(),
+    otherExpertise: z.string().trim().max(160).optional(),
+    about: z.string().trim().max(1000).optional(),
+    challengeSolved: z.string().trim().max(1000).optional(),
+    measurableOutcomes: z.string().trim().max(1000).optional(),
+    guidanceValueProposition: z.string().trim().max(1000).optional(),
+    credibilitySignals: z.array(z.enum(credibilitySignals)).max(14).optional(),
     linkedinUrl: z.string().trim().max(2048).optional(),
-    availability: z.union([z.literal(''), z.enum(MENTOR_AVAILABILITY_CADENCES)]).optional(),
+    serviceInterests: z.array(z.enum(serviceInterests)).max(11).optional(),
+    preferredSessionMode: z.union([z.literal(''), z.enum(sessionModes)]).optional(),
+    languages: z.array(z.enum(languages)).max(17).optional(),
+    otherLanguage: z.string().trim().max(100).optional(),
+    weeklyAvailabilityBand: z
+      .union([z.literal(''), z.enum(weeklyAvailabilityBands)])
+      .optional(),
+    hasPriorMentoringExperience: z.boolean().nullable().optional(),
+    hasProfessionalMisconduct: z.boolean().nullable().optional(),
+    misconductExplanation: z.string().trim().max(1000).optional(),
   })
   .strict()
   .refine(value => Object.keys(value).length > 0, 'At least one field is required')

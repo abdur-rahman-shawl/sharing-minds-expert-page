@@ -13,6 +13,12 @@ import {
   users,
   type MentorApplication,
 } from '@/lib/db/schema'
+import {
+  EXPERTISE_OPTIONS,
+  INDUSTRY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  optionLabel,
+} from '@/lib/mentor-application-options'
 
 import { MentorApplicationConflictError } from './application'
 import { normalizeEmail } from './security'
@@ -32,6 +38,7 @@ export type PromotionResult =
         | 'LINKED_USER_INACTIVE'
         | 'LINKED_USER_BLOCKED'
         | 'PROFILE_IMAGE_MISSING'
+        | 'RESUME_MISSING'
         | 'EXISTING_MENTOR_REQUIRES_RECONCILIATION'
         | 'MENTOR_ROLE_NOT_CONFIGURED'
       mentorId: null
@@ -138,8 +145,12 @@ export async function promoteMentorApplication(
     )
   const profileImage = currentFiles.find(file => file.kind === 'PROFILE_IMAGE')
   const resume = currentFiles.find(file => file.kind === 'RESUME')
+  const isVersionTwoApplication = application.applicationSchemaVersion >= 2
   if (!profileImage) {
     return { promoted: false, reason: 'PROFILE_IMAGE_MISSING', mentorId: null }
+  }
+  if (isVersionTwoApplication && !resume) {
+    return { promoted: false, reason: 'RESUME_MISSING', mentorId: null }
   }
 
   const [mentorRole] = await transaction
@@ -155,6 +166,22 @@ export async function promoteMentorApplication(
     }
   }
 
+  const promotedIndustries = (application.industries || []).map(value =>
+    value === 'OTHER' && application.otherIndustry
+      ? application.otherIndustry
+      : optionLabel(INDUSTRY_OPTIONS, value),
+  )
+  const promotedExpertise = (application.expertise || []).map(value =>
+    value === 'OTHER' && application.otherExpertise
+      ? application.otherExpertise
+      : optionLabel(EXPERTISE_OPTIONS, value),
+  )
+  const promotedLanguages = (application.languages || []).map(value =>
+    value === 'OTHER' && application.otherLanguage
+      ? application.otherLanguage
+      : optionLabel(LANGUAGE_OPTIONS, value),
+  )
+
   const [mentor] = await transaction
     .insert(mentors)
     .values({
@@ -163,17 +190,31 @@ export async function promoteMentorApplication(
       normalizedTitle: application.normalizedTitle,
       company: application.company,
       industry: application.industry,
+      industries: promotedIndustries,
       normalizedIndustry: application.normalizedIndustry,
-      expertise: JSON.stringify(application.expertise || []),
-      experience: application.experienceYears,
-      hourlyRate: application.requestedHourlyRate,
+      expertise: JSON.stringify(promotedExpertise),
+      experience: isVersionTwoApplication ? null : application.experienceYears,
+      experienceBand: application.experienceBand,
+      employmentType: application.employmentType,
+      hourlyRate: isVersionTwoApplication ? null : application.requestedHourlyRate,
       currency: application.currency,
-      availability: application.availability
-        ? JSON.stringify(application.availability)
-        : null,
-      headline: application.title,
+      availability:
+        !isVersionTwoApplication && application.availability
+          ? JSON.stringify(application.availability)
+          : null,
+      weeklyAvailabilityBand: application.weeklyAvailabilityBand,
+      preferredSessionMode: application.preferredSessionMode,
+      serviceInterests: application.serviceInterests || [],
+      languages: promotedLanguages,
+      headline: application.professionalHeadline || application.title,
       about: application.about,
+      challengeSolved: application.challengeSolved,
+      measurableOutcomes: application.measurableOutcomes,
+      guidanceValueProposition: application.guidanceValueProposition,
+      credibilitySignals: application.credibilitySignals || [],
+      hasPriorMentoringExperience: application.hasPriorMentoringExperience,
       linkedinUrl: application.linkedinUrl,
+      websiteUrl: application.websiteUrl,
       fullName: application.fullName,
       email: application.email,
       phone: application.phone,

@@ -14,14 +14,16 @@ import {
 } from '@/lib/db/schema'
 import { legalDocuments } from '@/lib/legal-documents'
 import {
-  normalizeMentorSearchValue,
-  parseExpertiseList,
-} from '@/lib/mentor-onboarding'
+  INDUSTRY_OPTIONS,
+  optionLabel,
+} from '@/lib/mentor-application-options'
+import { normalizeMentorSearchValue } from '@/lib/mentor-onboarding'
 import { supabaseAdmin } from '@/lib/supabase'
-import type {
-  MentorApplicationConsentInput,
-  MentorApplicationDraftInput,
-  MentorApplicationPatchInput,
+import {
+  MENTOR_APPLICATION_SCHEMA_VERSION,
+  type MentorApplicationConsentInput,
+  type MentorApplicationDraftInput,
+  type MentorApplicationPatchInput,
 } from '@/lib/validations/mentor-application'
 
 import type { UploadedApplicationFile } from './storage'
@@ -48,17 +50,36 @@ export type MentorApplicationResponse = {
   countryId: string
   stateId: string
   cityId: string
+  professionalHeadline: string
   title: string
   company: string
-  industry: string
-  expertise: string
-  experience: number | null
-  hourlyRate: string
+  websiteUrl: string
+  employmentType: string
+  experienceBand: string
+  industries: string[]
+  otherIndustry: string
+  expertise: string[]
+  otherExpertise: string
   about: string
+  challengeSolved: string
+  measurableOutcomes: string
+  guidanceValueProposition: string
+  credibilitySignals: string[]
   linkedinUrl: string
-  availability: MentorApplicationDraftInput['availability'] | ''
+  serviceInterests: string[]
+  preferredSessionMode: string
+  languages: string[]
+  otherLanguage: string
+  weeklyAvailabilityBand: string
+  hasPriorMentoringExperience: boolean | null
+  hasProfessionalMisconduct: boolean | null
+  misconductExplanation: string
   profileImageUrl: string | null
   resumeUrl: string | null
+  portfolioUrl: string | null
+  caseStudyUrl: string | null
+  presentationUrl: string | null
+  awardsCertificationsUrl: string | null
   verificationNotes: string | null
   submittedAt: string | null
   updatedAt: string
@@ -270,12 +291,23 @@ function toApplicationValues(
         ? `${patchInput.phoneCountryCode.startsWith('+') ? patchInput.phoneCountryCode : `+${patchInput.phoneCountryCode}`}-${input.phone}`
         : input.phone
 
+  const primaryIndustry =
+    input.industries === undefined || input.industries.length === 0
+      ? null
+      : input.industries[0] === 'OTHER'
+        ? input.otherIndustry || 'Other'
+        : optionLabel(INDUSTRY_OPTIONS, input.industries[0])
+
   return {
+    applicationSchemaVersion: MENTOR_APPLICATION_SCHEMA_VERSION,
     ...(input.fullName === undefined ? {} : { fullName: input.fullName }),
     ...(normalizedPhone === undefined ? {} : { phone: normalizedPhone }),
     ...(input.countryId === undefined ? {} : { countryId: input.countryId }),
     ...(input.stateId === undefined ? {} : { stateId: input.stateId }),
     ...(input.cityId === undefined ? {} : { cityId: input.cityId }),
+    ...(input.professionalHeadline === undefined
+      ? {}
+      : { professionalHeadline: input.professionalHeadline || null }),
     ...(input.title === undefined
       ? {}
       : {
@@ -283,38 +315,76 @@ function toApplicationValues(
           normalizedTitle: normalizeMentorSearchValue(input.title),
         }),
     ...(input.company === undefined ? {} : { company: input.company }),
-    ...(input.industry === undefined
+    ...(input.websiteUrl === undefined
+      ? {}
+      : { websiteUrl: input.websiteUrl || null }),
+    ...(input.employmentType === undefined
+      ? {}
+      : { employmentType: input.employmentType || null }),
+    ...(input.industries === undefined
       ? {}
       : {
-          industry: input.industry,
-          normalizedIndustry: normalizeMentorSearchValue(input.industry),
+          industries: input.industries,
+          industry: primaryIndustry,
+          normalizedIndustry: primaryIndustry
+            ? normalizeMentorSearchValue(primaryIndustry)
+            : null,
         }),
+    ...(input.otherIndustry === undefined
+      ? {}
+      : { otherIndustry: input.otherIndustry || null }),
     ...(input.expertise === undefined
       ? {}
-      : { expertise: parseExpertiseList(input.expertise) }),
-    ...(input.experience === undefined
+      : { expertise: input.expertise }),
+    ...(input.otherExpertise === undefined
       ? {}
-      : { experienceYears: input.experience === '' ? null : Number(input.experience) }),
-    ...(input.hourlyRate === undefined
+      : { otherExpertise: input.otherExpertise || null }),
+    ...(input.experienceBand === undefined
       ? {}
       : {
-          requestedHourlyRate:
-            input.hourlyRate === '' ||
-            !Number.isFinite(Number(input.hourlyRate)) ||
-            Number(input.hourlyRate) <= 0
-              ? null
-              : Number(input.hourlyRate).toFixed(2),
+          experienceBand: input.experienceBand || null,
+          experienceYears: null,
+          requestedHourlyRate: null,
+          availability: null,
         }),
     ...(input.about === undefined ? {} : { about: input.about || null }),
-    ...(input.linkedinUrl === undefined ? {} : { linkedinUrl: input.linkedinUrl }),
-    ...(input.availability === undefined
+    ...(input.challengeSolved === undefined
       ? {}
-      : {
-          availability:
-            input.availability === ''
-              ? null
-              : ({ version: 1, cadence: input.availability } as const),
-        }),
+      : { challengeSolved: input.challengeSolved || null }),
+    ...(input.measurableOutcomes === undefined
+      ? {}
+      : { measurableOutcomes: input.measurableOutcomes || null }),
+    ...(input.guidanceValueProposition === undefined
+      ? {}
+      : { guidanceValueProposition: input.guidanceValueProposition || null }),
+    ...(input.credibilitySignals === undefined
+      ? {}
+      : { credibilitySignals: input.credibilitySignals }),
+    ...(input.linkedinUrl === undefined
+      ? {}
+      : { linkedinUrl: input.linkedinUrl || null }),
+    ...(input.serviceInterests === undefined
+      ? {}
+      : { serviceInterests: input.serviceInterests }),
+    ...(input.preferredSessionMode === undefined
+      ? {}
+      : { preferredSessionMode: input.preferredSessionMode || null }),
+    ...(input.languages === undefined ? {} : { languages: input.languages }),
+    ...(input.otherLanguage === undefined
+      ? {}
+      : { otherLanguage: input.otherLanguage || null }),
+    ...(input.weeklyAvailabilityBand === undefined
+      ? {}
+      : { weeklyAvailabilityBand: input.weeklyAvailabilityBand || null }),
+    ...(input.hasPriorMentoringExperience === undefined
+      ? {}
+      : { hasPriorMentoringExperience: input.hasPriorMentoringExperience }),
+    ...(input.hasProfessionalMisconduct === undefined
+      ? {}
+      : { hasProfessionalMisconduct: input.hasProfessionalMisconduct }),
+    ...(input.misconductExplanation === undefined
+      ? {}
+      : { misconductExplanation: input.misconductExplanation || null }),
   }
 }
 
@@ -396,7 +466,13 @@ export async function validateApplicationLocation(input: {
 }
 
 export type PendingApplicationFile = UploadedApplicationFile & {
-  kind: 'PROFILE_IMAGE' | 'RESUME'
+  kind:
+    | 'PROFILE_IMAGE'
+    | 'RESUME'
+    | 'PORTFOLIO'
+    | 'CASE_STUDY'
+    | 'PRESENTATION'
+    | 'AWARDS_CERTIFICATIONS'
 }
 
 export async function submitMentorApplication(input: {
@@ -463,6 +539,12 @@ export async function submitMentorApplication(input: {
       currentFiles.some(file => file.kind === 'PROFILE_IMAGE')
     if (!hasProfileImage) {
       throw new MentorApplicationConflictError('A profile image is required')
+    }
+    const hasResume =
+      input.files.some(file => file.kind === 'RESUME') ||
+      currentFiles.some(file => file.kind === 'RESUME')
+    if (!hasResume) {
+      throw new MentorApplicationConflictError('A resume is required')
     }
 
     const insertedFileIds: Record<string, string> = {}
@@ -553,15 +635,34 @@ export async function submitMentorApplication(input: {
         city: updated.city,
       },
       title: updated.title,
+      professionalHeadline: updated.professionalHeadline,
       company: updated.company,
+      websiteUrl: updated.websiteUrl,
+      employmentType: updated.employmentType,
       industry: updated.industry,
+      industries: updated.industries,
+      otherIndustry: updated.otherIndustry,
       expertise: updated.expertise,
+      otherExpertise: updated.otherExpertise,
       experienceYears: updated.experienceYears,
+      experienceBand: updated.experienceBand,
       requestedHourlyRate: updated.requestedHourlyRate,
       currency: updated.currency,
       availability: updated.availability,
       about: updated.about,
+      challengeSolved: updated.challengeSolved,
+      measurableOutcomes: updated.measurableOutcomes,
+      guidanceValueProposition: updated.guidanceValueProposition,
+      credibilitySignals: updated.credibilitySignals,
       linkedinUrl: updated.linkedinUrl,
+      serviceInterests: updated.serviceInterests,
+      preferredSessionMode: updated.preferredSessionMode,
+      languages: updated.languages,
+      otherLanguage: updated.otherLanguage,
+      weeklyAvailabilityBand: updated.weeklyAvailabilityBand,
+      hasPriorMentoringExperience: updated.hasPriorMentoringExperience,
+      hasProfessionalMisconduct: updated.hasProfessionalMisconduct,
+      misconductExplanation: updated.misconductExplanation,
       files: {
         current: currentFiles.map(file => ({ id: file.id, kind: file.kind })),
         uploaded: insertedFileIds,
@@ -626,12 +727,18 @@ export async function serializeMentorApplication(
 
   const profileFile = files.find(file => file.kind === 'PROFILE_IMAGE')
   const resumeFile = files.find(file => file.kind === 'RESUME')
+  const portfolioFile = files.find(file => file.kind === 'PORTFOLIO')
+  const caseStudyFile = files.find(file => file.kind === 'CASE_STUDY')
+  const presentationFile = files.find(file => file.kind === 'PRESENTATION')
+  const awardsFile = files.find(file => file.kind === 'AWARDS_CERTIFICATIONS')
   const profileImageUrl = profileFile
     ? getMentorApplicationFileUrl(profileFile.id)
     : null
   const resumeUrl = resumeFile
     ? getMentorApplicationFileUrl(resumeFile.id)
     : null
+  const fileUrl = (file: (typeof files)[number] | undefined) =>
+    file ? getMentorApplicationFileUrl(file.id) : null
 
   return {
     id: application.id,
@@ -642,17 +749,36 @@ export async function serializeMentorApplication(
     countryId: application.countryId || '',
     stateId: application.stateId || '',
     cityId: application.cityId || '',
+    professionalHeadline: application.professionalHeadline || '',
     title: application.title || '',
     company: application.company || '',
-    industry: application.industry || '',
-    expertise: application.expertise?.join(', ') || '',
-    experience: application.experienceYears,
-    hourlyRate: application.requestedHourlyRate || '',
+    websiteUrl: application.websiteUrl || '',
+    employmentType: application.employmentType || '',
+    experienceBand: application.experienceBand || '',
+    industries: application.industries || [],
+    otherIndustry: application.otherIndustry || '',
+    expertise: application.expertise || [],
+    otherExpertise: application.otherExpertise || '',
     about: application.about || '',
+    challengeSolved: application.challengeSolved || '',
+    measurableOutcomes: application.measurableOutcomes || '',
+    guidanceValueProposition: application.guidanceValueProposition || '',
+    credibilitySignals: application.credibilitySignals || [],
     linkedinUrl: application.linkedinUrl || '',
-    availability: application.availability?.cadence || '',
+    serviceInterests: application.serviceInterests || [],
+    preferredSessionMode: application.preferredSessionMode || '',
+    languages: application.languages || [],
+    otherLanguage: application.otherLanguage || '',
+    weeklyAvailabilityBand: application.weeklyAvailabilityBand || '',
+    hasPriorMentoringExperience: application.hasPriorMentoringExperience,
+    hasProfessionalMisconduct: application.hasProfessionalMisconduct,
+    misconductExplanation: application.misconductExplanation || '',
     profileImageUrl,
     resumeUrl,
+    portfolioUrl: fileUrl(portfolioFile),
+    caseStudyUrl: fileUrl(caseStudyFile),
+    presentationUrl: fileUrl(presentationFile),
+    awardsCertificationsUrl: fileUrl(awardsFile),
     verificationNotes: application.applicantVisibleNotes,
     submittedAt: application.submittedAt?.toISOString() || null,
     updatedAt: application.updatedAt.toISOString(),

@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   decimal,
   index,
@@ -66,13 +67,20 @@ export const mentorApplications = pgTable(
     state: text('state'),
     cityId: text('city_id'),
     city: text('city'),
+    professionalHeadline: text('professional_headline'),
     title: text('title'),
     normalizedTitle: text('normalized_title'),
     company: text('company'),
+    websiteUrl: text('website_url'),
+    employmentType: text('employment_type'),
     industry: text('industry'),
     normalizedIndustry: text('normalized_industry'),
+    industries: jsonb('industries').$type<string[]>(),
+    otherIndustry: text('other_industry'),
     expertise: jsonb('expertise').$type<string[]>(),
+    otherExpertise: text('other_expertise'),
     experienceYears: integer('experience_years'),
+    experienceBand: text('experience_band'),
     requestedHourlyRate: decimal('requested_hourly_rate', {
       precision: 10,
       scale: 2,
@@ -80,6 +88,18 @@ export const mentorApplications = pgTable(
     currency: text('currency').default('USD').notNull(),
     availability: jsonb('availability').$type<MentorApplicationAvailability>(),
     about: text('about'),
+    challengeSolved: text('challenge_solved'),
+    measurableOutcomes: text('measurable_outcomes'),
+    guidanceValueProposition: text('guidance_value_proposition'),
+    credibilitySignals: jsonb('credibility_signals').$type<string[]>(),
+    serviceInterests: jsonb('service_interests').$type<string[]>(),
+    preferredSessionMode: text('preferred_session_mode'),
+    languages: jsonb('languages').$type<string[]>(),
+    otherLanguage: text('other_language'),
+    weeklyAvailabilityBand: text('weekly_availability_band'),
+    hasPriorMentoringExperience: boolean('has_prior_mentoring_experience'),
+    hasProfessionalMisconduct: boolean('has_professional_misconduct'),
+    misconductExplanation: text('misconduct_explanation'),
     linkedinUrl: text('linkedin_url'),
 
     applicationSchemaVersion: integer('application_schema_version').default(1).notNull(),
@@ -143,6 +163,24 @@ export const mentorApplications = pgTable(
     expertiseJsonCheck: check(
       'mentor_applications_expertise_json_check',
       sql`${table.expertise} is null or jsonb_typeof(${table.expertise}) = 'array'`,
+    ),
+    industriesJsonCheck: check(
+      'mentor_applications_industries_json_check',
+      sql`${table.industries} is null or jsonb_typeof(${table.industries}) = 'array'`,
+    ),
+    credibilitySignalsJsonCheck: check(
+      'mentor_applications_credibility_signals_json_check',
+      sql`${table.credibilitySignals} is null
+        or jsonb_typeof(${table.credibilitySignals}) = 'array'`,
+    ),
+    serviceInterestsJsonCheck: check(
+      'mentor_applications_service_interests_json_check',
+      sql`${table.serviceInterests} is null
+        or jsonb_typeof(${table.serviceInterests}) = 'array'`,
+    ),
+    languagesJsonCheck: check(
+      'mentor_applications_languages_json_check',
+      sql`${table.languages} is null or jsonb_typeof(${table.languages}) = 'array'`,
     ),
     availabilityJsonCheck: check(
       'mentor_applications_availability_json_check',

@@ -34,6 +34,7 @@ import {
   deleteApplicationFiles,
   uploadApplicationFile,
 } from '@/lib/mentor-applications/storage'
+import { MENTOR_APPLICATION_MULTIPART_MAX_BYTES } from '@/lib/mentor-applications/constants'
 import {
   mentorApplicationConsentsSchema,
   mentorApplicationDraftFieldsSchema,
@@ -43,11 +44,24 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 const idempotencyKeySchema = z.string().uuid()
-const MAX_DECLARED_MULTIPART_BYTES = 11 * 1024 * 1024
-
 function stringValue(formData: FormData, name: string): string {
   const value = formData.get(name)
   return typeof value === 'string' ? value : ''
+}
+
+function jsonValue(formData: FormData, name: string): unknown {
+  try {
+    return JSON.parse(stringValue(formData, name))
+  } catch {
+    return null
+  }
+}
+
+function booleanValue(formData: FormData, name: string): boolean | null {
+  const value = stringValue(formData, name)
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return null
 }
 
 function nonEmptyFile(value: FormDataEntryValue | null): File | null {
@@ -67,9 +81,9 @@ export async function POST(request: NextRequest) {
     const declaredContentLength = Number(request.headers.get('content-length'))
     if (
       Number.isFinite(declaredContentLength) &&
-      declaredContentLength > MAX_DECLARED_MULTIPART_BYTES
+      declaredContentLength > MENTOR_APPLICATION_MULTIPART_MAX_BYTES
     ) {
-      return jsonError('The application upload exceeds the 11MB request limit', 413)
+      return jsonError('The application upload exceeds the 31MB request limit', 413)
     }
 
     const formData = await request.formData()
@@ -104,15 +118,36 @@ export async function POST(request: NextRequest) {
       countryId: stringValue(formData, 'countryId'),
       stateId: stringValue(formData, 'stateId'),
       cityId: stringValue(formData, 'cityId'),
+      professionalHeadline: stringValue(formData, 'professionalHeadline'),
       title: stringValue(formData, 'title'),
       company: stringValue(formData, 'company'),
-      industry: stringValue(formData, 'industry'),
-      expertise: stringValue(formData, 'expertise'),
-      experience: stringValue(formData, 'experience'),
-      hourlyRate: stringValue(formData, 'hourlyRate'),
+      websiteUrl: stringValue(formData, 'websiteUrl'),
+      employmentType: stringValue(formData, 'employmentType'),
+      experienceBand: stringValue(formData, 'experienceBand'),
+      industries: jsonValue(formData, 'industries'),
+      otherIndustry: stringValue(formData, 'otherIndustry'),
+      expertise: jsonValue(formData, 'expertise'),
+      otherExpertise: stringValue(formData, 'otherExpertise'),
       about: stringValue(formData, 'about'),
+      challengeSolved: stringValue(formData, 'challengeSolved'),
+      measurableOutcomes: stringValue(formData, 'measurableOutcomes'),
+      guidanceValueProposition: stringValue(formData, 'guidanceValueProposition'),
+      credibilitySignals: jsonValue(formData, 'credibilitySignals'),
       linkedinUrl: stringValue(formData, 'linkedinUrl'),
-      availability: stringValue(formData, 'availability'),
+      serviceInterests: jsonValue(formData, 'serviceInterests'),
+      preferredSessionMode: stringValue(formData, 'preferredSessionMode'),
+      languages: jsonValue(formData, 'languages'),
+      otherLanguage: stringValue(formData, 'otherLanguage'),
+      weeklyAvailabilityBand: stringValue(formData, 'weeklyAvailabilityBand'),
+      hasPriorMentoringExperience: booleanValue(
+        formData,
+        'hasPriorMentoringExperience',
+      ),
+      hasProfessionalMisconduct: booleanValue(
+        formData,
+        'hasProfessionalMisconduct',
+      ),
+      misconductExplanation: stringValue(formData, 'misconductExplanation'),
     })
     if (!parsedApplication.success) return validationError(parsedApplication.error)
 
@@ -128,6 +163,15 @@ export async function POST(request: NextRequest) {
     const location = await validateApplicationLocation(parsedApplication.data)
     const profileImage = nonEmptyFile(formData.get('profilePicture'))
     const resume = nonEmptyFile(formData.get('resume'))
+
+    const declaredFiles = Array.from(formData.values()).filter(
+      (value): value is File =>
+        typeof File !== 'undefined' && value instanceof File && value.size > 0,
+    )
+    const totalFileBytes = declaredFiles.reduce((total, file) => total + file.size, 0)
+    if (totalFileBytes > MENTOR_APPLICATION_MULTIPART_MAX_BYTES) {
+      return jsonError('The application upload exceeds the 31MB request limit', 413)
+    }
 
     if (profileImage) {
       uploadedFiles.push({
@@ -146,6 +190,25 @@ export async function POST(request: NextRequest) {
           applicationId: current.id,
           kind: 'RESUME',
           file: resume,
+        })),
+      })
+    }
+
+    const supportingFiles = [
+      { field: 'portfolio', kind: 'PORTFOLIO' as const },
+      { field: 'caseStudy', kind: 'CASE_STUDY' as const },
+      { field: 'presentation', kind: 'PRESENTATION' as const },
+      { field: 'awardsCertifications', kind: 'AWARDS_CERTIFICATIONS' as const },
+    ]
+    for (const supportingFile of supportingFiles) {
+      const file = nonEmptyFile(formData.get(supportingFile.field))
+      if (!file) continue
+      uploadedFiles.push({
+        kind: supportingFile.kind,
+        ...(await uploadApplicationFile({
+          applicationId: current.id,
+          kind: supportingFile.kind,
+          file,
         })),
       })
     }

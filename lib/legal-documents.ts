@@ -317,6 +317,24 @@ Contact
 For concerns or feedback regarding this policy, please contact:
 📧 community@sharingminds.in`,
   },
+  {
+    id: 'expert-application-declaration',
+    label: 'Expert Application Declaration',
+    version: '2026-07',
+    content: `Expert Application Declaration | SharingMinds
+
+Effective Date: July 2026
+
+I confirm that the information and documents provided in my expert application are accurate,
+complete, and represent my professional background truthfully.
+
+I understand that submitting an application does not guarantee selection or verification as a
+SharingMinds Expert. SharingMinds may review and verify the credentials, work history,
+professional claims, and supporting documents supplied with this application.
+
+I agree to notify SharingMinds if material information in my application changes before a final
+decision is made.`,
+  },
 ] as const satisfies readonly LegalDocument[]
 
 export type LegalDocumentId = (typeof legalDocuments)[number]['id']

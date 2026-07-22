@@ -33,9 +33,10 @@ application verification is not a platform login and does not create a Better Au
 9. Submission data, required legal-document consent, and the immutable submission revision
    are committed as one logical operation.
 10. Claiming and promotion are idempotent and concurrency safe.
-11. Migration 003 is schema-first: it must succeed before this code version is deployed,
-    because secure platform-account OTP also uses `email_otp_challenges`. Guest onboarding,
-    application-table reconciliation, and its public/internal routes remain unavailable until
+11. Migrations 003 and 004 are schema-first: both must succeed before this code version is
+    deployed. Migration 003 provides the guest aggregate and secure OTP infrastructure;
+    migration 004 provides the version-two application and mentor-profile columns. Guest
+    onboarding and application-table integration remain unavailable until
     `MENTOR_APPLICATIONS_ENABLED=true` is deliberately enabled.
 
 ## Lifecycle
@@ -112,6 +113,58 @@ scoped cookie; it never signs the visitor out of Better Auth.
 - `consent_events.mentor_application_id`: binds server-recorded legal consent to the
   submitted application.
 
+## Expert application form version 2
+
+The CEO-proposed expert application form is the approved product direction for the next form
+revision. Scoring, weighting, and automated acceptance rules shown in the proposal are outside
+the current scope. The next revision must extend the existing guest-application aggregate; it
+must not create a parallel registration table or write anonymous applicants directly to
+`mentors`.
+
+Confirmed product decisions on 22 July 2026:
+
+- Ten or more years of experience is **not** an eligibility requirement. The form must offer
+  non-overlapping experience bands below ten years and submission must not enforce a ten-year
+  minimum. Final band labels may be refined with product, but applicants below ten years must
+  be able to submit.
+- A profile photo is required at final submission and remains required for mentor promotion.
+- Location continues to use the existing normalized country, state, and city identifiers and
+  labels. These high-cardinality values use searchable controls rather than radio buttons.
+- Video introduction is excluded from the next implementation. A video URL or direct-to-private-
+  storage upload may be reviewed as a future enhancement; no video field, upload kind, or
+  submission requirement is added now.
+
+Control semantics for the next form revision:
+
+- Radio groups are used for bounded single-choice values such as employment type, experience
+  band, preferred session mode, weekly availability, and yes/no declarations.
+- Checkbox groups are used for industries, expertise, credibility indicators, mentoring
+  interests, and other multi-select values. Expertise permits at most five selections; it does
+  not require five selections.
+- Searchable normalized selectors remain in use for country, state, and city. Large language
+  catalogs must also use a searchable multi-select rather than hundreds of radio controls.
+- Conditional text is required when an applicant selects an `Other` option or reports prior
+  professional misconduct.
+- Resume and profile photo are required at submission. Supporting portfolio, case-study,
+  presentation, and award/certification files remain optional.
+
+The implemented version-two application fields include a distinct professional headline, website,
+employment type, experience band, industries, challenge solved, measurable outcomes, guidance
+value proposition, credibility signals, service interests, preferred session mode, languages,
+weekly availability band, prior-mentoring indicator, and application-only misconduct answers.
+The exact field contract is introduced by additive migration 004 and
+`application_schema_version = 2`; migration 003 remains immutable.
+
+On approval and verified-user linkage, public and operational profile data is promoted to
+`mentors`. Professional headline maps to the existing `headline`, designation to `title`,
+organization to `company`, professional journey to `about`, and website to `websiteUrl`.
+New durable mentor fields are required for multi-industry experience, experience band,
+credibility, service interests, preferred session mode, languages, weekly availability band,
+and the additional guidance/outcome narratives. Exact `experienceYears` must remain null when
+only a range was supplied, and `hourlyRate` remains null until later pricing onboarding.
+Misconduct answers, internal review data, declarations, and supporting verification evidence
+remain application-only and must never be exposed through public mentor payloads.
+
 ## API contract
 
 | Method | Route | Authorization | Purpose |
@@ -178,7 +231,11 @@ actor, records `mentor_id` and `promoted_at`, and appends an audit event atomica
   issues a short-lived signed redirect.
 - Object names use application/file UUIDs and never contain email addresses.
 - Profile images: JPEG, PNG, or WebP, checked by file signature and size.
-- Resumes: PDF only, checked by `%PDF` signature and size.
+- Resumes: required PDF, checked by `%PDF` signature and size.
+- Portfolio, case-study, presentation, and award/certification evidence: optional PDF, checked
+  by `%PDF` signature and size. One current file per category is retained.
+- Each file is limited to 5MB. The complete multipart request is limited to 31MB so the required
+  profile/resume and four optional evidence categories can be submitted together.
 - Upload uses `upsert: false`; partial failures clean up newly uploaded objects.
 - The current release accepts files immediately after the size, MIME, and signature checks
   above. It does not perform malware scanning and does not gate file delivery or promotion on
@@ -190,8 +247,9 @@ actor, records `mentor_id` and `promoted_at`, and appends an audit event atomica
   That work is explicitly deferred and is not a current rollout gate.
 - Legal consent is accepted per document ID and version and written by the submission route,
   not a fire-and-forget client beacon.
-- The current legal-document version is `2025-11`; the version lives with each entry in
-  `lib/legal-documents.ts` and must change whenever that document's content changes.
+- Each legal document carries its own version in `lib/legal-documents.ts`. The platform policies
+  currently use `2025-11`; the expert-application declaration uses `2026-07`. A version must
+  change whenever that document's content changes.
 - Required retention jobs for expired challenges/sessions, abandoned drafts, superseded
   objects, and orphaned files are a deployment prerequisite; they are not implemented here
   because retention durations still require product/legal approval.
@@ -226,16 +284,19 @@ Promoted file URLs use the canonical `APP_BASE_URL`. A separately hosted main-pl
 can fetch private files with `MENTOR_APPLICATION_INTERNAL_API_SECRET` and proxy them to
 its authorized user; that secret must never be sent to browser code.
 
+The main SharingMinds repository and this standalone application both declare the version-two
+`mentors` columns. Migration 004 is the shared database authority; neither repository should
+generate or push an independent competing migration for these columns.
+
 ## Migration and compatibility policy
 
 - Existing linked `mentors` rows remain unchanged.
 - During rollout, authenticated status checks consult `mentors` first, then
   `mentor_applications`.
 - Production defaults guest onboarding and application-table integration off until
-  `MENTOR_APPLICATIONS_ENABLED=true`. Apply and verify migration 003 first, then deploy this
-  code version with the flag off. Verify the private bucket and cross-app integration before
-  enabling the flag. Migration must precede code because platform account OTP endpoints use the new
-  purpose-bound challenge table.
+  `MENTOR_APPLICATIONS_ENABLED=true`. Apply and verify migration 003, then apply and verify
+  migration 004 before deploying this code version with the flag off. Verify the private bucket
+  and cross-app integration before enabling the flag. Both migrations must precede this code.
 - The legacy `email_verifications` runtime is retired. Its database declaration/table remains
   temporarily for rollback-safe retention, is marked deprecated, and has no runtime readers or
   writers. Remove the table later through an explicit cleanup migration after rollout evidence.
@@ -247,10 +308,10 @@ its authorized user; that secret must never be sent to browser code.
   `mentees.user_id` UUID).
 - Production uses reviewed SQL migrations; direct schema push is prohibited.
 - Migration 003 enables RLS on every new staging table and on `consent_events`; it deliberately
-  adds no anon/authenticated PostgREST policy.
+  adds no anon/authenticated PostgREST policy. Migration 004 is additive and does not relax RLS.
 - Drizzle migration tooling is configured in `drizzle.config.ts`. This legacy database does
-  not yet have a Drizzle migration baseline, so migration 003 is a hand-reviewed additive SQL
-  migration in `documentation/migrations/`. Do **not** run `db:generate` or `db:migrate`
+  not yet have a Drizzle migration baseline, so migrations 003 and 004 are hand-reviewed
+  additive SQL migrations in `documentation/migrations/`. Do **not** run `db:generate` or `db:migrate`
   against the shared database until its existing schema has been introspected and baselined;
   otherwise Drizzle may attempt to recreate pre-existing tables.
 
@@ -284,15 +345,18 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
    It must remain private with no anon/authenticated object-read policies.
 4. **Deferred:** Malware scanning and quarantine are documented as a future enhancement and
    are not required for the current rollout.
-5. Enforce an upstream request-body limit of 11MB. The route also checks `Content-Length`, but
+5. **Pending database execution:** Apply
+   `documentation/migrations/004-expert-application-v2.sql`, then run
+   `004-expert-application-v2-verification.sql`. Both missing-item queries must return zero rows.
+6. Enforce an upstream request-body limit of 31MB. The route also checks `Content-Length`, but
    application code alone cannot stop an oversized chunked body before `formData()` buffers it.
-6. **In progress:** Dedicated local secrets were user-confirmed on 22 July 2026. Production
+7. **In progress:** Dedicated local secrets were user-confirmed on 22 July 2026. Production
    secret deployment, canonical `APP_BASE_URL`, and a trusted proxy-overwritten client-IP
    header remain pending. Set `MENTOR_APPLICATIONS_ENABLED=true` only after every gate passes.
-7. Wire the main platform's verified-login hook to the internal claim endpoint, use the
+8. Wire the main platform's verified-login hook to the internal claim endpoint, use the
    server-to-server private-file proxy contract when origins differ, and schedule cursor-based
    bounded reconciliation passes.
-8. Define and implement legal retention jobs before accepting production PII.
+9. Define and implement legal retention jobs before accepting production PII.
 
 ## Verification matrix
 
@@ -307,6 +371,10 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 - [ ] Verified exact-email account claims once under concurrent attempts.
 - [ ] Approval-before-login and login-before-approval both promote exactly once.
 - [ ] Existing mentor conflict does not overwrite operational data.
+- [x] Version-two validation accepts experts below ten years and enforces no ten-year minimum.
+- [x] Expertise option cards enforce one-to-five selections and disable a sixth selection.
+- [x] Radio and checkbox cards hydrate and change state correctly at desktop and 390px widths.
+- [x] The version-two wizard has no horizontal overflow at 390px.
 - [x] Desktop and 390px mobile `/verified-experts` guest-entry states pass compiled-browser verification.
 - [x] With `MENTOR_APPLICATIONS_ENABLED=false`, the compiled page renders the unavailable
   state and application API middleware returns `503` without reaching the database.
@@ -321,19 +389,19 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Phase | Status | Notes |
 | --- | --- | --- |
 | Architecture and invariants | Complete | Approved design captured above |
-| Drizzle schema and SQL migration | Complete | Six new schema modules, consent FK, RLS, indexes, and migration 003 |
+| Drizzle schema and SQL migration | Code complete; DB pending | Migration 003 is applied; additive migration 004 and its verification queries are ready for manual execution |
 | OTP and application-session services | Complete | Purpose-bound OTP, scoped cookie, revocation, rate limits, and trusted-origin checks |
-| Draft, files, submission, consent APIs | Complete | Autosave, atomic submit/revision/consent, private uploads, and authorized delivery |
-| Claiming and promotion | Complete | Verified-user exact-email claim, eligibility recheck, internal API, and idempotent promotion |
-| `/verified-experts` OTP-first UI | Complete | OTP access, verified-user bootstrap, autosave, submit, and lifecycle views |
-| Automated verification | Complete | TypeScript, production build, 17 unit tests, peer checks, and zero-vulnerability audits |
-| Compiled browser verification | Complete | Desktop guest entry, valid-email CTA state, and 390px responsive navigation verified |
-| Database-backed E2E verification | Pending | Migration and private storage are complete; execute the full OTP-to-promotion lifecycle |
+| Draft, files, submission, consent APIs | Complete | V2 autosave, strict submit/revision/consent, required profile/resume, optional evidence, and private delivery |
+| Claiming and promotion | Complete | V2 public/operational fields promote idempotently; sensitive misconduct and review data remain application-only |
+| `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, legal declaration, and lifecycle views |
+| Automated verification | Complete | TypeScript, production build, 20 unit tests, and zero known validation regressions |
+| Browser verification | Complete | Guest bootstrap, hydrated radio/checkbox state, five-expertise limit, and 390px overflow checks pass |
+| Database-backed E2E verification | Pending | Apply migration 004, then execute the full OTP-to-v2-submission-to-promotion lifecycle |
 | Private Supabase storage | Complete | User-confirmed creation of the private `mentor-applications` bucket on 22 July 2026 |
 | Server environment | In progress | Dedicated local secrets are configured; production deployment and trusted-proxy configuration remain pending |
 | Malware scanning | Future enhancement | Runtime callback, quarantine, and promotion gates were removed; database scan columns remain dormant |
 | Retention jobs | Pending deployment | Product/legal retention durations and cleanup schedules remain to be implemented |
-| Production database migration | Complete | User-confirmed successful execution and verification on 22 July 2026 |
+| Production database migration | Partially complete | Migration 003 is verified; migration 004 remains pending manual execution |
 
 Current environment note: the earlier local `DATABASE_URL` authentication failure did not
 prevent manual execution in Supabase. On 22 July 2026, the user confirmed that migration 003
@@ -418,3 +486,17 @@ and all supplied post-migration verification queries completed with the expected
 - Removed malware scanning from the current runtime scope: uploads are accepted after size,
   MIME, and signature validation; file delivery and mentor promotion no longer depend on scan
   verdicts. The applied migration's scan columns remain dormant for a future enhancement.
+- Recorded the confirmed version-two application decisions: no ten-year experience minimum,
+  required profile photo, retained normalized location controls, and deferred video support.
+  Also documented the planned form-control semantics and application-to-mentor data boundary;
+  scoring and weighting remain outside the implementation scope.
+- Implemented the version-two eight-step application with bounded radio groups, checkbox cards,
+  normalized locations, one-to-five expertise selection, required profile/resume, optional PDF
+  evidence, application declaration consent, autosave, and idempotent submission.
+- Added additive migration 004, matching Drizzle schemas, read-only verification queries, and
+  promotion mappings for the durable mentor-profile fields. Misconduct responses remain private
+  application-only data; video introduction and scoring remain deferred.
+- Synchronized the main SharingMinds repository's Drizzle `mentors` declaration with the shared
+  migration 004 columns so both applications use the same post-promotion profile contract.
+- Increased the documented and enforced multipart ceiling from 11MB to 31MB to accommodate the
+  required files and four optional 5MB evidence categories.

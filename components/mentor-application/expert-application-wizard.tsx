@@ -1,0 +1,1606 @@
+'use client'
+
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  ChevronsUpDown,
+  FileText,
+  Save,
+  ShieldCheck,
+  Upload,
+  UserRound,
+} from 'lucide-react'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+import { legalDocuments, type LegalDocumentId } from '@/lib/legal-documents'
+import {
+  CREDIBILITY_SIGNAL_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  EXPERIENCE_BAND_OPTIONS,
+  EXPERTISE_OPTIONS,
+  INDUSTRY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  SERVICE_INTEREST_OPTIONS,
+  SESSION_MODE_OPTIONS,
+  WEEKLY_AVAILABILITY_OPTIONS,
+  type MentorApplicationOption,
+} from '@/lib/mentor-application-options'
+import { mentorApplicationDraftFieldsSchema } from '@/lib/validations/mentor-application'
+import type { MentorApplication } from './types'
+
+type AutosaveState = 'idle' | 'saving' | 'saved' | 'error'
+type SearchableOption = { value: string; label: string }
+type NullableBoolean = boolean | null
+
+type ExpertApplicationFormData = {
+  fullName: string
+  phone: string
+  phoneCountryCode: string
+  countryId: string
+  stateId: string
+  cityId: string
+  professionalHeadline: string
+  title: string
+  company: string
+  websiteUrl: string
+  employmentType: string
+  experienceBand: string
+  industries: string[]
+  otherIndustry: string
+  expertise: string[]
+  otherExpertise: string
+  about: string
+  challengeSolved: string
+  measurableOutcomes: string
+  guidanceValueProposition: string
+  credibilitySignals: string[]
+  linkedinUrl: string
+  serviceInterests: string[]
+  preferredSessionMode: string
+  languages: string[]
+  otherLanguage: string
+  weeklyAvailabilityBand: string
+  hasPriorMentoringExperience: NullableBoolean
+  hasProfessionalMisconduct: NullableBoolean
+  misconductExplanation: string
+  profilePicture: File | null
+  resume: File | null
+  portfolio: File | null
+  caseStudy: File | null
+  presentation: File | null
+  awardsCertifications: File | null
+}
+
+const STEPS = [
+  { title: 'Personal details', description: 'Your identity and professional presence' },
+  { title: 'Professional background', description: 'Current role and experience' },
+  { title: 'Expertise', description: 'Choose up to five strengths' },
+  { title: 'Experience and impact', description: 'What makes your guidance valuable' },
+  { title: 'Credibility', description: 'Signals that support your application' },
+  { title: 'Documents', description: 'Verification and supporting evidence' },
+  { title: 'Availability', description: 'How you would like to contribute' },
+  { title: 'Verification', description: 'Declarations and final review' },
+] as const
+
+const STEP_FIELDS = [
+  new Set([
+    'fullName',
+    'phone',
+    'countryId',
+    'stateId',
+    'cityId',
+    'professionalHeadline',
+    'linkedinUrl',
+    'websiteUrl',
+  ]),
+  new Set([
+    'title',
+    'company',
+    'employmentType',
+    'experienceBand',
+    'industries',
+    'otherIndustry',
+  ]),
+  new Set(['expertise', 'otherExpertise']),
+  new Set([
+    'about',
+    'challengeSolved',
+    'measurableOutcomes',
+    'guidanceValueProposition',
+  ]),
+  new Set(['credibilitySignals']),
+  new Set<string>(),
+  new Set([
+    'serviceInterests',
+    'preferredSessionMode',
+    'languages',
+    'otherLanguage',
+    'weeklyAvailabilityBand',
+  ]),
+  new Set([
+    'hasPriorMentoringExperience',
+    'hasProfessionalMisconduct',
+    'misconductExplanation',
+  ]),
+] as const
+
+const MAX_FILE_BYTES = 5 * 1024 * 1024
+
+function splitStoredPhone(phone?: string | null) {
+  if (!phone) return { phone: '', phoneCountryCode: '' }
+  const match = /^\+(\d{1,4})-(.+)$/.exec(phone)
+  return match
+    ? { phone: match[2], phoneCountryCode: match[1] }
+    : { phone, phoneCountryCode: '' }
+}
+
+function createInitialForm(application: MentorApplication): ExpertApplicationFormData {
+  const storedPhone = splitStoredPhone(application.phone)
+  return {
+    fullName: application.fullName || '',
+    phone: storedPhone.phone,
+    phoneCountryCode:
+      application.phoneCountryCode?.replace(/^\+/, '') || storedPhone.phoneCountryCode,
+    countryId: application.countryId?.toString() || '',
+    stateId: application.stateId?.toString() || '',
+    cityId: application.cityId?.toString() || '',
+    professionalHeadline: application.professionalHeadline || '',
+    title: application.title || '',
+    company: application.company || '',
+    websiteUrl: application.websiteUrl || '',
+    employmentType: application.employmentType || '',
+    experienceBand: application.experienceBand || '',
+    industries: application.industries || [],
+    otherIndustry: application.otherIndustry || '',
+    expertise: application.expertise || [],
+    otherExpertise: application.otherExpertise || '',
+    about: application.about || '',
+    challengeSolved: application.challengeSolved || '',
+    measurableOutcomes: application.measurableOutcomes || '',
+    guidanceValueProposition: application.guidanceValueProposition || '',
+    credibilitySignals: application.credibilitySignals || [],
+    linkedinUrl: application.linkedinUrl || '',
+    serviceInterests: application.serviceInterests || [],
+    preferredSessionMode: application.preferredSessionMode || '',
+    languages: application.languages || [],
+    otherLanguage: application.otherLanguage || '',
+    weeklyAvailabilityBand: application.weeklyAvailabilityBand || '',
+    hasPriorMentoringExperience: application.hasPriorMentoringExperience ?? null,
+    hasProfessionalMisconduct: application.hasProfessionalMisconduct ?? null,
+    misconductExplanation: application.misconductExplanation || '',
+    profilePicture: null,
+    resume: null,
+    portfolio: null,
+    caseStudy: null,
+    presentation: null,
+    awardsCertifications: null,
+  }
+}
+
+function buildApplicationValues(form: ExpertApplicationFormData) {
+  return {
+    fullName: form.fullName,
+    phone: `+${form.phoneCountryCode.replace(/^\+/, '')}-${form.phone}`,
+    countryId: form.countryId,
+    stateId: form.stateId,
+    cityId: form.cityId,
+    professionalHeadline: form.professionalHeadline,
+    title: form.title,
+    company: form.company,
+    websiteUrl: form.websiteUrl,
+    employmentType: form.employmentType,
+    experienceBand: form.experienceBand,
+    industries: form.industries,
+    otherIndustry: form.otherIndustry,
+    expertise: form.expertise,
+    otherExpertise: form.otherExpertise,
+    about: form.about,
+    challengeSolved: form.challengeSolved,
+    measurableOutcomes: form.measurableOutcomes,
+    guidanceValueProposition: form.guidanceValueProposition,
+    credibilitySignals: form.credibilitySignals,
+    linkedinUrl: form.linkedinUrl,
+    serviceInterests: form.serviceInterests,
+    preferredSessionMode: form.preferredSessionMode,
+    languages: form.languages,
+    otherLanguage: form.otherLanguage,
+    weeklyAvailabilityBand: form.weeklyAvailabilityBand,
+    hasPriorMentoringExperience: form.hasPriorMentoringExperience,
+    hasProfessionalMisconduct: form.hasProfessionalMisconduct,
+    misconductExplanation: form.misconductExplanation,
+  }
+}
+
+function buildDraftPayload(form: ExpertApplicationFormData) {
+  return {
+    ...buildApplicationValues(form),
+    phone: form.phone,
+    phoneCountryCode: form.phoneCountryCode
+      ? `+${form.phoneCountryCode.replace(/^\+/, '')}`
+      : '',
+  }
+}
+
+async function readResponseJson(response: Response): Promise<Record<string, unknown>> {
+  try {
+    return (await response.json()) as Record<string, unknown>
+  } catch {
+    return {}
+  }
+}
+
+function SearchableSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  searchPlaceholder,
+  disabled,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: SearchableOption[]
+  placeholder: string
+  searchPlaceholder: string
+  disabled?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const label = options.find(option => option.value === value)?.label
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled}
+          className="h-11 w-full justify-between bg-white font-normal"
+        >
+          <span className="truncate">{label || placeholder}</span>
+          <ChevronsUpDown className="h-4 w-4 opacity-50" aria-hidden="true" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[min(22rem,calc(100vw-2rem))] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandList>
+            <CommandEmpty>No matching location found.</CommandEmpty>
+            <CommandGroup>
+              {options.map(option => (
+                <CommandItem
+                  key={option.value}
+                  value={option.label}
+                  onSelect={() => {
+                    onChange(option.value)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      option.value === value ? 'opacity-100' : 'opacity-0',
+                    )}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function RadioCards({
+  name,
+  value,
+  options,
+  onChange,
+  columns = 3,
+}: {
+  name: string
+  value: string
+  options: readonly MentorApplicationOption[]
+  onChange: (value: string) => void
+  columns?: 2 | 3 | 4
+}) {
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className={cn(
+        'grid gap-3',
+        columns === 2 && 'sm:grid-cols-2',
+        columns === 3 && 'sm:grid-cols-2 lg:grid-cols-3',
+        columns === 4 && 'sm:grid-cols-2 lg:grid-cols-4',
+      )}
+    >
+      {options.map(option => {
+        const id = `${name}-${option.value}`
+        return (
+          <Label
+            key={option.value}
+            htmlFor={id}
+            className={cn(
+              'flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-3',
+              'font-medium transition-colors hover:border-indigo-300 hover:bg-indigo-50/40',
+              value === option.value
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
+                : 'border-slate-200 bg-white text-slate-700',
+            )}
+          >
+            <RadioGroupItem id={id} value={option.value} />
+            {option.label}
+          </Label>
+        )
+      })}
+    </RadioGroup>
+  )
+}
+
+function CheckboxCards({
+  name,
+  values,
+  options,
+  onChange,
+  max,
+}: {
+  name: string
+  values: string[]
+  options: readonly MentorApplicationOption[]
+  onChange: (values: string[]) => void
+  max?: number
+}) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {options.map(option => {
+        const selected = values.includes(option.value)
+        const disabled = Boolean(max && values.length >= max && !selected)
+        const id = `${name}-${option.value}`
+        return (
+          <Label
+            key={option.value}
+            htmlFor={id}
+            aria-disabled={disabled}
+            className={cn(
+              'flex min-h-12 items-center gap-3 rounded-xl border p-3 font-medium',
+              'transition-colors',
+              disabled ? 'cursor-not-allowed opacity-45' : 'cursor-pointer hover:border-indigo-300',
+              selected
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
+                : 'border-slate-200 bg-white text-slate-700',
+            )}
+          >
+            <Checkbox
+              id={id}
+              checked={selected}
+              disabled={disabled}
+              onCheckedChange={checked => {
+                onChange(
+                  checked === true
+                    ? [...values, option.value]
+                    : values.filter(value => value !== option.value),
+                )
+              }}
+            />
+            {option.label}
+          </Label>
+        )
+      })}
+    </div>
+  )
+}
+
+function FieldError({ error }: { error?: string }) {
+  return error ? <p className="text-sm font-medium text-red-600">{error}</p> : null
+}
+
+function TextareaField({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  error,
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+  error?: string
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-end justify-between gap-3">
+        <Label htmlFor={id} className="text-base font-semibold text-slate-800">
+          {label} <span className="text-red-500">*</span>
+        </Label>
+        <span className="text-xs text-slate-400">{value.length}/1000</span>
+      </div>
+      <Textarea
+        id={id}
+        value={value}
+        onChange={event => onChange(event.target.value)}
+        maxLength={1000}
+        rows={5}
+        placeholder={placeholder}
+        aria-invalid={Boolean(error)}
+        className="resize-none bg-white"
+      />
+      <FieldError error={error} />
+    </div>
+  )
+}
+
+function FileField({
+  id,
+  label,
+  required,
+  file,
+  existingUrl,
+  onChange,
+}: {
+  id: string
+  label: string
+  required?: boolean
+  file: File | null
+  existingUrl?: string | null
+  onChange: (file: File | null) => void
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <Label htmlFor={id} className="font-semibold text-slate-800">
+            {label} {required && <span className="text-red-500">*</span>}
+          </Label>
+          <p className="mt-1 text-xs text-slate-500">PDF only, maximum 5MB</p>
+        </div>
+        <Label
+          htmlFor={id}
+          className="inline-flex h-10 cursor-pointer items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-medium hover:bg-slate-50"
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          {file || existingUrl ? 'Replace file' : 'Choose file'}
+        </Label>
+        <Input
+          id={id}
+          type="file"
+          accept=".pdf,application/pdf"
+          className="sr-only"
+          onChange={event => onChange(event.target.files?.[0] || null)}
+        />
+      </div>
+      {file ? (
+        <p className="mt-3 truncate text-sm font-medium text-indigo-700">{file.name}</p>
+      ) : existingUrl ? (
+        <a
+          href={existingUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-block text-sm font-medium text-emerald-700 hover:underline"
+        >
+          Current file is on record
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
+type ExpertApplicationWizardProps = {
+  application: MentorApplication
+  onApplicationChange: (application: MentorApplication) => void
+  onSubmitted: (application: MentorApplication) => void
+  onExit: () => void
+}
+
+export function ExpertApplicationWizard({
+  application,
+  onApplicationChange,
+  onSubmitted,
+  onExit,
+}: ExpertApplicationWizardProps) {
+  const [form, setForm] = useState(() => createInitialForm(application))
+  const [step, setStep] = useState(0)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [autosaveState, setAutosaveState] = useState<AutosaveState>('idle')
+  const [consents, setConsents] = useState<Record<LegalDocumentId, boolean>>(() =>
+    Object.fromEntries(legalDocuments.map(document => [document.id, false])) as Record<
+      LegalDocumentId,
+      boolean
+    >,
+  )
+  const [countries, setCountries] = useState<
+    { id: number; name: string; phone_code?: string | null }[]
+  >([])
+  const [states, setStates] = useState<{ id: number; name: string }[]>([])
+  const [cities, setCities] = useState<{ id: number; name: string }[]>([])
+  const [locationLoading, setLocationLoading] = useState({
+    countries: false,
+    states: false,
+    cities: false,
+  })
+  const [profilePreview, setProfilePreview] = useState(application.profileImageUrl || '')
+  const lastSavedPayload = useRef(JSON.stringify(buildDraftPayload(form)))
+  const autosaveController = useRef<AbortController | null>(null)
+  const idempotencyKey = useRef<string | null>(null)
+
+  const updateForm = <K extends keyof ExpertApplicationFormData>(
+    field: K,
+    value: ExpertApplicationFormData[K],
+  ) => {
+    setForm(previous => ({ ...previous, [field]: value }))
+    setErrors(previous => {
+      if (!previous[field]) return previous
+      const next = { ...previous }
+      delete next[field]
+      return next
+    })
+  }
+
+  const countryOptions = useMemo(
+    () => countries.map(country => ({ value: String(country.id), label: country.name })),
+    [countries],
+  )
+  const stateOptions = useMemo(
+    () => states.map(state => ({ value: String(state.id), label: state.name })),
+    [states],
+  )
+  const cityOptions = useMemo(
+    () => cities.map(city => ({ value: String(city.id), label: city.name })),
+    [cities],
+  )
+  const phoneCodeOptions = useMemo(() => {
+    const options = countries.flatMap(country =>
+      country.phone_code
+        ? [{ value: country.phone_code, label: `+${country.phone_code} (${country.name})` }]
+        : [],
+    )
+    return options.length ? options : [{ value: '91', label: '+91 (India)' }]
+  }, [countries])
+
+  useEffect(() => {
+    const storedStep = Number(sessionStorage.getItem(`mentor-application-step:${application.id}`))
+    if (Number.isInteger(storedStep) && storedStep >= 0 && storedStep < STEPS.length) {
+      setStep(storedStep)
+    }
+  }, [application.id])
+
+  useEffect(() => {
+    sessionStorage.setItem(`mentor-application-step:${application.id}`, String(step))
+  }, [application.id, step])
+
+  useEffect(() => {
+    let active = true
+    setLocationLoading(previous => ({ ...previous, countries: true }))
+    void fetch('/api/locations/countries')
+      .then(response => {
+        if (!response.ok) throw new Error('Unable to load countries')
+        return response.json()
+      })
+      .then(data => {
+        if (!active) return
+        const nextCountries = Array.isArray(data) ? data : []
+        setCountries(nextCountries)
+        const india = nextCountries.find(country => country.name === 'India')
+        setForm(previous => ({
+          ...previous,
+          countryId: previous.countryId || (india ? String(india.id) : ''),
+          phoneCountryCode:
+            previous.phoneCountryCode || india?.phone_code || '91',
+        }))
+      })
+      .catch(error => console.error('Failed to load countries', error))
+      .finally(() => {
+        if (active) setLocationLoading(previous => ({ ...previous, countries: false }))
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!form.countryId) {
+      setStates([])
+      return
+    }
+    let active = true
+    setLocationLoading(previous => ({ ...previous, states: true }))
+    void fetch(`/api/locations/states?countryId=${form.countryId}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Unable to load states')
+        return response.json()
+      })
+      .then(data => {
+        if (active) setStates(Array.isArray(data) ? data : [])
+      })
+      .catch(error => console.error('Failed to load states', error))
+      .finally(() => {
+        if (active) setLocationLoading(previous => ({ ...previous, states: false }))
+      })
+    return () => {
+      active = false
+    }
+  }, [form.countryId])
+
+  useEffect(() => {
+    if (!form.stateId) {
+      setCities([])
+      return
+    }
+    let active = true
+    setLocationLoading(previous => ({ ...previous, cities: true }))
+    void fetch(`/api/locations/cities?stateId=${form.stateId}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Unable to load cities')
+        return response.json()
+      })
+      .then(data => {
+        if (active) setCities(Array.isArray(data) ? data : [])
+      })
+      .catch(error => console.error('Failed to load cities', error))
+      .finally(() => {
+        if (active) setLocationLoading(previous => ({ ...previous, cities: false }))
+      })
+    return () => {
+      active = false
+    }
+  }, [form.stateId])
+
+  const draftPayload = useMemo(() => buildDraftPayload(form), [form])
+
+  useEffect(() => {
+    idempotencyKey.current = null
+  }, [draftPayload, consents, form.profilePicture, form.resume, form.portfolio, form.caseStudy,
+    form.presentation, form.awardsCertifications])
+
+  useEffect(() => {
+    const serialized = JSON.stringify(draftPayload)
+    if (serialized === lastSavedPayload.current) return
+
+    setAutosaveState('saving')
+    const controller = new AbortController()
+    autosaveController.current?.abort()
+    autosaveController.current = controller
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch('/api/mentor-applications/current', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          signal: controller.signal,
+          body: serialized,
+        })
+        const result = await readResponseJson(response)
+        if (!response.ok || result.success !== true) throw new Error('Draft save failed')
+        lastSavedPayload.current = serialized
+        setAutosaveState('saved')
+        if (result.application) onApplicationChange(result.application as MentorApplication)
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Expert application autosave failed', error)
+          setAutosaveState('error')
+        }
+      }
+    }, 900)
+
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
+  }, [draftPayload, onApplicationChange])
+
+  useEffect(() => {
+    return () => {
+      autosaveController.current?.abort()
+      if (profilePreview.startsWith('blob:')) URL.revokeObjectURL(profilePreview)
+    }
+  }, [profilePreview])
+
+  const validationResult = () =>
+    mentorApplicationDraftFieldsSchema.safeParse(buildApplicationValues(form))
+
+  const validateStep = (currentStep: number) => {
+    const nextErrors: Record<string, string> = {}
+    const result = validationResult()
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const field = String(issue.path[0] || '')
+        if (STEP_FIELDS[currentStep].has(field) && !nextErrors[field]) {
+          nextErrors[field] = issue.message
+        }
+      }
+    }
+
+    if (currentStep === 0 && !form.profilePicture && !application.profileImageUrl) {
+      nextErrors.profilePicture = 'Profile photo is required'
+    }
+    if (currentStep === 0 && form.profilePicture) {
+      if (form.profilePicture.size > MAX_FILE_BYTES) {
+        nextErrors.profilePicture = 'Profile photo must be 5MB or less'
+      } else if (
+        form.profilePicture.type &&
+        !['image/jpeg', 'image/png', 'image/webp'].includes(form.profilePicture.type)
+      ) {
+        nextErrors.profilePicture = 'Profile photo must be a JPEG, PNG, or WebP image'
+      }
+    }
+    if (currentStep === 5) {
+      if (!form.resume && !application.resumeUrl) nextErrors.resume = 'Resume is required'
+      for (const [field, file] of Object.entries({
+        resume: form.resume,
+        portfolio: form.portfolio,
+        caseStudy: form.caseStudy,
+        presentation: form.presentation,
+        awardsCertifications: form.awardsCertifications,
+      })) {
+        if (file && file.size > MAX_FILE_BYTES) nextErrors[field] = 'File must be 5MB or less'
+        if (file && file.type && file.type !== 'application/pdf') {
+          nextErrors[field] = 'File must be a PDF'
+        }
+      }
+    }
+    if (currentStep === 7) {
+      for (const document of legalDocuments) {
+        if (!consents[document.id]) {
+          nextErrors.consents = 'Accept every current policy and declaration'
+          break
+        }
+      }
+    }
+
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  const goForward = () => {
+    if (!validateStep(step)) return
+    setSubmissionError(null)
+    setStep(current => Math.min(STEPS.length - 1, current + 1))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleSubmit = async () => {
+    if (!validateStep(7)) return
+    const result = validationResult()
+    if (!result.success) {
+      const firstIssue = result.error.issues[0]
+      const firstField = String(firstIssue.path[0] || '')
+      const targetStep = STEP_FIELDS.findIndex(fields => fields.has(firstField))
+      setErrors({ [firstField]: firstIssue.message })
+      if (targetStep >= 0) setStep(targetStep)
+      setSubmissionError('Review the highlighted required information before submitting.')
+      return
+    }
+    if (!form.profilePicture && !application.profileImageUrl) {
+      setStep(0)
+      setErrors({ profilePicture: 'Profile photo is required' })
+      return
+    }
+    if (!form.resume && !application.resumeUrl) {
+      setStep(5)
+      setErrors({ resume: 'Resume is required' })
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmissionError(null)
+    try {
+      const key = idempotencyKey.current || crypto.randomUUID()
+      idempotencyKey.current = key
+      const body = new FormData()
+      for (const [field, value] of Object.entries(result.data)) {
+        body.append(field, Array.isArray(value) ? JSON.stringify(value) : String(value))
+      }
+      if (form.profilePicture) body.append('profilePicture', form.profilePicture)
+      if (form.resume) body.append('resume', form.resume)
+      if (form.portfolio) body.append('portfolio', form.portfolio)
+      if (form.caseStudy) body.append('caseStudy', form.caseStudy)
+      if (form.presentation) body.append('presentation', form.presentation)
+      if (form.awardsCertifications) {
+        body.append('awardsCertifications', form.awardsCertifications)
+      }
+      body.append(
+        'consents',
+        JSON.stringify(
+          legalDocuments.map(document => ({
+            documentId: document.id,
+            version: document.version,
+            accepted: consents[document.id],
+          })),
+        ),
+      )
+
+      const response = await fetch('/api/mentor-applications/current/submit', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': key },
+        credentials: 'include',
+        body,
+      })
+      const responseBody = await readResponseJson(response)
+      if (!response.ok || responseBody.success !== true || !responseBody.application) {
+        throw new Error(
+          typeof responseBody.error === 'string'
+            ? responseBody.error
+            : 'Unable to submit the application',
+        )
+      }
+      idempotencyKey.current = null
+      sessionStorage.removeItem(`mentor-application-step:${application.id}`)
+      onSubmitted(responseBody.application as MentorApplication)
+    } catch (error) {
+      setSubmissionError(
+        error instanceof Error ? error.message : 'Unable to submit the application',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const renderStep = () => {
+    if (step === 0) {
+      return (
+        <div className="space-y-7">
+          <div className="grid gap-6 md:grid-cols-[10rem_1fr]">
+            <div className="space-y-3">
+              <Label htmlFor="profilePicture" className="font-semibold">
+                Profile photo <span className="text-red-500">*</span>
+              </Label>
+              <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                <AvatarImage src={profilePreview} alt="Profile preview" />
+                <AvatarFallback className="bg-indigo-50 text-indigo-600">
+                  <UserRound className="h-10 w-10" />
+                </AvatarFallback>
+              </Avatar>
+              <Label
+                htmlFor="profilePicture"
+                className="inline-flex cursor-pointer items-center text-sm font-semibold text-indigo-700"
+              >
+                <Upload className="mr-2 h-4 w-4" /> Choose image
+              </Label>
+              <Input
+                id="profilePicture"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                onChange={event => {
+                  const file = event.target.files?.[0] || null
+                  updateForm('profilePicture', file)
+                  if (profilePreview.startsWith('blob:')) URL.revokeObjectURL(profilePreview)
+                  setProfilePreview(file ? URL.createObjectURL(file) : application.profileImageUrl || '')
+                }}
+              />
+              <p className="text-xs text-slate-500">JPEG, PNG or WebP. Maximum 5MB.</p>
+              <FieldError error={errors.profilePicture} />
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="fullName">Full name *</Label>
+                <Input
+                  id="fullName"
+                  value={form.fullName}
+                  onChange={event => updateForm('fullName', event.target.value)}
+                  autoComplete="name"
+                  className="h-11 bg-white"
+                />
+                <FieldError error={errors.fullName} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="professionalHeadline">Professional headline *</Label>
+                <Input
+                  id="professionalHeadline"
+                  value={form.professionalHeadline}
+                  onChange={event => updateForm('professionalHeadline', event.target.value)}
+                  placeholder="e.g. Growth strategist helping founders scale responsibly"
+                  className="h-11 bg-white"
+                />
+                <FieldError error={errors.professionalHeadline} />
+              </div>
+              <div className="space-y-2">
+                <Label>Verified email</Label>
+                <Input value={application.email} disabled className="h-11 bg-slate-100" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Mobile number *</Label>
+                <div className="grid grid-cols-[9rem_1fr] gap-2">
+                  <SearchableSelect
+                    value={form.phoneCountryCode}
+                    onChange={value => updateForm('phoneCountryCode', value)}
+                    options={phoneCodeOptions}
+                    placeholder="Code"
+                    searchPlaceholder="Search code..."
+                  />
+                  <Input
+                    id="phone"
+                    inputMode="tel"
+                    value={form.phone}
+                    onChange={event => updateForm('phone', event.target.value.replace(/\D/g, ''))}
+                    className="h-11 bg-white"
+                  />
+                </div>
+                <FieldError error={errors.phone} />
+              </div>
+            </div>
+          </div>
+
+          <fieldset className="space-y-4">
+            <legend className="text-base font-semibold text-slate-800">Normalized location *</legend>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Country</Label>
+                <SearchableSelect
+                  value={form.countryId}
+                  onChange={value => {
+                    setForm(previous => ({ ...previous, countryId: value, stateId: '', cityId: '' }))
+                  }}
+                  options={countryOptions}
+                  placeholder="Select country"
+                  searchPlaceholder="Search countries..."
+                  disabled={locationLoading.countries}
+                />
+                <FieldError error={errors.countryId} />
+              </div>
+              <div className="space-y-2">
+                <Label>State</Label>
+                <SearchableSelect
+                  value={form.stateId}
+                  onChange={value => {
+                    setForm(previous => ({ ...previous, stateId: value, cityId: '' }))
+                  }}
+                  options={stateOptions}
+                  placeholder="Select state"
+                  searchPlaceholder="Search states..."
+                  disabled={!form.countryId || locationLoading.states}
+                />
+                <FieldError error={errors.stateId} />
+              </div>
+              <div className="space-y-2">
+                <Label>City</Label>
+                <SearchableSelect
+                  value={form.cityId}
+                  onChange={value => updateForm('cityId', value)}
+                  options={cityOptions}
+                  placeholder="Select city"
+                  searchPlaceholder="Search cities..."
+                  disabled={!form.stateId || locationLoading.cities}
+                />
+                <FieldError error={errors.cityId} />
+              </div>
+            </div>
+          </fieldset>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="linkedinUrl">LinkedIn profile *</Label>
+              <Input
+                id="linkedinUrl"
+                type="url"
+                value={form.linkedinUrl}
+                onChange={event => updateForm('linkedinUrl', event.target.value)}
+                placeholder="https://www.linkedin.com/in/..."
+                className="h-11 bg-white"
+              />
+              <FieldError error={errors.linkedinUrl} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="websiteUrl">Website or portfolio URL</Label>
+              <Input
+                id="websiteUrl"
+                type="url"
+                value={form.websiteUrl}
+                onChange={event => updateForm('websiteUrl', event.target.value)}
+                placeholder="https://..."
+                className="h-11 bg-white"
+              />
+              <FieldError error={errors.websiteUrl} />
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (step === 1) {
+      return (
+        <div className="space-y-7">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="title">Current designation *</Label>
+              <Input
+                id="title"
+                value={form.title}
+                onChange={event => updateForm('title', event.target.value)}
+                className="h-11 bg-white"
+              />
+              <FieldError error={errors.title} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Current organization *</Label>
+              <Input
+                id="company"
+                value={form.company}
+                onChange={event => updateForm('company', event.target.value)}
+                placeholder="Use Independent or Retired when applicable"
+                className="h-11 bg-white"
+              />
+              <FieldError error={errors.company} />
+            </div>
+          </div>
+
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">Employment type *</legend>
+            <RadioCards
+              name="employmentType"
+              value={form.employmentType}
+              options={EMPLOYMENT_TYPE_OPTIONS}
+              onChange={value => updateForm('employmentType', value)}
+            />
+            <FieldError error={errors.employmentType} />
+          </fieldset>
+
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">Total experience *</legend>
+            <p className="text-sm text-slate-500">There is no minimum experience requirement.</p>
+            <RadioCards
+              name="experienceBand"
+              value={form.experienceBand}
+              options={EXPERIENCE_BAND_OPTIONS}
+              onChange={value => updateForm('experienceBand', value)}
+              columns={4}
+            />
+            <FieldError error={errors.experienceBand} />
+          </fieldset>
+
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">Industries worked in *</legend>
+            <CheckboxCards
+              name="industries"
+              values={form.industries}
+              options={INDUSTRY_OPTIONS}
+              onChange={values => updateForm('industries', values)}
+            />
+            <FieldError error={errors.industries} />
+            {form.industries.includes('OTHER') && (
+              <div className="max-w-xl space-y-2">
+                <Label htmlFor="otherIndustry">Other industry *</Label>
+                <Input
+                  id="otherIndustry"
+                  value={form.otherIndustry}
+                  onChange={event => updateForm('otherIndustry', event.target.value)}
+                  className="h-11 bg-white"
+                />
+                <FieldError error={errors.otherIndustry} />
+              </div>
+            )}
+          </fieldset>
+        </div>
+      )
+    }
+
+    if (step === 2) {
+      return (
+        <fieldset className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <legend className="text-base font-semibold text-slate-800">
+              Select your strongest areas of expertise *
+            </legend>
+            <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+              {form.expertise.length}/5 selected
+            </span>
+          </div>
+          <CheckboxCards
+            name="expertise"
+            values={form.expertise}
+            options={EXPERTISE_OPTIONS}
+            onChange={values => updateForm('expertise', values)}
+            max={5}
+          />
+          <FieldError error={errors.expertise} />
+          {form.expertise.includes('OTHER') && (
+            <div className="max-w-xl space-y-2">
+              <Label htmlFor="otherExpertise">Other expertise *</Label>
+              <Input
+                id="otherExpertise"
+                value={form.otherExpertise}
+                onChange={event => updateForm('otherExpertise', event.target.value)}
+                className="h-11 bg-white"
+              />
+              <FieldError error={errors.otherExpertise} />
+            </div>
+          )}
+        </fieldset>
+      )
+    }
+
+    if (step === 3) {
+      return (
+        <div className="space-y-7">
+          <TextareaField
+            id="about"
+            label="Tell us about your professional journey"
+            value={form.about}
+            onChange={value => updateForm('about', value)}
+            placeholder="Share the roles, transitions, and experiences that shaped your expertise."
+            error={errors.about}
+          />
+          <TextareaField
+            id="challengeSolved"
+            label="What is one challenge people commonly seek your advice on?"
+            value={form.challengeSolved}
+            onChange={value => updateForm('challengeSolved', value)}
+            placeholder="Describe a specific recurring problem where your experience is especially useful."
+            error={errors.challengeSolved}
+          />
+          <TextareaField
+            id="measurableOutcomes"
+            label="What measurable outcomes have you contributed to?"
+            value={form.measurableOutcomes}
+            onChange={value => updateForm('measurableOutcomes', value)}
+            placeholder="Examples: revenue growth, cost savings, team scaling, market expansion, or transformation."
+            error={errors.measurableOutcomes}
+          />
+          <TextareaField
+            id="guidanceValueProposition"
+            label="Why should someone seek your guidance instead of online content or AI?"
+            value={form.guidanceValueProposition}
+            onChange={value => updateForm('guidanceValueProposition', value)}
+            placeholder="Explain the context, judgment, accountability, or lived experience you bring."
+            error={errors.guidanceValueProposition}
+          />
+        </div>
+      )
+    }
+
+    if (step === 4) {
+      return (
+        <fieldset className="space-y-4">
+          <legend className="text-base font-semibold text-slate-800">
+            Select every credibility signal that applies
+          </legend>
+          <p className="text-sm text-slate-500">
+            These are reviewed as context. They are not automatically scored.
+          </p>
+          <CheckboxCards
+            name="credibilitySignals"
+            values={form.credibilitySignals}
+            options={CREDIBILITY_SIGNAL_OPTIONS}
+            onChange={values => updateForm('credibilitySignals', values)}
+          />
+        </fieldset>
+      )
+    }
+
+    if (step === 5) {
+      return (
+        <div className="space-y-4">
+          <FileField
+            id="resume"
+            label="Resume or CV"
+            required
+            file={form.resume}
+            existingUrl={application.resumeUrl}
+            onChange={file => updateForm('resume', file)}
+          />
+          <FieldError error={errors.resume} />
+          <FileField
+            id="portfolio"
+            label="Portfolio"
+            file={form.portfolio}
+            existingUrl={application.portfolioUrl}
+            onChange={file => updateForm('portfolio', file)}
+          />
+          <FieldError error={errors.portfolio} />
+          <FileField
+            id="caseStudy"
+            label="Case study"
+            file={form.caseStudy}
+            existingUrl={application.caseStudyUrl}
+            onChange={file => updateForm('caseStudy', file)}
+          />
+          <FieldError error={errors.caseStudy} />
+          <FileField
+            id="presentation"
+            label="Presentation"
+            file={form.presentation}
+            existingUrl={application.presentationUrl}
+            onChange={file => updateForm('presentation', file)}
+          />
+          <FieldError error={errors.presentation} />
+          <FileField
+            id="awardsCertifications"
+            label="Awards and certifications"
+            file={form.awardsCertifications}
+            existingUrl={application.awardsCertificationsUrl}
+            onChange={file => updateForm('awardsCertifications', file)}
+          />
+          <FieldError error={errors.awardsCertifications} />
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+            Supporting documents are optional and private. Video introduction is intentionally
+            deferred for future review.
+          </div>
+        </div>
+      )
+    }
+
+    if (step === 6) {
+      return (
+        <div className="space-y-7">
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">I am interested in *</legend>
+            <CheckboxCards
+              name="serviceInterests"
+              values={form.serviceInterests}
+              options={SERVICE_INTEREST_OPTIONS}
+              onChange={values => updateForm('serviceInterests', values)}
+            />
+            <FieldError error={errors.serviceInterests} />
+          </fieldset>
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">
+              Preferred session mode *
+            </legend>
+            <RadioCards
+              name="preferredSessionMode"
+              value={form.preferredSessionMode}
+              options={SESSION_MODE_OPTIONS}
+              onChange={value => updateForm('preferredSessionMode', value)}
+              columns={3}
+            />
+            <FieldError error={errors.preferredSessionMode} />
+          </fieldset>
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">
+              Languages you can mentor in *
+            </legend>
+            <CheckboxCards
+              name="languages"
+              values={form.languages}
+              options={LANGUAGE_OPTIONS}
+              onChange={values => updateForm('languages', values)}
+            />
+            <FieldError error={errors.languages} />
+            {form.languages.includes('OTHER') && (
+              <div className="max-w-xl space-y-2">
+                <Label htmlFor="otherLanguage">Other language *</Label>
+                <Input
+                  id="otherLanguage"
+                  value={form.otherLanguage}
+                  onChange={event => updateForm('otherLanguage', event.target.value)}
+                  className="h-11 bg-white"
+                />
+                <FieldError error={errors.otherLanguage} />
+              </div>
+            )}
+          </fieldset>
+          <fieldset className="space-y-3">
+            <legend className="text-base font-semibold text-slate-800">
+              Weekly availability *
+            </legend>
+            <RadioCards
+              name="weeklyAvailabilityBand"
+              value={form.weeklyAvailabilityBand}
+              options={WEEKLY_AVAILABILITY_OPTIONS}
+              onChange={value => updateForm('weeklyAvailabilityBand', value)}
+              columns={4}
+            />
+            <FieldError error={errors.weeklyAvailabilityBand} />
+          </fieldset>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-7">
+        <fieldset className="space-y-3">
+          <legend className="text-base font-semibold text-slate-800">
+            Have you previously mentored or advised people? *
+          </legend>
+          <RadioCards
+            name="hasPriorMentoringExperience"
+            value={
+              form.hasPriorMentoringExperience === null
+                ? ''
+                : form.hasPriorMentoringExperience
+                  ? 'YES'
+                  : 'NO'
+            }
+            options={[
+              { value: 'YES', label: 'Yes' },
+              { value: 'NO', label: 'No' },
+            ]}
+            onChange={value => updateForm('hasPriorMentoringExperience', value === 'YES')}
+            columns={2}
+          />
+          <FieldError error={errors.hasPriorMentoringExperience} />
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-base font-semibold text-slate-800">
+            Have you ever been involved in professional misconduct? *
+          </legend>
+          <RadioCards
+            name="hasProfessionalMisconduct"
+            value={
+              form.hasProfessionalMisconduct === null
+                ? ''
+                : form.hasProfessionalMisconduct
+                  ? 'YES'
+                  : 'NO'
+            }
+            options={[
+              { value: 'NO', label: 'No' },
+              { value: 'YES', label: 'Yes' },
+            ]}
+            onChange={value => {
+              updateForm('hasProfessionalMisconduct', value === 'YES')
+              if (value === 'NO') updateForm('misconductExplanation', '')
+            }}
+            columns={2}
+          />
+          <FieldError error={errors.hasProfessionalMisconduct} />
+        </fieldset>
+
+        {form.hasProfessionalMisconduct && (
+          <TextareaField
+            id="misconductExplanation"
+            label="Please provide a brief explanation"
+            value={form.misconductExplanation}
+            onChange={value => updateForm('misconductExplanation', value)}
+            placeholder="This answer is private and available only to authorized reviewers."
+            error={errors.misconductExplanation}
+          />
+        )}
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-900">Policies and declaration</h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Review and accept each current document before submitting.
+              </p>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button type="button" variant="outline">
+                  <FileText className="mr-2 h-4 w-4" /> Read documents
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>SharingMinds application documents</DialogTitle>
+                  <DialogDescription>
+                    These exact versions are recorded with your submission.
+                  </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="h-[65vh] pr-5">
+                  <div className="space-y-10">
+                    {legalDocuments.map(document => (
+                      <article key={document.id}>
+                        <h3 className="text-lg font-bold text-slate-900">{document.label}</h3>
+                        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Version {document.version}
+                        </p>
+                        <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">
+                          {document.content}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <div className="mt-5 space-y-3">
+            {legalDocuments.map(document => (
+              <Label
+                key={document.id}
+                htmlFor={`consent-${document.id}`}
+                className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-3 text-sm"
+              >
+                <Checkbox
+                  id={`consent-${document.id}`}
+                  checked={consents[document.id]}
+                  onCheckedChange={checked =>
+                    setConsents(previous => ({
+                      ...previous,
+                      [document.id]: checked === true,
+                    }))
+                  }
+                  className="mt-0.5"
+                />
+                <span>
+                  I have read and accept the <strong>{document.label}</strong>.
+                </span>
+              </Label>
+            ))}
+          </div>
+          <FieldError error={errors.consents} />
+        </div>
+
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          <div className="flex gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
+            <p>
+              Your application will be reviewed within approximately 5–10 business days.
+              Submission does not create a platform account or guarantee selection.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const currentStep = STEPS[step]
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <Button type="button" variant="ghost" onClick={onExit}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Exit application
+          </Button>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            {autosaveState === 'saving' && <Save className="h-4 w-4 animate-pulse" />}
+            {autosaveState === 'saved' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+            <span>
+              {autosaveState === 'saving'
+                ? 'Saving draft...'
+                : autosaveState === 'saved'
+                  ? 'Draft saved'
+                  : autosaveState === 'error'
+                    ? 'Draft save failed'
+                    : 'Secure application'}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-600">
+            Become a verified SharingMinds Expert
+          </p>
+          <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Expert application</h1>
+              <p className="mt-2 text-slate-600">A focused application that takes about 8–10 minutes.</p>
+            </div>
+            <p className="text-sm font-medium text-slate-500">
+              Step {step + 1} of {STEPS.length}
+            </p>
+          </div>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all"
+              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[17rem_1fr]">
+          <nav aria-label="Application progress" className="hidden lg:block">
+            <ol className="space-y-2">
+              {STEPS.map((item, index) => (
+                <li key={item.title}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (index < step) setStep(index)
+                    }}
+                    disabled={index > step}
+                    className={cn(
+                      'flex w-full items-start gap-3 rounded-xl p-3 text-left',
+                      index === step && 'bg-indigo-50 text-indigo-900',
+                      index < step && 'text-slate-700 hover:bg-white',
+                      index > step && 'cursor-not-allowed text-slate-400',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                        index < step && 'bg-emerald-100 text-emerald-700',
+                        index === step && 'bg-indigo-600 text-white',
+                        index > step && 'bg-slate-200 text-slate-500',
+                      )}
+                    >
+                      {index < step ? <Check className="h-4 w-4" /> : index + 1}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold">{item.title}</span>
+                      <span className="mt-1 block text-xs leading-5 opacity-70">
+                        {item.description}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <Card className="overflow-hidden rounded-2xl border-slate-200 shadow-xl shadow-slate-200/50">
+            <div className="border-b border-slate-100 bg-white px-5 py-5 sm:px-8">
+              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+                Step {step + 1}
+              </p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">{currentStep.title}</h2>
+              <p className="mt-1 text-sm text-slate-500">{currentStep.description}</p>
+            </div>
+            <CardContent className="bg-slate-50/60 p-5 sm:p-8">
+              {submissionError && (
+                <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {submissionError}
+                </div>
+              )}
+              {renderStep()}
+
+              <div className="mt-10 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={step === 0 || isSubmitting}
+                  onClick={() => setStep(current => Math.max(0, current - 1))}
+                  className="h-11"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+                </Button>
+                {step < STEPS.length - 1 ? (
+                  <Button type="button" onClick={goForward} className="h-11 bg-slate-900 hover:bg-slate-800">
+                    Save and continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => void handleSubmit()}
+                    className="h-11 bg-slate-900 hover:bg-slate-800"
+                  >
+                    {isSubmitting
+                      ? 'Submitting application...'
+                      : application.status === 'CHANGES_REQUESTED'
+                        ? 'Resubmit application'
+                        : 'Submit application'}
+                    {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  )
+}
