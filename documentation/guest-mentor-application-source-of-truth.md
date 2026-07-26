@@ -362,6 +362,56 @@ application approval; it is not an authentication error or a dependency of exper
 - The temporary route is marked `noindex, nofollow`; it may be made indexable only when the
   production client-access experience and its canonical metadata are approved.
 
+### Public expert-application reporting
+
+`/reports/expert-applications` is the intentionally unlisted reporting utility for downloading
+expert registrations as an Excel workbook. It accepts a start and end date-time in
+`Asia/Kolkata` and posts the range to
+`/api/reports/expert-applications/export`.
+
+- Both range boundaries use an explicit calendar plus hour, minute, and AM/PM selectors. The
+  interface does not depend on the browser's inconsistent native date-time input or require
+  operators to type a date. The selected wall-clock values remain in IST through validation and
+  export.
+- The report is temporarily link-accessible and does not require a platform account or admin
+  role. This is an explicit interim business decision, not a security boundary. The route is not
+  linked from public navigation and is marked `noindex`, `nofollow`, and `nocache`, but anyone who
+  obtains the URL can request the applicant export. Authentication must be added before the URL
+  is distributed beyond its intended operators.
+- Registration filtering uses `mentor_applications.created_at`, with an inclusive start and an
+  exclusive end. An application row is created only after successful application-email OTP
+  verification, so the filtered population represents verified registrations rather than raw
+  OTP requests.
+- Each workbook contains one row per application/normalized email, ordered newest first. The
+  database uniqueness constraint on `normalized_email` enforces that relationship.
+- Submitted and post-submission applications use their newest immutable
+  `mentor_application_revisions.snapshot`. `DRAFT` applications use the live
+  `mentor_applications` values and are labeled `Current draft — not submitted`. If a legacy
+  submitted row has no revision, the export uses its current record and labels that data-quality
+  exception explicitly.
+- Current lifecycle status and timestamps always come from `mentor_applications`; the immutable
+  revision supplies applicant-submitted field values and consent evidence. This preserves both
+  the exact latest submission and the current operational outcome.
+- The workbook contains `Summary`, `Applications`, and `Status Guide` worksheets. It includes IST
+  display timestamps, the original UTC registration timestamp, plain-language status meanings,
+  applicant fields, attachment filenames/sizes, consent versions, and the application revision.
+- Private storage paths and URLs, OTP challenges, application sessions, request IPs, user agents,
+  file checksums, reviewer identity, and internal review notes are intentionally excluded.
+- Applicant-controlled text is neutralized before it reaches Excel when it begins with a formula
+  trigger (`=`, `+`, `-`, or `@`, including leading control/space characters). The export never
+  silently truncates: ranges are limited to 366 days and results above 10,000 rows return an
+  instruction to select a narrower range.
+- The API requires a trusted same-origin POST, applies a best-effort per-instance download limit,
+  returns `Cache-Control: private, no-store`, and logs only the range and row count. These abuse
+  controls reduce accidental exposure but do not replace authentication.
+- For growing reporting volume, apply the following additive performance index through the
+  project's reviewed manual-SQL workflow:
+
+```sql
+CREATE INDEX IF NOT EXISTS mentor_applications_created_at_idx
+ON mentor_applications (created_at DESC);
+```
+
 ## Migration and compatibility policy
 
 - Existing linked `mentors` rows remain unchanged.
@@ -619,3 +669,8 @@ application columns; its read-only verification script remains available for rep
   approved experts receive sign-in and dashboard access by verified-email notification.
 - Made the temporary access page height-aware and viewport-bounded for lower-resolution laptops,
   removed the nonessential submitted-application card, and prevented narrow-column action overflow.
+- Added the unlisted `/reports/expert-applications` reporting utility and same-origin Excel export.
+  Reports use registration-time filtering, latest immutable submissions, explicit draft handling,
+  formula-safe cells, business-readable status guidance, bounded ranges, and no-store responses.
+- Replaced browser-dependent report date-time inputs with explicit calendar, hour, minute, and
+  AM/PM selectors while preserving the inclusive-start, exclusive-end IST range contract.

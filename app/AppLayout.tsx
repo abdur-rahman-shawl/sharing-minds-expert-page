@@ -15,7 +15,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname.startsWith('/auth')
   const isVipPage = pathname.startsWith('/vip-lounge')
   const isDashboardPage = pathname.startsWith('/dashboard')
-  const hideChrome = isAuthPage || isVipPage || isDashboardPage
+  const isReportPage = pathname.startsWith('/reports')
+  const hideChrome = isAuthPage || isVipPage || isDashboardPage || isReportPage
 
   useEffect(() => {
     if (isLoading) return
