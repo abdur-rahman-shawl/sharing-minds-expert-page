@@ -7,8 +7,7 @@ import { VerificationSection } from "@/components/verification-section"
 
 export default function Page() {
   return (
-    // Removed space-y-12. Added a seamless background base.
-    <div className="min-h-screen w-full bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen w-full bg-slate-50 selection:bg-[#e8b572] selection:text-[#06182a]">
       <HeroSection />
       <TrustedEcosystemStrip />
       <VerificationSection />
