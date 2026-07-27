@@ -15,6 +15,7 @@ import {
   formatReportDateTimeValue,
   parseReportDateTimeValue,
   serializeReportDateTimeParts,
+  toIndiaDateTimeValue,
 } from './report-date-time'
 
 describe('expert application report date-time picker', () => {
@@ -37,6 +38,12 @@ describe('expert application report date-time picker', () => {
     expect(parseReportDateTimeValue('2026-02-31T12:00')).toBeNull()
     expect(formatReportDateTimeValue('2026-07-26T12:00')).toContain(
       '12:00 PM',
+    )
+  })
+
+  it('formats an instant as an IST wall-clock picker value', () => {
+    expect(toIndiaDateTimeValue(new Date('2026-07-26T09:00:00.000Z'))).toBe(
+      '2026-07-26T14:30',
     )
   })
 })

@@ -14,40 +14,21 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 
+import { ReportDateTimePicker } from '@/components/reports/report-date-time-picker'
 import { Button } from '@/components/ui/button'
 import type {
   CampaignPerformanceData,
   CampaignPerformanceGroupBy,
 } from '@/lib/reports/campaign-performance-types'
+import { toIndiaDateTimeValue } from '@/lib/reports/report-date-time'
 import CampaignPerformancePanel from './CampaignPerformancePanel'
-import { ReportDateTimePicker } from './ReportDateTimePicker'
 
 type Feedback =
   | { type: 'success'; message: string }
   | { type: 'error'; message: string }
   | null
 
-const INDIA_TIME_ZONE = 'Asia/Kolkata'
 const SEVEN_DAYS_MILLISECONDS = 7 * 24 * 60 * 60 * 1000
-
-function toIndiaDateTimeLocal(value: Date): string {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: INDIA_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(value)
-
-  const get = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find(part => part.type === type)?.value || ''
-
-  return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get(
-    'minute',
-  )}`
-}
 
 function downloadFilename(contentDisposition: string | null): string {
   if (!contentDisposition) return 'sharingminds-expert-applications.xlsx'
@@ -74,8 +55,10 @@ export default function ExpertApplicationReportForm() {
   useEffect(() => {
     const end = new Date()
     end.setSeconds(0, 0)
-    setEndAt(toIndiaDateTimeLocal(end))
-    setStartAt(toIndiaDateTimeLocal(new Date(end.getTime() - SEVEN_DAYS_MILLISECONDS)))
+    setEndAt(toIndiaDateTimeValue(end))
+    setStartAt(
+      toIndiaDateTimeValue(new Date(end.getTime() - SEVEN_DAYS_MILLISECONDS)),
+    )
   }, [])
 
   function rangeValidationError(): string | null {

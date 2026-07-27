@@ -80,6 +80,31 @@ The administrator-only `/reports/expert-applications` page supports grouping by
 source, campaign, or creative. It displays visits, application views, OTP
 starts, applications, drafts, submissions, approvals, and conversion rates.
 
+The aggregate-only `/campaign-stats` dashboard can be made publicly accessible
+with `PUBLIC_CAMPAIGN_STATS_ENABLED=true`. It accepts start and end date-times
+in IST, refreshes once per minute while visible, and supports comparison by:
+
+- Source and medium (`utm_source` + `utm_medium`)
+- Campaign (`utm_campaign`)
+- Ad variation (`utm_content`)
+
+The public dashboard calls:
+
+```text
+GET /api/public/campaign-performance
+  ?startAt=2026-07-20T00:00
+  &endAt=2026-07-27T23:59
+  &groupBy=content
+```
+
+The start is inclusive, the end is exclusive, and public ranges are limited to
+90 days. The endpoint is unauthenticated while the public flag is enabled, but
+returns aggregate KPIs only. It never returns applicant identity, contact
+details, application content, review notes, visit identifiers, click IDs, or
+cookie identifiers. Responses are not stored and requests are rate limited.
+The route is excluded from attribution capture so viewing the dashboard does
+not inflate acquisition traffic.
+
 The Excel workbook contains:
 
 - `Summary`
@@ -95,6 +120,9 @@ The Excel workbook contains:
 3. Deploy with `CAMPAIGN_ATTRIBUTION_ENABLED=false`.
 4. Verify the table, foreign key, indexes, and administrator access.
 5. Set `CAMPAIGN_ATTRIBUTION_ENABLED=true`.
-6. Run a tagged test visit through OTP verification, draft save, and submission.
-7. Record the enablement timestamp; earlier applications remain explicitly
+6. Set `PUBLIC_CAMPAIGN_STATS_ENABLED=true` only when aggregate KPIs may be
+   viewed by anyone who knows the dashboard or API URL.
+7. Run a tagged test visit through OTP verification, draft save, and submission.
+8. Verify `/campaign-stats` in source, campaign, and ad-variation views.
+9. Record the enablement timestamp; earlier applications remain explicitly
    unattributed.

@@ -206,6 +206,7 @@ current API, or promoted for new applications.
 | `POST` | `/api/internal/mentor-applications/claim` | Internal service bearer secret | Let the main platform claim by verified database user ID |
 | `POST` | `/api/internal/mentor-applications/reconcile` | Internal service bearer secret | Retry approved, linked, unpromoted applications in bounded batches |
 | `POST` | `/api/attribution/visit` | Public + trusted origin | Capture or continue a first-party acquisition visit and refresh signed attribution cookies |
+| `GET` | `/api/public/campaign-performance` | Public when enabled + rate limits | Return aggregate-only campaign funnel KPIs for an IST acquisition range |
 | `POST` | `/api/reports/expert-applications/campaigns` | Verified admin | Return source, campaign, or creative funnel comparisons for an acquisition cohort |
 
 The server derives the applicant email from the scoped session. Client-supplied email is
@@ -417,6 +418,26 @@ CREATE INDEX IF NOT EXISTS mentor_applications_created_at_idx
 ON mentor_applications (created_at DESC);
 ```
 
+### Public campaign KPI dashboard
+
+`/campaign-stats` is an unlisted, non-indexable dashboard for near-real-time aggregate campaign
+performance. It has no authentication requirement while `PUBLIC_CAMPAIGN_STATS_ENABLED=true`.
+
+- Operators choose inclusive start and exclusive end date-times in `Asia/Kolkata`; public ranges
+  are limited to 90 days.
+- The dashboard compares source/medium, campaign, or ad variation and refreshes once per minute
+  while its browser tab is visible.
+- The corresponding `GET /api/public/campaign-performance` response contains only aggregate
+  visits, unique visitors, application views, OTP starts, applications, drafts, submissions,
+  approvals, and conversion percentages.
+- Applicant identity, application fields, statuses beyond the displayed aggregate lifecycle
+  counts, review data, visitor IDs, visit IDs, click IDs, and cookies are never returned.
+- The endpoint returns no-store responses and applies a best-effort per-instance limit of 30
+  requests per IP per 10 minutes. `/campaign-stats` is excluded from acquisition capture so
+  dashboard traffic cannot contaminate campaign KPIs.
+- Disable `PUBLIC_CAMPAIGN_STATS_ENABLED` to immediately close both the page's data feed and the
+  public API. The page remains non-indexable but anyone with its URL can open it while enabled.
+
 ## Migration and compatibility policy
 
 - Existing linked `mentors` rows remain unchanged.
@@ -458,6 +479,9 @@ ON mentor_applications (created_at DESC);
 | `MENTOR_APPLICATION_TRUSTED_IP_HEADER` | Production abuse controls | Proxy-overwritten client IP header used for hashed IP rate limits |
 | `MENTOR_APPLICATION_ALLOWED_ORIGINS` | Cross-origin deployment | Comma-separated trusted origins permitted for mutating requests in addition to canonical app/auth origins |
 | `MENTOR_APPLICATION_COOKIE_NAME` | No | Override scoped cookie name |
+| `CAMPAIGN_ATTRIBUTION_ENABLED` | Campaign rollout | Enable first-party visit capture and application attribution after migration 005 |
+| `CAMPAIGN_ATTRIBUTION_SECRET` | Campaign rollout | Independent server-only secret used to sign attribution cookie identifiers |
+| `PUBLIC_CAMPAIGN_STATS_ENABLED` | Optional public reporting | Expose aggregate campaign KPIs without authentication; requires campaign attribution to be enabled |
 | `SUPABASE_MENTOR_APPLICATIONS_BUCKET` | No | Private bucket name; defaults to `mentor-applications` |
 | `APP_BASE_URL` | Production | Trusted origin for mutation checks, email CTAs, and hosted email assets |
 | `GMAIL_APP_USER` | Yes | OTP and transactional-email sender address |
@@ -517,6 +541,8 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 - [x] A visitor without Better Auth or an application session can use the public site normally;
   the optional current-application probe returns `200`/`null` rather than an authentication error.
 - [x] Desktop and 390px mobile `/verified-experts` guest-entry states pass compiled-browser verification.
+- [ ] Public campaign KPI endpoint returns aggregate fields only, rejects ranges over 90 days,
+  and remains unavailable while `PUBLIC_CAMPAIGN_STATS_ENABLED=false`.
 - [x] With `MENTOR_APPLICATIONS_ENABLED=false`, the compiled page renders the unavailable
   state and application API middleware returns `503` without reaching the database.
 - [x] `npx tsc --noEmit` and the Next.js production build pass.

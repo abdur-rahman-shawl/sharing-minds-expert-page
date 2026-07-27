@@ -6,6 +6,7 @@ let initialReferrerSent = false
 
 const EXCLUDED_ATTRIBUTION_PATHS = [
   '/auth',
+  '/campaign-stats',
   '/dashboard',
   '/reports',
   '/verify-email',
