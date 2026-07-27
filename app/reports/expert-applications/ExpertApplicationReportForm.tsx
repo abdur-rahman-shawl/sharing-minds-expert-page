@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft,
+  BarChart3,
   CalendarClock,
   CheckCircle2,
   Download,
@@ -14,6 +15,11 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import type {
+  CampaignPerformanceData,
+  CampaignPerformanceGroupBy,
+} from '@/lib/reports/campaign-performance-types'
+import CampaignPerformancePanel from './CampaignPerformancePanel'
 import { ReportDateTimePicker } from './ReportDateTimePicker'
 
 type Feedback =
@@ -58,6 +64,12 @@ export default function ExpertApplicationReportForm() {
   const [endAt, setEndAt] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
+  const [campaignData, setCampaignData] =
+    useState<CampaignPerformanceData | null>(null)
+  const [campaignError, setCampaignError] = useState<string | null>(null)
+  const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(false)
+  const [groupBy, setGroupBy] =
+    useState<CampaignPerformanceGroupBy>('campaign')
 
   useEffect(() => {
     const end = new Date()
@@ -66,24 +78,66 @@ export default function ExpertApplicationReportForm() {
     setStartAt(toIndiaDateTimeLocal(new Date(end.getTime() - SEVEN_DAYS_MILLISECONDS)))
   }, [])
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setFeedback(null)
-
-    if (!startAt || !endAt) {
-      setFeedback({
-        type: 'error',
-        message: 'Select both the start and end date and time.',
-      })
-      return
-    }
+  function rangeValidationError(): string | null {
+    if (!startAt || !endAt) return 'Select both the start and end date and time.'
 
     const start = new Date(`${startAt}:00+05:30`)
     const end = new Date(`${endAt}:00+05:30`)
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+      return 'The end date and time must be later than the start.'
+    }
+    return null
+  }
+
+  async function loadCampaignInsights(
+    nextGroupBy: CampaignPerformanceGroupBy = groupBy,
+  ) {
+    const validationError = rangeValidationError()
+    if (validationError) {
+      setCampaignError(validationError)
+      return
+    }
+
+    setIsLoadingCampaigns(true)
+    setCampaignError(null)
+    try {
+      const response = await fetch('/api/reports/expert-applications/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startAt, endAt, groupBy: nextGroupBy }),
+      })
+      const payload = (await response.json().catch(() => null)) as {
+        success?: boolean
+        error?: string
+        data?: CampaignPerformanceData
+      } | null
+      if (!response.ok || payload?.success !== true || !payload.data) {
+        throw new Error(
+          payload?.error || 'Campaign insights could not be generated.',
+        )
+      }
+      setCampaignData(payload.data)
+    } catch (error) {
+      setCampaignData(null)
+      setCampaignError(
+        error instanceof Error
+          ? error.message
+          : 'Campaign insights could not be generated.',
+      )
+    } finally {
+      setIsLoadingCampaigns(false)
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setFeedback(null)
+
+    const validationError = rangeValidationError()
+    if (validationError) {
       setFeedback({
         type: 'error',
-        message: 'The end date and time must be later than the start.',
+        message: validationError,
       })
       return
     }
@@ -182,7 +236,8 @@ export default function ExpertApplicationReportForm() {
         </Link>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl items-center px-5 pb-12 pt-4 sm:px-8 sm:pb-16 lg:min-h-[calc(100vh-112px)] lg:px-10 lg:py-12">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-12 pt-4 sm:px-8 sm:pb-16 lg:px-10 lg:py-12">
+        <div className="space-y-8">
         <section className="grid w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] backdrop-blur-xl lg:grid-cols-[0.88fr_1.12fr]">
           <div className="relative overflow-hidden bg-slate-950 p-7 text-white sm:p-10 lg:p-12">
             <div
@@ -200,12 +255,11 @@ export default function ExpertApplicationReportForm() {
                   Expert application intelligence
                 </p>
                 <h1 className="mt-4 max-w-[11ch] text-4xl font-semibold leading-[1.08] tracking-[-0.035em] sm:text-5xl">
-                  Download an accurate registration report.
+                  Compare acquisition and applications.
                 </h1>
                 <p className="mt-5 max-w-md text-base leading-7 text-slate-300">
-                  Export verified registrations, current application status, and
-                  every available applicant-submitted field for a precise date and
-                  time window.
+                  Compare campaign conversion through approval, then export every
+                  application and its acquisition source for deeper analysis.
                 </p>
               </div>
 
@@ -315,6 +369,21 @@ export default function ExpertApplicationReportForm() {
               ) : null}
 
               <Button
+                type="button"
+                variant="outline"
+                disabled={isLoadingCampaigns || !startAt || !endAt}
+                onClick={() => void loadCampaignInsights()}
+                className="h-12 w-full rounded-full border-slate-300 bg-white px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
+              >
+                {isLoadingCampaigns ? (
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                ) : (
+                  <BarChart3 aria-hidden="true" className="h-4 w-4" />
+                )}
+                View campaign insights
+              </Button>
+
+              <Button
                 type="submit"
                 disabled={isDownloading || !startAt || !endAt}
                 className="h-12 w-full rounded-full bg-slate-950 px-6 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl focus-visible:ring-blue-600"
@@ -334,11 +403,23 @@ export default function ExpertApplicationReportForm() {
             </form>
 
             <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-              This unlisted utility exports personal application information. Share
-              the link and downloaded files responsibly.
+              Administrator access is required. Downloaded files contain personal
+              application information and must be handled responsibly.
             </p>
           </div>
         </section>
+        <CampaignPerformancePanel
+          data={campaignData}
+          error={campaignError}
+          isLoading={isLoadingCampaigns}
+          groupBy={groupBy}
+          onGroupByChange={nextGroupBy => {
+            setGroupBy(nextGroupBy)
+            void loadCampaignInsights(nextGroupBy)
+          }}
+          onRefresh={() => void loadCampaignInsights()}
+        />
+        </div>
       </main>
     </div>
   )

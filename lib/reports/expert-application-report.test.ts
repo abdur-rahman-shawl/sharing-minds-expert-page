@@ -87,7 +87,7 @@ describe('expert application report formatting', () => {
 })
 
 describe('expert application workbook', () => {
-  it('writes the summary, applications, and status guide with formula-safe values', async () => {
+  it('writes application and campaign worksheets with formula-safe values', async () => {
     const row: ExpertApplicationReportRow = {
       applicationId: '11111111-1111-4111-8111-111111111111',
       registeredAtIst: '2026-07-26 14:30:00 IST',
@@ -123,6 +123,7 @@ describe('expert application workbook', () => {
     expect(workbookXml).toContain('name="Summary"')
     expect(workbookXml).toContain('name="Applications"')
     expect(workbookXml).toContain('name="Status Guide"')
+    expect(workbookXml).toContain('name="Campaign Performance"')
     expect(applicationSheetXml.match(/<row\b/g)).toHaveLength(2)
     expect(allXml).toContain("'=malicious@example.com")
     expect(applicationSheetXml).toContain('<pane')

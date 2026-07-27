@@ -1,6 +1,6 @@
 # Guest Mentor Application — Source of Truth
 
-Last updated: 22 July 2026
+Last updated: 27 July 2026
 Owner: SharingMinds engineering
 Implementation branch: `arm-kan-232`
 
@@ -33,11 +33,11 @@ application verification is not a platform login and does not create a Better Au
 9. Submission data, required legal-document consent, and the immutable submission revision
    are committed as one logical operation.
 10. Claiming and promotion are idempotent and concurrency safe.
-11. Migrations 003 and 004 are schema-first: both must succeed before this code version is
-    deployed. Migration 003 provides the guest aggregate and secure OTP infrastructure;
-    migration 004 provides the version-two application and mentor-profile columns. Guest
-    onboarding and application-table integration remain unavailable until
-    `MENTOR_APPLICATIONS_ENABLED=true` is deliberately enabled.
+11. Migrations 003, 004, and 005 are schema-first. Migration 003 provides the guest aggregate
+    and secure OTP infrastructure; migration 004 provides the version-two application and
+    mentor-profile columns; migration 005 provides first-party campaign attribution. Guest
+    onboarding remains unavailable until `MENTOR_APPLICATIONS_ENABLED=true`, and attribution
+    remains unavailable until `CAMPAIGN_ATTRIBUTION_ENABLED=true`.
 12. Every public expert-registration CTA uses the canonical `/verified-experts` entry directly.
     Guest CTAs must never require Better Auth login or start Google/LinkedIn authentication;
     platform authentication remains a later, separate account-linking concern.
@@ -117,6 +117,10 @@ clears only this scoped cookie, never a Better Auth session.
   scanning enhancement but are not used by the current runtime.
 - `consent_events.mentor_application_id`: binds server-recorded legal consent to the
   submitted application.
+- `campaign_visits`: first-party acquisition visits with normalized UTM dimensions,
+  landing/referrer context, application-page and OTP milestones, and anonymous signed-cookie
+  visitor identity. A newly created application may link one immutable acquisition visit through
+  `mentor_applications.attribution_visit_id`; existing applications are never re-attributed.
 
 ## Expert application form version 2
 
@@ -201,6 +205,8 @@ current API, or promoted for new applications.
 | `POST` | `/api/mentor-applications/:id/review` | Verified admin | Apply a valid review transition and retry promotion |
 | `POST` | `/api/internal/mentor-applications/claim` | Internal service bearer secret | Let the main platform claim by verified database user ID |
 | `POST` | `/api/internal/mentor-applications/reconcile` | Internal service bearer secret | Retry approved, linked, unpromoted applications in bounded batches |
+| `POST` | `/api/attribution/visit` | Public + trusted origin | Capture or continue a first-party acquisition visit and refresh signed attribution cookies |
+| `POST` | `/api/reports/expert-applications/campaigns` | Verified admin | Return source, campaign, or creative funnel comparisons for an acquisition cohort |
 
 The server derives the applicant email from the scoped session. Client-supplied email is
 never accepted as proof of identity.
@@ -362,22 +368,18 @@ application approval; it is not an authentication error or a dependency of exper
 - The temporary route is marked `noindex, nofollow`; it may be made indexable only when the
   production client-access experience and its canonical metadata are approved.
 
-### Public expert-application reporting
+### Administrator expert-application reporting
 
-`/reports/expert-applications` is the intentionally unlisted reporting utility for downloading
-expert registrations as an Excel workbook. It accepts a start and end date-time in
-`Asia/Kolkata` and posts the range to
-`/api/reports/expert-applications/export`.
+`/reports/expert-applications` is the administrator-only reporting utility for comparing
+campaign performance and downloading expert registrations as an Excel workbook. It accepts a
+start and end date-time in `Asia/Kolkata`.
 
 - Both range boundaries use an explicit calendar plus hour, minute, and AM/PM selectors. The
   interface does not depend on the browser's inconsistent native date-time input or require
   operators to type a date. The selected wall-clock values remain in IST through validation and
   export.
-- The report is temporarily link-accessible and does not require a platform account or admin
-  role. This is an explicit interim business decision, not a security boundary. The route is not
-  linked from public navigation and is marked `noindex`, `nofollow`, and `nocache`, but anyone who
-  obtains the URL can request the applicant export. Authentication must be added before the URL
-  is distributed beyond its intended operators.
+- Both the page and report APIs require an active, verified, unblocked SharingMinds user with the
+  `admin` role. Trusted-origin validation and private no-store responses remain mandatory.
 - Registration filtering uses `mentor_applications.created_at`, with an inclusive start and an
   exclusive end. An application row is created only after successful application-email OTP
   verification, so the filtered population represents verified registrations rather than raw
@@ -392,18 +394,21 @@ expert registrations as an Excel workbook. It accepts a start and end date-time 
 - Current lifecycle status and timestamps always come from `mentor_applications`; the immutable
   revision supplies applicant-submitted field values and consent evidence. This preserves both
   the exact latest submission and the current operational outcome.
-- The workbook contains `Summary`, `Applications`, and `Status Guide` worksheets. It includes IST
-  display timestamps, the original UTC registration timestamp, plain-language status meanings,
-  applicant fields, attachment filenames/sizes, consent versions, and the application revision.
+- The workbook contains `Summary`, `Applications`, `Status Guide`, and `Campaign Performance`
+  worksheets. Application rows include the attributed channel, source, medium, campaign,
+  creative, term, landing page, referrer host, and acquisition timestamp.
+- Campaign insights filter by `campaign_visits.started_at`, then follow linked applications to
+  their current status. They expose visits, unique visitors, application-page visits, OTP starts,
+  drafts, submitted applications, approvals, and visit/application/submission conversion rates.
 - Private storage paths and URLs, OTP challenges, application sessions, request IPs, user agents,
   file checksums, reviewer identity, and internal review notes are intentionally excluded.
 - Applicant-controlled text is neutralized before it reaches Excel when it begins with a formula
   trigger (`=`, `+`, `-`, or `@`, including leading control/space characters). The export never
   silently truncates: ranges are limited to 366 days and results above 10,000 rows return an
   instruction to select a narrower range.
-- The API requires a trusted same-origin POST, applies a best-effort per-instance download limit,
-  returns `Cache-Control: private, no-store`, and logs only the range and row count. These abuse
-  controls reduce accidental exposure but do not replace authentication.
+- The API requires a verified administrator and trusted same-origin POST, applies a best-effort
+  per-instance download limit, returns `Cache-Control: private, no-store`, and logs only the
+  administrator ID, range, and row count.
 - For growing reporting volume, apply the following additive performance index through the
   project's reviewed manual-SQL workflow:
 
@@ -419,8 +424,10 @@ ON mentor_applications (created_at DESC);
   `mentor_applications`.
 - Production defaults guest onboarding and application-table integration off until
   `MENTOR_APPLICATIONS_ENABLED=true`. Apply and verify migration 003, then apply and verify
-  migration 004 before deploying this code version with the flag off. Verify the private bucket
-  and cross-app integration before enabling the flag. Both migrations must precede this code.
+  migration 004 before deploying this code version with the flag off. Apply migration 005 before
+  enabling campaign attribution. Verify the private bucket and cross-app integration before
+  enabling onboarding, then configure the independent attribution secret before enabling
+  `CAMPAIGN_ATTRIBUTION_ENABLED`.
 - The legacy `email_verifications` runtime is retired. Its database declaration/table remains
   temporarily for rollback-safe retention, is marked deprecated, and has no runtime readers or
   writers. Remove the table later through an explicit cleanup migration after rollout evidence.
@@ -529,6 +536,7 @@ Secrets are server-only and must never use a `NEXT_PUBLIC_` prefix.
 | Claiming and promotion | Complete | V2 public/operational fields promote idempotently; historical screening and review data remain application-only |
 | `/verified-experts` OTP-first UI | Complete | Eight-step radio/checkbox form, normalized locations, autosave, resubmission, direct legal acknowledgement, and lifecycle views |
 | Application-received email | Complete | Responsive branded HTML, plaintext fallback, safe personalization, private-data minimization, and no applicant CTA |
+| Campaign attribution | Complete in code | Migration 005, signed first-party visits, immutable application attribution, admin insights, and campaign-aware Excel export; production migration and flag enablement remain pending |
 | Temporary `/auth/login` experience | Complete | Premium private-access preview; platform auth backend retained and expert OTP onboarding remains independently accessible |
 | Automated verification | Complete | TypeScript, production build, 28 unit tests, and zero known validation regressions |
 | Browser verification | Complete | Guest home/application navigation, public CTA routing, guest bootstrap, validation alert/focus behavior, safe bare/malformed LinkedIn handling, hydrated option state, expertise limit, and 390px overflow checks pass |
@@ -546,6 +554,19 @@ Migration 004 is now active, as confirmed by successful runtime access to its ve
 application columns; its read-only verification script remains available for repeatable auditing.
 
 ## Change log
+
+### 27 July 2026
+
+- Added schema-first campaign attribution through `campaign_visits` and immutable
+  `mentor_applications.attribution_visit_id`.
+- Added signed first-party visitor, active-visit, and non-direct-touch cookies with standard UTM,
+  referrer, and supported click-ID capture.
+- Linked new guest and authenticated applications to their acquisition visit without rewriting
+  existing application attribution.
+- Added administrator-only campaign cohort insights and marketing columns plus a `Campaign
+  Performance` worksheet to the Excel export.
+- Documented canonical campaign-link naming, metric definitions, privacy constraints, and the
+  migration-first rollout sequence.
 
 ### 20 July 2026
 

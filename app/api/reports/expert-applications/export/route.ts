@@ -13,6 +13,7 @@ import {
   assertTrustedOrigin,
   MentorApplicationSecurityError,
 } from '@/lib/mentor-applications/security'
+import { getApplicationAdmin } from '@/lib/mentor-applications/auth'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -27,6 +28,13 @@ const NO_STORE_HEADERS = {
 export async function POST(request: NextRequest) {
   try {
     assertTrustedOrigin(request)
+    const admin = await getApplicationAdmin(request)
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, error: 'Administrator access is required' },
+        { status: 403, headers: NO_STORE_HEADERS },
+      )
+    }
 
     const rateLimit = checkPublicReportRateLimit(request)
     if (!rateLimit.allowed) {
@@ -74,7 +82,8 @@ export async function POST(request: NextRequest) {
     const responseBody = new ArrayBuffer(workbook.byteLength)
     new Uint8Array(responseBody).set(workbook)
 
-    console.info('[expert-application-report] Generated public report', {
+    console.info('[expert-application-report] Generated admin report', {
+      adminId: admin.id,
       startAt: range.startAt.toISOString(),
       endAt: range.endAt.toISOString(),
       rows: report.rows.length,

@@ -14,6 +14,7 @@ import {
   normalizeEmail,
 } from '@/lib/mentor-applications/security'
 import { requestMentorApplicationOtpSchema } from '@/lib/validations/mentor-application'
+import { markCurrentCampaignVisitOtpRequested } from '@/lib/campaign-attribution/server'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -46,6 +47,12 @@ export async function POST(request: NextRequest) {
   // Once the input is syntactically valid, all outcomes are intentionally
   // indistinguishable to avoid revealing existing applications.
   try {
+    try {
+      await markCurrentCampaignVisitOtpRequested(request)
+    } catch (error) {
+      console.error('[campaign-attribution] Unable to mark OTP start', error)
+    }
+
     const normalizedEmail = normalizeEmail(parsed.data.email)
     const [existingApplication] = await db
       .select({ id: mentorApplications.id })

@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
+import { CampaignAttributionTracker } from '@/components/providers/campaign-attribution-tracker'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -38,6 +39,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <Suspense fallback={null}>
+        <CampaignAttributionTracker />
+      </Suspense>
       {!hideChrome && <Header />}
       <main className={`flex-1 ${!hideChrome ? 'pt-20 sm:pt-24' : ''}`}>{children}</main>
       {!hideChrome && <Footer />}

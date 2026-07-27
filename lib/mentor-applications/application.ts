@@ -86,6 +86,7 @@ async function upsertVerifiedApplication(input: {
   transaction: DatabaseTransaction
   email: string
   source: MentorApplicationSource
+  attributionVisitId?: string | null
 }): Promise<{ application: MentorApplication; created: boolean }> {
   const normalizedEmail = normalizeEmail(input.email)
   const now = new Date()
@@ -126,6 +127,8 @@ async function upsertVerifiedApplication(input: {
       normalizedEmail,
       emailVerifiedAt: now,
       source: input.source,
+      attributionVisitId: input.attributionVisitId || null,
+      attributionCapturedAt: input.attributionVisitId ? now : null,
       lastSavedAt: now,
     })
     .returning()
@@ -134,7 +137,10 @@ async function upsertVerifiedApplication(input: {
     {
       applicationId: application.id,
       eventType: 'CREATED',
-      metadata: { source: input.source },
+      metadata: {
+        source: input.source,
+        attributionVisitId: input.attributionVisitId || null,
+      },
     },
     {
       applicationId: application.id,
@@ -149,6 +155,7 @@ async function upsertVerifiedApplication(input: {
 export async function verifyMentorApplicationOtpAndIssueSession(input: {
   challengeId: string
   code: string
+  attributionVisitId?: string | null
   requestIp?: string | null
   userAgent?: string | null
 }) {
@@ -161,6 +168,7 @@ export async function verifyMentorApplicationOtpAndIssueSession(input: {
         transaction,
         email: verification.normalizedEmail,
         source: 'GUEST',
+        attributionVisitId: input.attributionVisitId,
       })
       const session = await issueMentorApplicationSession({
         applicationId: application.id,
@@ -176,6 +184,7 @@ export async function verifyMentorApplicationOtpAndIssueSession(input: {
 export async function createAuthenticatedApplicationSession(input: {
   userId: string
   email: string
+  attributionVisitId?: string | null
   requestIp?: string | null
   userAgent?: string | null
 }) {
@@ -184,6 +193,7 @@ export async function createAuthenticatedApplicationSession(input: {
       transaction,
       email: input.email,
       source: 'AUTHENTICATED',
+      attributionVisitId: input.attributionVisitId,
     })
 
     if (

@@ -9,6 +9,7 @@ export * from './email-verifications';
 export * from './contact-submissions';
 export * from './mentor-availability';
 export * from './mentor-content';
+export * from './campaign-visits';
 export * from './mentor-applications';
 export * from './email-otp-challenges';
 export * from './mentor-application-sessions';

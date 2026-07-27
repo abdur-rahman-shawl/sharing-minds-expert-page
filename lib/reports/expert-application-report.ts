@@ -9,13 +9,21 @@ import { z } from 'zod'
 
 import { db } from '@/lib/db'
 import {
+  campaignVisits,
   mentorApplicationFiles,
   mentorApplicationRevisions,
   mentorApplications,
+  type CampaignVisit,
   type MentorApplication,
   type MentorApplicationFile,
   type MentorApplicationRevision,
 } from '@/lib/db/schema'
+import { isCampaignAttributionEnabled } from '@/lib/campaign-attribution/feature'
+import {
+  buildCampaignPerformanceData,
+  getCampaignPerformanceData,
+  type CampaignPerformanceData,
+} from './campaign-performance'
 
 export const EXPERT_REPORT_TIME_ZONE = 'Asia/Kolkata'
 export const EXPERT_REPORT_MAX_RANGE_DAYS = 366
@@ -103,6 +111,7 @@ export interface ExpertApplicationReportData {
   range: ExpertApplicationReportRange
   generatedAt: Date
   rows: ExpertApplicationReportRow[]
+  campaignPerformance?: CampaignPerformanceData
 }
 
 export class ExpertApplicationReportTooLargeError extends Error {
@@ -159,7 +168,16 @@ const REPORT_COLUMNS: Array<{
   { header: 'Full Name', key: 'fullName', width: 28 },
   { header: 'Phone', key: 'phone', width: 22 },
   { header: 'Application ID', key: 'applicationId', width: 38 },
-  { header: 'Application Source', key: 'source', width: 20 },
+  { header: 'Application Entry Source', key: 'source', width: 24 },
+  { header: 'Marketing Channel', key: 'marketingChannel', width: 22 },
+  { header: 'Marketing Source', key: 'marketingSource', width: 24 },
+  { header: 'Marketing Medium', key: 'marketingMedium', width: 24 },
+  { header: 'Marketing Campaign', key: 'marketingCampaign', width: 32 },
+  { header: 'Marketing Creative', key: 'marketingContent', width: 32 },
+  { header: 'Marketing Term', key: 'marketingTerm', width: 28 },
+  { header: 'Campaign Landing Page', key: 'campaignLandingPath', width: 34 },
+  { header: 'Campaign Referrer', key: 'campaignReferrerHost', width: 30 },
+  { header: 'Attributed Visit At (IST)', key: 'attributedVisitAtIst', width: 28 },
   { header: 'Email Verified At (IST)', key: 'emailVerifiedAtIst', width: 25 },
   { header: 'Latest Submitted At (IST)', key: 'submittedAtIst', width: 27 },
   { header: 'Reviewed At (IST)', key: 'reviewedAtIst', width: 25 },
@@ -447,8 +465,9 @@ function buildReportRow(input: {
   application: MentorApplication
   latestRevision?: MentorApplicationRevision
   files: MentorApplicationFile[]
+  attributionVisit?: CampaignVisit
 }): ExpertApplicationReportRow {
-  const { application, latestRevision, files } = input
+  const { application, latestRevision, files, attributionVisit } = input
   const snapshot = asRecord(latestRevision?.snapshot)
   const location = asRecord(snapshot?.location)
   const hasSubmittedSnapshot = Boolean(latestRevision && snapshot)
@@ -486,6 +505,15 @@ function buildReportRow(input: {
     fullName: textValue(currentOrSnapshot('fullName', application.fullName)),
     phone: textValue(currentOrSnapshot('phone', application.phone)),
     source: application.source,
+    marketingChannel: attributionVisit?.channel || 'UNATTRIBUTED',
+    marketingSource: attributionVisit?.source || 'unattributed',
+    marketingMedium: attributionVisit?.medium || '',
+    marketingCampaign: attributionVisit?.campaign || '',
+    marketingContent: attributionVisit?.content || '',
+    marketingTerm: attributionVisit?.term || '',
+    campaignLandingPath: attributionVisit?.landingPath || '',
+    campaignReferrerHost: attributionVisit?.referrerHost || '',
+    attributedVisitAtIst: formatIndiaDateTime(attributionVisit?.startedAt),
     emailVerifiedAtIst: formatIndiaDateTime(application.emailVerifiedAt),
     submittedAtIst: formatIndiaDateTime(
       latestRevision?.submittedAt || application.submittedAt,
@@ -595,6 +623,16 @@ function buildReportRow(input: {
 export async function getExpertApplicationReportData(
   range: ExpertApplicationReportRange,
 ): Promise<ExpertApplicationReportData> {
+  const campaignPerformancePromise = isCampaignAttributionEnabled()
+    ? getCampaignPerformanceData({ ...range, groupBy: 'campaign' })
+    : Promise.resolve(
+        buildCampaignPerformanceData({
+          visits: [],
+          applications: [],
+          groupBy: 'campaign',
+          ...range,
+        }),
+      )
   const applications = await db
     .select()
     .from(mentorApplications)
@@ -616,11 +654,15 @@ export async function getExpertApplicationReportData(
       range,
       generatedAt: new Date(),
       rows: [],
+      campaignPerformance: await campaignPerformancePromise,
     }
   }
 
   const applicationIds = applications.map(application => application.id)
-  const [revisions, files] = await Promise.all([
+  const attributionVisitIds = applications
+    .map(application => application.attributionVisitId)
+    .filter((id): id is string => Boolean(id))
+  const [revisions, files, attributionVisits] = await Promise.all([
     db
       .select()
       .from(mentorApplicationRevisions)
@@ -634,6 +676,12 @@ export async function getExpertApplicationReportData(
       .from(mentorApplicationFiles)
       .where(inArray(mentorApplicationFiles.applicationId, applicationIds))
       .orderBy(desc(mentorApplicationFiles.createdAt)),
+    attributionVisitIds.length > 0
+      ? db
+          .select()
+          .from(campaignVisits)
+          .where(inArray(campaignVisits.id, attributionVisitIds))
+      : Promise.resolve([]),
   ])
 
   const latestRevisionByApplication = new Map<string, MentorApplicationRevision>()
@@ -649,15 +697,22 @@ export async function getExpertApplicationReportData(
     applicationFiles.push(file)
     filesByApplication.set(file.applicationId, applicationFiles)
   }
+  const attributionVisitsById = new Map(
+    attributionVisits.map(visit => [visit.id, visit]),
+  )
 
   return {
     range,
     generatedAt: new Date(),
+    campaignPerformance: await campaignPerformancePromise,
     rows: applications.map(application =>
       buildReportRow({
         application,
         latestRevision: latestRevisionByApplication.get(application.id),
         files: filesByApplication.get(application.id) || [],
+        attributionVisit: application.attributionVisitId
+          ? attributionVisitsById.get(application.attributionVisitId)
+          : undefined,
       }),
     ),
   }
@@ -775,6 +830,50 @@ function buildApplicationsSheet(report: ExpertApplicationReportData): SheetData 
   ]
 }
 
+const CAMPAIGN_PERFORMANCE_COLUMNS: Array<{
+  header: string
+  key: keyof CampaignPerformanceData['rows'][number]
+  width: number
+}> = [
+  { header: 'Source', key: 'source', width: 24 },
+  { header: 'Medium', key: 'medium', width: 22 },
+  { header: 'Campaign', key: 'campaign', width: 32 },
+  { header: 'Visits', key: 'visits', width: 14 },
+  { header: 'Unique Visitors', key: 'uniqueVisitors', width: 18 },
+  { header: 'Application Page Visits', key: 'applicationPageVisits', width: 24 },
+  { header: 'OTP Starts', key: 'otpStarts', width: 15 },
+  { header: 'Applications', key: 'applications', width: 16 },
+  { header: 'Current Drafts', key: 'drafts', width: 17 },
+  { header: 'Submitted', key: 'submitted', width: 15 },
+  { header: 'In Review', key: 'inReview', width: 15 },
+  { header: 'Changes Requested', key: 'changesRequested', width: 20 },
+  { header: 'Resubmitted', key: 'resubmitted', width: 16 },
+  { header: 'Approved', key: 'approved', width: 14 },
+  { header: 'Rejected', key: 'rejected', width: 14 },
+  { header: 'Withdrawn', key: 'withdrawn', width: 15 },
+  { header: 'Visit to Application %', key: 'visitToApplicationRate', width: 23 },
+  {
+    header: 'Application to Submission %',
+    key: 'applicationToSubmissionRate',
+    width: 27,
+  },
+  {
+    header: 'Submission to Approval %',
+    key: 'submissionToApprovalRate',
+    width: 25,
+  },
+]
+
+function buildCampaignPerformanceSheet(report: ExpertApplicationReportData): SheetData {
+  const rows = report.campaignPerformance?.rows || []
+  return [
+    CAMPAIGN_PERFORMANCE_COLUMNS.map(column => headerCell(column.header)),
+    ...rows.map(row =>
+      CAMPAIGN_PERFORMANCE_COLUMNS.map(column => dataCell(row[column.key])),
+    ),
+  ]
+}
+
 function buildStatusGuideSheet(): SheetData {
   return [
     [headerCell('Database Status'), headerCell('Meaning')],
@@ -812,6 +911,16 @@ export async function buildExpertApplicationWorkbook(
         stickyRowsCount: 1,
         showGridLines: false,
         zoomScale: 1,
+      },
+      {
+        data: buildCampaignPerformanceSheet(report),
+        sheet: 'Campaign Performance',
+        columns: CAMPAIGN_PERFORMANCE_COLUMNS.map(column => ({
+          width: column.width,
+        })),
+        stickyRowsCount: 1,
+        showGridLines: false,
+        zoomScale: 0.9,
       },
     ],
     {

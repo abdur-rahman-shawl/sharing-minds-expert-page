@@ -15,6 +15,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { mentors } from './mentors';
 import { users } from './users';
+import { campaignVisits } from './campaign-visits';
 
 export const mentorApplicationStatusEnum = pgEnum('mentor_application_status', [
   'DRAFT',
@@ -56,6 +57,13 @@ export const mentorApplications = pgTable(
     }),
     source: mentorApplicationSourceEnum('source').default('GUEST').notNull(),
     status: mentorApplicationStatusEnum('status').default('DRAFT').notNull(),
+    attributionVisitId: uuid('attribution_visit_id').references(
+      () => campaignVisits.id,
+      { onDelete: 'restrict' },
+    ),
+    attributionCapturedAt: timestamp('attribution_captured_at', {
+      withTimezone: true,
+    }),
 
     // Applicant-provided profile snapshot. Fields remain nullable while the
     // application is a draft; submission validation is enforced by the service.
@@ -135,6 +143,9 @@ export const mentorApplications = pgTable(
       table.linkedUserId,
       table.promotedAt,
     ),
+    attributionVisitIdx: index('mentor_applications_attribution_visit_idx').on(
+      table.attributionVisitId,
+    ),
     normalizedEmailCanonicalCheck: check(
       'mentor_applications_normalized_email_canonical_check',
       sql`${table.normalizedEmail} = lower(btrim(${table.email}))
@@ -198,6 +209,11 @@ export const mentorApplications = pgTable(
       'mentor_applications_promotion_timestamp_check',
       sql`${table.mentorId} is null or ${table.promotedAt} is not null`,
     ),
+    attributionTimestampCheck: check(
+      'mentor_applications_attribution_timestamp_check',
+      sql`${table.attributionVisitId} is null
+        or ${table.attributionCapturedAt} is not null`,
+    ),
   }),
 );
 
@@ -215,6 +231,10 @@ export const mentorApplicationsRelations = relations(mentorApplications, ({ one 
   mentor: one(mentors, {
     fields: [mentorApplications.mentorId],
     references: [mentors.id],
+  }),
+  attributionVisit: one(campaignVisits, {
+    fields: [mentorApplications.attributionVisitId],
+    references: [campaignVisits.id],
   }),
 }));
 

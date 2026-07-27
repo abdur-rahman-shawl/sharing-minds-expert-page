@@ -17,7 +17,13 @@ export type VerifiedApplicationUser = {
 export async function getVerifiedApplicationUser(
   request: NextRequest,
 ): Promise<VerifiedApplicationUser | null> {
-  const session = await auth.api.getSession({ headers: request.headers })
+  return getVerifiedApplicationUserFromHeaders(request.headers)
+}
+
+export async function getVerifiedApplicationUserFromHeaders(
+  headers: Headers,
+): Promise<VerifiedApplicationUser | null> {
+  const session = await auth.api.getSession({ headers })
   if (!session?.user?.id) return null
 
   const [user] = await db
@@ -48,7 +54,13 @@ export async function getVerifiedApplicationUser(
 export async function getApplicationAdmin(
   request: NextRequest,
 ): Promise<VerifiedApplicationUser | null> {
-  const user = await getVerifiedApplicationUser(request)
+  return getApplicationAdminFromHeaders(request.headers)
+}
+
+export async function getApplicationAdminFromHeaders(
+  headers: Headers,
+): Promise<VerifiedApplicationUser | null> {
+  const user = await getVerifiedApplicationUserFromHeaders(headers)
   if (!user) return null
   return (await userHasRole(user.id, 'admin')) ? user : null
 }
