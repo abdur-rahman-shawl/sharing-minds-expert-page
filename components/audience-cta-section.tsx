@@ -28,31 +28,31 @@ const excludedPortraits = [
 const lightNetworkPortraits = [
   {
     source: "/professional-mentor-headshot-8.jpg",
-    className: "left-[8%] top-[19%] h-11 w-11",
+    className: "left-[8%] top-[18%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-3.jpg",
-    className: "left-[28%] top-[2%] h-10 w-10",
+    className: "left-[28%] top-[2%] h-14 w-14",
   },
   {
     source: "/professional-mentor-headshot-11.jpg",
-    className: "left-[49%] top-[1%] h-10 w-10",
+    className: "left-[49%] top-[1%] h-14 w-14",
   },
   {
     source: "/professional-mentor-headshot-5.jpg",
-    className: "right-[5%] top-[26%] h-11 w-11",
+    className: "right-[5%] top-[25%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-7.jpg",
-    className: "left-[8%] bottom-[16%] h-11 w-11",
+    className: "left-[8%] bottom-[15%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-9.jpg",
-    className: "left-[39%] bottom-[2%] h-11 w-11",
+    className: "left-[39%] bottom-[2%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-12.jpg",
-    className: "right-[7%] bottom-[10%] h-10 w-10",
+    className: "right-[7%] bottom-[9%] h-14 w-14",
   },
 ]
 
@@ -68,24 +68,26 @@ const lightNetworkLines = [
 
 function ExpertFitCards() {
   return (
-    <div className="grid gap-2.5">
-      <div className="overflow-hidden rounded-[7px] border border-[#d6dde5] bg-white shadow-[0_7px_18px_rgba(13,33,71,0.06)]">
-        <p className="px-3 pt-2 text-[9px] font-medium text-[#c28c3f]">
+    <div className="grid gap-5">
+      <div className="overflow-hidden rounded-xl border border-[#d6dde5] bg-white shadow-[0_16px_38px_rgba(13,33,71,0.08)]">
+        <p className="px-6 pt-5 text-[15px] font-semibold text-[#b77e2f]">
           This is for you if you:
         </p>
-        <div className="flex h-[78px] items-end justify-center gap-1 px-2">
+        <div className="flex h-[180px] items-end justify-center gap-2 px-4 sm:h-[205px]">
           {expertPortraits.map((source, index) => (
             <span
               key={source}
               className={`relative overflow-hidden rounded-t-full border-x border-t border-[#dce3ea] bg-[#edf2f6] ${
-                index % 3 === 1 ? "h-[68px] w-[45px]" : "h-[60px] w-[42px]"
+                index % 3 === 1
+                  ? "h-[165px] w-[86px]"
+                  : "h-[145px] w-[78px]"
               }`}
             >
               <Image
                 src={source}
                 alt=""
                 fill
-                sizes="45px"
+                sizes="86px"
                 className="object-cover object-top"
               />
             </span>
@@ -93,19 +95,19 @@ function ExpertFitCards() {
         </div>
       </div>
 
-      <div className="grid min-h-[78px] grid-cols-[1fr_156px] overflow-hidden rounded-[7px] border border-[#d6dde5] bg-white shadow-[0_7px_18px_rgba(13,33,71,0.05)]">
-        <div className="px-3 py-2">
-          <p className="text-[9px] font-medium text-[#c28c3f]">
+      <div className="grid min-h-[190px] overflow-hidden rounded-xl border border-[#d6dde5] bg-white shadow-[0_16px_38px_rgba(13,33,71,0.07)] sm:grid-cols-[1fr_260px]">
+        <div className="px-6 py-5">
+          <p className="text-[15px] font-semibold text-[#b77e2f]">
             This is not for you if you:
           </p>
-          <ul className="mt-1 space-y-0.5">
+          <ul className="mt-4 space-y-3">
             {["Casual mentors", "Low-intent advisors", "Generic visibility seekers"].map(
               (item) => (
                 <li
                   key={item}
-                  className="flex items-center gap-1.5 text-[8px] leading-[1.35] text-[#39495e]"
+                  className="flex items-center gap-2.5 text-[14px] leading-[1.45] text-[#39495e]"
                 >
-                  <X className="h-2.5 w-2.5 stroke-[2] text-[#bd8a42]" />
+                  <X className="h-4 w-4 stroke-[2] text-[#bd8a42]" />
                   {item}
                 </li>
               ),
@@ -113,17 +115,17 @@ function ExpertFitCards() {
           </ul>
         </div>
 
-        <div className="flex items-end justify-end gap-1 pr-2">
+        <div className="flex min-h-[160px] items-end justify-center gap-2 px-4 sm:justify-end sm:pr-5">
           {excludedPortraits.map((source) => (
             <span
               key={source}
-              className="relative h-[68px] w-[43px] overflow-hidden rounded-t-full border-x border-t border-[#d5dbe1] bg-[#edf0f3] grayscale"
+              className="relative h-[155px] w-[78px] overflow-hidden rounded-t-full border-x border-t border-[#d5dbe1] bg-[#edf0f3] grayscale"
             >
               <Image
                 src={source}
                 alt=""
                 fill
-                sizes="43px"
+                sizes="78px"
                 className="object-cover object-top opacity-80"
               />
             </span>
@@ -137,11 +139,11 @@ function ExpertFitCards() {
 function LightExpertNetwork() {
   return (
     <div
-      className="relative mx-auto h-[190px] w-full max-w-[390px]"
+      className="relative mx-auto h-[340px] w-full max-w-[620px] sm:h-[390px]"
       aria-label="A connected network of high-quality experts"
       role="img"
     >
-      <span className="absolute left-1/2 top-1/2 h-32 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#277bd8]/8 blur-3xl" />
+      <span className="absolute left-1/2 top-1/2 h-64 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#277bd8]/10 blur-3xl" />
 
       {lightNetworkLines.map((line) => (
         <span
@@ -156,12 +158,12 @@ function LightExpertNetwork() {
         />
       ))}
 
-      <span className="absolute left-1/2 top-1/2 z-10 h-[68px] w-[116px] -translate-x-1/2 -translate-y-1/2">
+      <span className="absolute left-1/2 top-1/2 z-10 h-[116px] w-[200px] -translate-x-1/2 -translate-y-1/2">
         <Image
           src="/brand/sharingminds-infinity.png"
           alt=""
           fill
-          sizes="116px"
+          sizes="200px"
           className="object-contain drop-shadow-[0_7px_12px_rgba(35,110,210,0.22)]"
         />
       </span>
@@ -172,7 +174,7 @@ function LightExpertNetwork() {
           className={`absolute z-20 overflow-hidden rounded-full border border-[#5c94cd] bg-white p-0.5 shadow-[0_3px_9px_rgba(18,60,108,0.14)] ${className}`}
         >
           <span className="relative block h-full w-full overflow-hidden rounded-full">
-            <Image src={source} alt="" fill sizes="44px" className="object-cover" />
+            <Image src={source} alt="" fill sizes="64px" className="object-cover" />
           </span>
         </span>
       ))}
@@ -196,40 +198,33 @@ function LightExpertNetwork() {
 
 export function AudienceCtaSection() {
   return (
-    <div className="overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 text-[#0d2147] sm:px-8 lg:px-12">
-      <div className="mx-auto grid w-full max-w-[1380px] lg:grid-cols-[1.12fr_0.88fr]">
+    <div className="overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] text-[#0d2147]">
         <section
           id="who-this-is-for"
           aria-labelledby="who-this-is-for-title"
-          className="grid gap-8 py-8 sm:py-9 md:grid-cols-[225px_minmax(0,1fr)] md:items-center lg:pr-8"
+          className="px-5 py-16 sm:px-8 sm:py-20 lg:min-h-[clamp(640px,74vh,760px)] lg:px-12 lg:py-24"
         >
-          <div>
-            <div className="mb-4 flex items-end gap-3">
-              <span className="font-serif text-[33px] leading-none text-[#d79d42]">10</span>
-              <span className="pb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[#2775d6]">
-                Who This Is For
-              </span>
-            </div>
-
+          <div className="mx-auto grid w-full max-w-[1380px] gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-16">
+          <div className="max-w-[560px]">
             <h2
               id="who-this-is-for-title"
-              className="font-serif text-[clamp(29px,2.05vw,34px)] font-normal leading-[1.03] tracking-[-0.025em]"
+              className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em]"
             >
               Built for
               <span className="block">Serious Experts</span>
             </h2>
 
-            <p className="mt-3 max-w-[220px] text-[9px] leading-[1.45] text-[#33445b]">
+            <p className="mt-7 max-w-[520px] text-[16px] leading-[1.7] text-[#33445b]">
               This is for operators, specialists, and decision-makers who want to:
             </p>
 
-            <ul className="mt-2 space-y-0.5">
+            <ul className="mt-5 space-y-3">
               {seriousExpertGoals.map((goal) => (
                 <li
                   key={goal}
-                  className="flex items-start gap-1.5 text-[8.5px] leading-[1.42] text-[#253951]"
+                  className="flex items-start gap-3 text-[15px] leading-[1.55] text-[#253951]"
                 >
-                  <Check className="mt-0.5 h-3 w-3 shrink-0 stroke-[2.1] text-[#2775d6]" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 stroke-[2.1] text-[#2775d6]" />
                   {goal}
                 </li>
               ))}
@@ -237,30 +232,25 @@ export function AudienceCtaSection() {
           </div>
 
           <ExpertFitCards />
+          </div>
         </section>
 
         <section
           id="final-cta"
           aria-labelledby="final-cta-title"
-          className="grid gap-8 border-t border-[#cfd8e2] py-8 sm:py-9 md:grid-cols-[225px_minmax(0,1fr)] md:items-center lg:border-l lg:border-t-0 lg:pl-8"
+          className="relative overflow-hidden border-t border-[#cfd8e2] bg-[radial-gradient(circle_at_72%_50%,rgba(39,117,214,0.12),transparent_38%)] px-5 py-16 sm:px-8 sm:py-20 lg:min-h-[clamp(600px,70vh,720px)] lg:px-12 lg:py-24"
         >
-          <div>
-            <div className="mb-4 flex items-end gap-3">
-              <span className="font-serif text-[33px] leading-none text-[#d79d42]">11</span>
-              <span className="pb-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[#2775d6]">
-                Final CTA
-              </span>
-            </div>
-
+          <div className="mx-auto grid w-full max-w-[1380px] gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
+          <div className="max-w-[600px]">
             <h2
               id="final-cta-title"
-              className="font-serif text-[clamp(29px,2.05vw,34px)] font-normal leading-[1.03] tracking-[-0.025em]"
+              className="font-serif text-[clamp(44px,4.2vw,62px)] font-normal leading-[1.02] tracking-[-0.03em]"
             >
               Apply as an
               <span className="block">Early Expert</span>
             </h2>
 
-            <p className="mt-3 text-[9.5px] font-medium leading-[1.55] text-[#233851]">
+            <p className="mt-7 text-[17px] font-medium leading-[1.7] text-[#233851] sm:text-[18px]">
               Build strategic authority.
               <span className="block">Expand your influence.</span>
               <span className="block">Enter better rooms.</span>
@@ -268,19 +258,19 @@ export function AudienceCtaSection() {
 
             <Link
               href="/verified-experts"
-              className="mt-4 inline-flex min-h-9 items-center justify-center rounded-[3px] bg-[#1673d8] px-4 text-[9px] font-semibold text-white shadow-[0_5px_14px_rgba(22,115,216,0.3)] transition-colors hover:bg-[#0e64c0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2"
+              className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[5px] bg-[#1673d8] px-7 text-[15px] font-semibold text-white shadow-[0_8px_22px_rgba(22,115,216,0.3)] transition-colors hover:bg-[#0e64c0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2"
             >
               Complete Your Expert Profile
             </Link>
 
-            <p className="mt-2 text-[8px] leading-[1.4] text-[#4f5f71]">
+            <p className="mt-4 text-[14px] leading-[1.5] text-[#4f5f71]">
               Limited onboarding for high-quality experts
             </p>
           </div>
 
           <LightExpertNetwork />
+          </div>
         </section>
-      </div>
     </div>
   )
 }

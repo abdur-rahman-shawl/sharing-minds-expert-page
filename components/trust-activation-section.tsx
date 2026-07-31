@@ -23,19 +23,19 @@ const activationSteps = [
 const networkPortraits = [
   {
     source: "/professional-mentor-headshot-8.jpg",
-    className: "left-[8%] top-[18%] h-12 w-12",
+    className: "left-[8%] top-[16%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-3.jpg",
-    className: "left-[20%] top-[42%] h-11 w-11",
+    className: "left-[20%] top-[42%] h-14 w-14",
   },
   {
     source: "/professional-mentor-headshot-11.jpg",
-    className: "left-[9%] bottom-[10%] h-12 w-12",
+    className: "left-[9%] bottom-[9%] h-16 w-16",
   },
   {
     source: "/professional-mentor-headshot-5.jpg",
-    className: "left-[30%] bottom-[18%] h-9 w-9",
+    className: "left-[30%] bottom-[17%] h-12 w-12",
   },
 ]
 
@@ -48,22 +48,22 @@ const networkLines = [
 
 function TrustNetworkVisual() {
   const vortexLayers = [
-    { width: 190, height: 45, top: 126, opacity: 0.24 },
-    { width: 174, height: 43, top: 108, opacity: 0.28 },
-    { width: 156, height: 40, top: 90, opacity: 0.33 },
-    { width: 136, height: 36, top: 72, opacity: 0.38 },
-    { width: 113, height: 31, top: 54, opacity: 0.42 },
-    { width: 88, height: 25, top: 37, opacity: 0.48 },
-    { width: 58, height: 18, top: 22, opacity: 0.52 },
+    { width: 330, height: 72, top: 268, opacity: 0.24 },
+    { width: 302, height: 67, top: 226, opacity: 0.28 },
+    { width: 270, height: 61, top: 185, opacity: 0.33 },
+    { width: 232, height: 54, top: 145, opacity: 0.38 },
+    { width: 190, height: 46, top: 106, opacity: 0.42 },
+    { width: 144, height: 36, top: 70, opacity: 0.48 },
+    { width: 94, height: 25, top: 38, opacity: 0.52 },
   ]
 
   return (
     <div
-      className="relative mx-auto h-[190px] w-full max-w-[390px]"
+      className="relative mx-auto h-[360px] w-full max-w-[620px] sm:h-[400px]"
       aria-label="A selective network of verified experts"
       role="img"
     >
-      <div className="absolute left-[50%] top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1269da]/15 blur-3xl" />
+      <div className="absolute left-[55%] top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1269da]/18 blur-3xl" />
 
       {networkLines.map((line) => (
         <span
@@ -84,12 +84,12 @@ function TrustNetworkVisual() {
           className={`absolute overflow-hidden rounded-full border border-[#5a94ce]/70 bg-[#071b31] p-0.5 shadow-[0_0_14px_rgba(32,119,218,0.25)] ${className}`}
         >
           <span className="relative block h-full w-full overflow-hidden rounded-full">
-            <Image src={source} alt="" fill sizes="48px" className="object-cover" />
+            <Image src={source} alt="" fill sizes="64px" className="object-cover" />
           </span>
         </span>
       ))}
 
-      <div className="absolute left-[59%] top-1/2 h-[180px] w-[210px] -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute left-[59%] top-1/2 h-[360px] w-[380px] -translate-x-1/2 -translate-y-1/2">
         {vortexLayers.map((layer, index) => (
           <span
             key={layer.width}
@@ -104,21 +104,21 @@ function TrustNetworkVisual() {
           />
         ))}
 
-        <span className="absolute left-1/2 top-[93px] z-10 h-14 w-24 -translate-x-1/2 -translate-y-1/2">
+        <span className="absolute left-1/2 top-[185px] z-10 h-24 w-40 -translate-x-1/2 -translate-y-1/2">
           <Image
             src="/brand/sharingminds-infinity.png"
             alt=""
             fill
-            sizes="96px"
+            sizes="160px"
             className="object-contain drop-shadow-[0_0_15px_rgba(47,135,255,0.9)]"
           />
         </span>
       </div>
 
-      <div className="absolute right-[2%] top-[30%] flex flex-col gap-8 text-[#d8a454]">
-        <UserCheck className="h-5 w-5 stroke-[1.3]" />
-        <UsersRound className="ml-3 h-5 w-5 stroke-[1.3]" />
-        <UserCheck className="h-5 w-5 stroke-[1.3]" />
+      <div className="absolute right-[2%] top-[26%] flex flex-col gap-14 text-[#d8a454]">
+        <UserCheck className="h-7 w-7 stroke-[1.3]" />
+        <UsersRound className="ml-4 h-7 w-7 stroke-[1.3]" />
+        <UserCheck className="h-7 w-7 stroke-[1.3]" />
       </div>
     </div>
   )
@@ -127,7 +127,7 @@ function TrustNetworkVisual() {
 function ParticleInfinity() {
   return (
     <div
-      className="relative mx-auto h-[170px] w-full max-w-[330px]"
+      className="relative mx-auto h-[320px] w-full max-w-[600px] sm:h-[380px]"
       aria-label="Expert access activating into compounding opportunity"
       role="img"
     >
@@ -161,48 +161,41 @@ export function TrustActivationSection() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_48%,rgba(16,90,185,0.14),transparent_32%),radial-gradient(circle_at_78%_45%,rgba(16,90,185,0.12),transparent_30%)]" />
       <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      <div className="relative mx-auto grid w-full max-w-[1380px] lg:grid-cols-2">
+      <div className="relative mx-auto w-full max-w-[1380px]">
         <section
           id="trust-quality"
           aria-labelledby="trust-quality-title"
-          className="grid gap-8 py-9 sm:py-10 md:grid-cols-[230px_minmax(0,1fr)] md:items-center lg:pr-8"
+          className="grid gap-12 py-16 sm:py-20 lg:min-h-[clamp(620px,72vh,740px)] lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16 lg:py-24"
         >
-          <div>
-            <div className="mb-4 flex items-end gap-3">
-              <span className="font-serif text-[33px] leading-none text-[#e0aa5b]">08</span>
-              <span className="pb-0.5 text-[8px] font-semibold uppercase tracking-[0.1em] text-[#5e9bd8]">
-                Trust &amp; Quality
-              </span>
-            </div>
-
+          <div className="max-w-[560px]">
             <h2
               id="trust-quality-title"
-              className="font-serif text-[clamp(29px,2.05vw,34px)] font-normal leading-[1.02] tracking-[-0.025em] text-[#f4f1eb]"
+              className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em] text-[#f4f1eb]"
             >
               Curated. Verified.
               <span className="block">Selective.</span>
             </h2>
 
-            <p className="mt-3 max-w-[220px] text-[10px] leading-[1.5] text-[#d0d8e2]">
+            <p className="mt-7 max-w-[520px] text-[16px] leading-[1.7] text-[#d0d8e2]">
               This is not an open marketplace.
             </p>
-            <p className="mt-1 max-w-[220px] text-[10px] leading-[1.5] text-[#d0d8e2]">
+            <p className="mt-2 max-w-[520px] text-[16px] leading-[1.7] text-[#d0d8e2]">
               Experts are reviewed, verified, and selectively activated to maintain:
             </p>
 
-            <ul className="mt-2 space-y-0.5">
+            <ul className="mt-5 space-y-3">
               {trustStandards.map((standard) => (
                 <li
                   key={standard}
-                  className="flex items-center gap-2 text-[10px] leading-[1.45] text-[#eff3f6]"
+                  className="flex items-center gap-3 text-[15px] leading-[1.5] text-[#eff3f6]"
                 >
-                  <Check className="h-3.5 w-3.5 stroke-[2.2] text-[#e1aa58]" />
+                  <Check className="h-5 w-5 stroke-[2.2] text-[#e1aa58]" />
                   {standard}
                 </li>
               ))}
             </ul>
 
-            <p className="mt-2 max-w-[220px] text-[10px] leading-[1.5] text-[#d0d8e2]">
+            <p className="mt-5 max-w-[520px] text-[15px] leading-[1.65] text-[#d0d8e2]">
               We optimize for relevance and outcomes—not volume.
             </p>
           </div>
@@ -213,50 +206,45 @@ export function TrustActivationSection() {
         <section
           id="activation-model"
           aria-labelledby="activation-model-title"
-          className="grid gap-8 border-t border-[#67809b]/25 py-9 sm:py-10 md:grid-cols-[225px_minmax(0,1fr)] md:items-center lg:border-l lg:border-t-0 lg:pl-8"
+          className="grid gap-12 border-t border-[#67809b]/35 py-16 sm:py-20 lg:min-h-[clamp(620px,72vh,740px)] lg:grid-cols-[1.12fr_0.88fr] lg:items-center lg:gap-16 lg:py-24"
         >
-          <div>
-            <div className="mb-4 flex items-end gap-3">
-              <span className="font-serif text-[33px] leading-none text-[#e0aa5b]">09</span>
-              <span className="pb-0.5 text-[8px] font-semibold uppercase tracking-[0.1em] text-[#5e9bd8]">
-                Activation Model
-              </span>
-            </div>
-
+          <div className="max-w-[560px] lg:order-2">
             <h2
               id="activation-model-title"
-              className="font-serif text-[clamp(29px,2.05vw,34px)] font-normal leading-[1.02] tracking-[-0.025em] text-[#f4f1eb]"
+              className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em] text-[#f4f1eb]"
             >
               Join Free.
               <span className="block">Activate When Verified.</span>
             </h2>
 
-            <ol className="relative mt-4 space-y-2 before:absolute before:bottom-2 before:left-[9px] before:top-2 before:w-px before:bg-[linear-gradient(#d9a85a,#2b7ad6)]">
+            <ol className="relative mt-8 space-y-4 before:absolute before:bottom-4 before:left-[15px] before:top-4 before:w-px before:bg-[linear-gradient(#d9a85a,#2b7ad6)]">
               {activationSteps.map(({ label, icon: Icon }, index) => (
                 <li
                   key={label}
-                  className="relative z-10 flex items-center gap-3 text-[10px] leading-[1.35] text-[#d8e0e8]"
+                  className="relative z-10 flex items-center gap-4 text-[15px] leading-[1.45] text-[#d8e0e8]"
                 >
                   <span
-                    className={`flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border bg-[#071b31] ${
+                    className={`flex h-[31px] w-[31px] shrink-0 items-center justify-center rounded-full border bg-[#071b31] ${
                       index < 3
                         ? "border-[#d7a24f]/80 text-[#e1aa58]"
                         : "border-[#347fda]/80 text-[#54a0f4]"
                     }`}
                   >
-                    <Icon className="h-3 w-3 stroke-[1.6]" />
+                    <Icon className="h-[18px] w-[18px] stroke-[1.6]" />
                   </span>
                   {label}
                 </li>
               ))}
             </ol>
 
-            <p className="mt-4 text-[10px] font-medium leading-[1.45] text-[#e1aa58]">
+            <p className="mt-7 text-[15px] font-medium leading-[1.55] text-[#e1aa58]">
               Free to apply. Selective to activate. Built to compound.
             </p>
           </div>
 
-          <ParticleInfinity />
+          <div className="lg:order-1">
+            <ParticleInfinity />
+          </div>
         </section>
       </div>
     </div>

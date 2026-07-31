@@ -44,13 +44,6 @@ export function HeroSection() {
 
       <div className="mx-auto flex w-full max-w-[1380px] items-center px-5 py-12 sm:px-8 lg:px-12">
         <div className="w-full max-w-[clamp(340px,39vw,520px)]">
-          <div className="mb-5 flex items-end gap-2.5">
-            <span className="font-serif text-[31px] leading-none text-[#e9b770]">01</span>
-            <span className="pb-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#69a6e3]">
-              Expert Network
-            </span>
-          </div>
-
           <h1 className="font-serif text-[clamp(38px,4vw,58px)] font-normal leading-[0.98] tracking-[-0.025em] text-[#f7f3ed]">
             Turn Expertise Into
             <span className="mt-1 block text-[#edb46f]">Strategic Leverage</span>

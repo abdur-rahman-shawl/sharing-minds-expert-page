@@ -42,33 +42,26 @@ export function EngagementSection() {
     <section
       id="who-you-engage-with"
       aria-labelledby="engagement-title"
-      className="scroll-mt-[104px] overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 py-8 text-[#0d2147] sm:px-8 sm:py-10 lg:px-12"
+      className="flex scroll-mt-[104px] items-center overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:min-h-[clamp(620px,72vh,740px)] lg:px-12 lg:py-24"
     >
-      <div className="mx-auto grid w-full max-w-[1380px] gap-10 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-7">
-        <div className="max-w-[300px]">
-          <div className="mb-6 flex items-end gap-3">
-            <span className="font-serif text-[33px] leading-none text-[#d79d42]">04</span>
-            <span className="pb-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#2775d6]">
-              Who You Engage With
-            </span>
-          </div>
-
+      <div className="mx-auto w-full max-w-[1380px]">
+        <div className="max-w-[820px]">
           <h2
             id="engagement-title"
-            className="font-serif text-[clamp(29px,2.1vw,34px)] font-normal leading-[1.08] tracking-[-0.025em]"
+            className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em]"
           >
-            <span className="block lg:whitespace-nowrap">Where Your Expertise</span>
-            <span className="block lg:whitespace-nowrap">Creates Real Leverage</span>
+            <span className="block">Where Your Expertise</span>
+            <span className="block">Creates Real Leverage</span>
           </h2>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {audiences.map(({ title, description, image, icon: Icon }) => (
             <article
               key={title}
-              className="group overflow-hidden rounded-[5px] border border-[#b8c1cc] bg-white shadow-[0_4px_16px_rgba(20,42,68,0.06)]"
+              className="group overflow-hidden rounded-xl border border-[#b8c8d9] bg-white shadow-[0_14px_38px_rgba(20,42,68,0.08)]"
             >
-              <div className="relative h-[142px] overflow-hidden border-b border-[#c8d0d8]">
+              <div className="relative h-[220px] overflow-hidden border-b border-[#c8d0d8] sm:h-[240px] xl:h-[220px]">
                 <Image
                   src={image}
                   alt=""
@@ -78,14 +71,14 @@ export function EngagementSection() {
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_52%,rgba(3,21,39,0.48)_100%)]" />
                 <Icon
-                  className="absolute bottom-4 right-4 h-10 w-10 stroke-[1.25] text-[#e0aa53] drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]"
+                  className="absolute bottom-5 right-5 h-14 w-14 stroke-[1.25] text-[#e0aa53] drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
                   aria-hidden="true"
                 />
               </div>
 
-              <div className="min-h-[148px] px-4 py-4">
-                <h3 className="text-[14px] font-bold text-[#11254a]">{title}</h3>
-                <p className="mt-2 text-[12px] leading-[1.55] text-[#172842]">{description}</p>
+              <div className="min-h-[182px] px-6 py-6">
+                <h3 className="text-[20px] font-bold text-[#11254a]">{title}</h3>
+                <p className="mt-3 text-[15px] leading-[1.65] text-[#172842]">{description}</p>
               </div>
             </article>
           ))}
