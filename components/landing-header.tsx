@@ -9,11 +9,10 @@ import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { href: "#for-experts", label: "For Experts" },
-  { href: "#how-it-works", label: "How It Works" },
-  { href: "#who-we-serve", label: "Who We Serve" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/service", label: "Service" },
   { href: "/about", label: "About Us" },
-  { href: "#resources", label: "Resources" },
+  { href: "/contact", label: "Contact" },
 ]
 
 function LandingLogo() {
