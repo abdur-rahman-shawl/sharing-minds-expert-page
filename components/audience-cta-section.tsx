@@ -2,6 +2,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Check, X } from "lucide-react"
 
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
+
 const seriousExpertGoals = [
   "Build strategic authority",
   "Stay relevant",
@@ -246,26 +248,35 @@ export function AudienceCtaSection() {
               id="final-cta-title"
               className="font-serif text-[clamp(44px,4.2vw,62px)] font-normal leading-[1.02] tracking-[-0.03em]"
             >
-              Apply as an
-              <span className="block">Early Expert</span>
+              Founding Expert
+              <span className="block">Applications</span>
             </h2>
 
-            <p className="mt-7 text-[17px] font-medium leading-[1.7] text-[#233851] sm:text-[18px]">
-              Build strategic authority.
-              <span className="block">Expand your influence.</span>
-              <span className="block">Enter better rooms.</span>
+            <p className="mt-7 text-[16px] leading-[1.75] text-[#233851] sm:text-[17px]">
+              SharingMinds is currently evaluating applications for its Founding Expert Cohort.
             </p>
+            <p className="mt-4 text-[16px] leading-[1.75] text-[#334960] sm:text-[17px]">
+              Professionals selected during this phase may receive Founding Expert recognition
+              and the opportunity to establish an early presence within the SharingMinds
+              ecosystem.
+            </p>
+
+            <div className="mt-6 max-w-[570px] rounded-xl border border-[#d8b477]/55 bg-[#fff8ed] px-5 py-5">
+              <p className="text-[16px] font-semibold leading-[1.55] text-[#9d6827]">
+                Founding status is limited.
+              </p>
+              <p className="mt-2 text-[14px] leading-[1.65] text-[#5b4b39]">
+                It is available only to professionals who successfully complete the application
+                and verification process during the founding phase.
+              </p>
+            </div>
 
             <Link
-              href="/verified-experts"
+              href={EXPERT_APPLICATION_PATH}
               className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[5px] bg-[#1673d8] px-7 text-[15px] font-semibold text-white shadow-[0_8px_22px_rgba(22,115,216,0.3)] transition-colors hover:bg-[#0e64c0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2"
             >
-              Complete Your Expert Profile
+              Start My Expert Application
             </Link>
-
-            <p className="mt-4 text-[14px] leading-[1.5] text-[#4f5f71]">
-              Limited onboarding for high-quality experts
-            </p>
           </div>
 
           <LightExpertNetwork />

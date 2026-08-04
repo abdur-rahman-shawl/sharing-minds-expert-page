@@ -1,142 +1,211 @@
-import Image from "next/image"
-import { ChartNoAxesCombined, Cpu, UsersRound } from "lucide-react"
+import Link from "next/link"
+import {
+  BadgeCheck,
+  BriefcaseBusiness,
+  Building2,
+  FileText,
+  GraduationCap,
+  IdCard,
+  Network,
+  SearchCheck,
+  ShieldCheck,
+} from "lucide-react"
 
-const systemSteps = [
+import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
+import { cn } from "@/lib/utils"
+
+const selectionSteps = [
   {
     number: "1",
-    title: "Build Your Expert Profile",
-    description: "Showcase your experience, operating context, and decision depth.",
-    visual: "portrait",
+    title: "Submit Your Expert Application",
+    description:
+      "Tell us about your professional experience, areas of expertise, operating context and the decisions where your judgment creates value.",
+    detail: "You may apply across one or more areas:",
+    areas: ["Careers", "Businesses", "Corporates", "Education"],
+    icon: FileText,
   },
   {
     number: "2",
-    title: "Get Matched to Relevant Demand",
-    description: "AI matches your expertise with real decision needs.",
-    visual: "ai",
+    title: "Application Review",
+    description:
+      "Every application is individually reviewed for relevant experience, domain credibility, measurable contribution and practical expertise.",
+    detail:
+      "This helps us understand where your experience is strongest and where it can create the greatest value.",
+    areas: undefined,
+    icon: SearchCheck,
   },
   {
     number: "3",
-    title: "Engage Through Structured Formats",
+    title: "Complete Verification",
     description:
-      "1:1 sessions, decision programs, workshops, and strategic engagements.",
-    visual: "formats",
+      "Shortlisted applicants may be invited to provide additional professional information, supporting evidence, references or participate in a verification conversation.",
+    detail:
+      "Verification is designed to establish the credibility and relevance of your expertise.",
+    areas: undefined,
+    icon: ShieldCheck,
   },
   {
     number: "4",
-    title: "Compound Authority Through Outcomes",
+    title: "Expert Selection",
     description:
-      "Every outcome strengthens your trust, relevance, and future opportunity.",
-    visual: "outcomes",
+      "Applicants who meet the required standards are invited to become SharingMinds Verified Experts.",
+    detail:
+      "Your approved areas of expertise determine how you are represented across the SharingMinds ecosystem.",
+    areas: undefined,
+    icon: BadgeCheck,
+  },
+  {
+    number: "5",
+    title: "Activate Your Expert Membership",
+    description:
+      "Selected experts receive the applicable membership, profile activation and participation details.",
+    detail:
+      "Once activated, your Verified Expert profile presents your experience, expertise and areas of contribution in a clear and structured format.",
+    areas: undefined,
+    icon: IdCard,
   },
 ]
 
-function StepVisual({ visual }: { visual: string }) {
-  if (visual === "portrait") {
-    return (
-      <span className="absolute inset-2 overflow-hidden rounded-full border border-[#367ecc]/60">
-        <Image
-          src="/professional-mentor-headshot-8.jpg"
-          alt=""
-          fill
-          sizes="116px"
-          className="object-cover"
-        />
-      </span>
-    )
-  }
-
-  if (visual === "ai") {
-    return (
-      <span className="absolute inset-2 flex items-center justify-center rounded-[24px] border border-[#367ecc]/45 bg-[#09203a] shadow-[inset_0_0_24px_rgba(24,102,190,0.2)]">
-        <Cpu className="h-20 w-20 stroke-[1.15] text-[#c4d7ec]" />
-        <span className="absolute inset-4 rounded-[18px] border border-dashed border-[#5d9ade]/30" />
-      </span>
-    )
-  }
-
-  if (visual === "formats") {
-    const formatPortraits = [
-      "/professional-mentor-headshot-1.jpg",
-      "/professional-mentor-headshot-2.jpg",
-      "/professional-mentor-headshot-3.jpg",
-      "/professional-mentor-headshot-9.jpg",
-    ]
-
-    return (
-      <span className="absolute inset-2 grid grid-cols-2 gap-1 overflow-hidden rounded-[18px] border border-[#367ecc]/50 bg-[#09203a] p-1">
-        {formatPortraits.map((source) => (
-          <span key={source} className="relative overflow-hidden rounded-[7px]">
-            <Image src={source} alt="" fill sizes="52px" className="object-cover" />
-          </span>
-        ))}
-        <UsersRound className="absolute bottom-3 left-1/2 h-8 w-8 -translate-x-1/2 rounded bg-[#071a30]/75 p-1.5 text-[#e1ab5b]" />
-      </span>
-    )
-  }
-
-  return (
-    <span className="absolute inset-2 flex items-center justify-center overflow-hidden rounded-full border border-[#367ecc]/50 bg-[radial-gradient(circle_at_center,rgba(24,108,205,0.24),rgba(5,25,47,0.95)_70%)]">
-      <span className="absolute inset-4 rounded-full border border-dashed border-[#5d9ade]/35" />
-      <ChartNoAxesCombined className="h-20 w-20 stroke-[1.2] text-[#267bdc]" />
-    </span>
-  )
-}
+const engagementAreas = [
+  {
+    title: "Careers",
+    description:
+      "Career guidance, leadership development, professional transitions and global mobility.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    title: "Businesses",
+    description: "Growth, go-to-market, hiring, scaling, operations and execution.",
+    icon: Building2,
+  },
+  {
+    title: "Corporates",
+    description:
+      "Capability development, strategic transformation, leadership and organisational change.",
+    icon: Network,
+  },
+  {
+    title: "Education",
+    description: "Study-abroad decisions, career-aligned education and academic pathways.",
+    icon: GraduationCap,
+  },
+]
 
 export function SystemWorksSection() {
   return (
     <section
-      id="system-works"
+      id="how-it-works"
       aria-labelledby="system-works-title"
-      className="relative flex scroll-mt-[104px] items-center overflow-hidden bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:min-h-[clamp(620px,72vh,740px)] lg:px-12 lg:py-24"
+      className="relative scroll-mt-[104px] overflow-hidden bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:px-12 lg:py-24"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_45%,rgba(16,91,181,0.13),transparent_48%),linear-gradient(105deg,rgba(2,14,29,0.35),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_34%,rgba(16,91,181,0.16),transparent_45%),linear-gradient(105deg,rgba(2,14,29,0.35),transparent_60%)]" />
       <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
 
       <div className="relative mx-auto w-full max-w-[1380px]">
-        <div className="max-w-[820px]">
+        <div className="mx-auto max-w-[900px] text-center">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#72b7ff]">
+            Simple. Structured. Selective.
+          </p>
           <h2
             id="system-works-title"
-            className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em] text-[#f4f1eb]"
+            className="mt-5 font-serif text-[clamp(44px,4.2vw,62px)] font-normal leading-[1.02] tracking-[-0.03em] text-[#f4f1eb]"
           >
-            <span className="block lg:whitespace-nowrap">Simple. Structured.</span>
-            <span className="block lg:whitespace-nowrap">High-Leverage.</span>
+            How It Works
           </h2>
         </div>
 
-        <div className="relative mt-14">
-          <div className="pointer-events-none absolute left-[7%] right-[7%] top-[88px] hidden h-px bg-[linear-gradient(90deg,transparent,#2b80df_12%,#6bb3ff_50%,#2b80df_88%,transparent)] shadow-[0_0_12px_rgba(55,145,239,0.9)] lg:block" />
-
-          <ol className="relative grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-            {systemSteps.map(({ number, title, description, visual }, index) => (
+        <ol className="relative mt-14 grid gap-7 lg:grid-cols-2">
+          {selectionSteps.map(
+            ({ number, title, description, detail, areas, icon: Icon }, index) => (
               <li
                 key={number}
-                className={`relative flex flex-col items-center px-5 text-center ${
-                  index < systemSteps.length - 1
-                    ? "lg:border-r lg:border-[#6f8296]/25"
-                    : ""
-                }`}
+                className={cn(
+                  "relative rounded-2xl border border-[#52708e]/35 bg-[#071c33]/[0.78] px-6 pb-7 pt-9 shadow-[0_18px_44px_rgba(0,0,0,0.17)] sm:px-8",
+                  index === selectionSteps.length - 1 &&
+                    "lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-[677px]",
+                )}
               >
-                <div className="relative mb-6 h-[176px] w-[176px]">
-                  <span className="absolute inset-0 rounded-full border border-[#2d73c7]/50 shadow-[0_0_22px_rgba(23,106,223,0.18)]" />
-                  <StepVisual visual={visual} />
+                <span className="absolute -top-5 left-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#367ed2] bg-[#061a31] font-serif text-[20px] text-[#edb46f] shadow-[0_0_18px_rgba(23,106,223,0.25)] sm:left-8">
+                  {number}
+                </span>
+                <span className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58] sm:right-8">
+                  <Icon className="h-6 w-6 stroke-[1.5]" aria-hidden="true" />
+                </span>
 
-                  <span className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#377ed2] bg-[#061a31] font-serif text-[17px] text-[#c8d9ec]">
-                    {number}
-                  </span>
-                </div>
-
-                <h3 className="max-w-[250px] text-[18px] font-semibold leading-[1.35] text-[#f2f4f7]">
+                <h3 className="max-w-[80%] text-[21px] font-semibold leading-[1.35] text-[#f3f5f7]">
                   {title}
                 </h3>
-                <p className="mt-3 max-w-[250px] text-[14px] leading-[1.65] text-[#c8d1dc]">
-                  {description}
-                </p>
-              </li>
-            ))}
-          </ol>
+                <p className="mt-4 text-[15px] leading-[1.72] text-[#d0d8e2]">{description}</p>
+                <p className="mt-3 text-[15px] leading-[1.72] text-[#bfcbd7]">{detail}</p>
 
-          <p className="mt-10 text-center text-[14px] font-medium text-[#e1aa58]">
-            No content treadmill. No cold outreach. No audience-building.
+                {areas && (
+                  <ul className="mt-5 flex flex-wrap gap-2.5">
+                    {areas.map((area) => (
+                      <li
+                        key={area}
+                        className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-4 py-2 text-[13px] font-medium text-[#e7b66f]"
+                      >
+                        {area}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ),
+          )}
+
+          <li className="relative rounded-2xl border border-[#52708e]/40 bg-[#071c33]/[0.86] px-6 pb-8 pt-10 shadow-[0_20px_52px_rgba(0,0,0,0.2)] sm:px-8 lg:col-span-2">
+            <span className="absolute -top-5 left-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#367ed2] bg-[#061a31] font-serif text-[20px] text-[#edb46f] shadow-[0_0_18px_rgba(23,106,223,0.25)] sm:left-8">
+              6
+            </span>
+            <span className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58] sm:right-8">
+              <Network className="h-6 w-6 stroke-[1.5]" aria-hidden="true" />
+            </span>
+
+            <h3 className="max-w-[80%] text-[23px] font-semibold leading-[1.35] text-[#f3f5f7]">
+              Engage Where Your Expertise Matters
+            </h3>
+            <p className="mt-4 max-w-[940px] text-[15px] leading-[1.72] text-[#d0d8e2]">
+              Your expertise can contribute through relevant formats across the four
+              SharingMinds segments:
+            </p>
+
+            <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {engagementAreas.map(({ title, description, icon: Icon }) => (
+                <article
+                  key={title}
+                  className="rounded-xl border border-[#4c6f91]/35 bg-[#0a233e]/80 px-5 py-6"
+                >
+                  <Icon className="h-8 w-8 stroke-[1.45] text-[#e1aa58]" aria-hidden="true" />
+                  <h4 className="mt-4 text-[17px] font-semibold text-white">{title}</h4>
+                  <p className="mt-3 text-[14px] leading-[1.65] text-[#c7d1dc]">{description}</p>
+                </article>
+              ))}
+            </div>
+
+            <p className="mt-7 text-[15px] leading-[1.72] text-[#cbd5df]">
+              Engagement formats may include individual consultations, mentoring, workshops,
+              decision programmes, knowledge initiatives and strategic assignments.
+            </p>
+          </li>
+        </ol>
+
+        <div className="mx-auto mt-12 max-w-[940px] rounded-2xl border border-[#4e7092]/40 bg-[#082039]/75 px-6 py-8 text-center sm:px-10">
+          <h3 className="font-serif text-[clamp(28px,3vw,40px)] leading-[1.1] text-[#f4f1eb]">
+            Build Long-Term Professional Value
+          </h3>
+          <p className="mx-auto mt-4 max-w-[760px] text-[16px] leading-[1.72] text-[#cbd5df]">
+            Every meaningful contribution strengthens the visibility, credibility and relevance
+            of your expertise within the SharingMinds ecosystem.
+          </p>
+          <Link
+            href={EXPERT_APPLICATION_PATH}
+            className="mt-7 inline-flex min-h-[52px] items-center justify-center rounded-[5px] border border-[#279fff] bg-[#087ee8] px-8 py-3 text-center text-[14px] font-semibold text-white shadow-[0_0_22px_rgba(0,143,255,0.5)] transition-all hover:bg-[#168ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c]"
+          >
+            Start My Expert Application
+          </Link>
+          <p className="mt-4 text-[13px] leading-[1.55] text-[#9eacba]">
+            Applications are individually reviewed. Submission does not guarantee selection.
           </p>
         </div>
       </div>

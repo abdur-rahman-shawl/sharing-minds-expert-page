@@ -1,19 +1,20 @@
 import Image from "next/image"
-import { Check, X } from "lucide-react"
+import { Check, Circle } from "lucide-react"
 import type { CSSProperties } from "react"
 
 const scatteredExpertise = [
-  "fragmented conversations",
-  "scattered introductions",
-  "unpaid advice",
-  "low-leverage visibility",
+  "Professional relationships",
+  "Personal introductions",
+  "Informal guidance",
+  "Individual conversations",
 ]
 
 const structuredExpertise = [
-  "structured authority",
-  "high-intent access",
-  "better positioning",
-  "compounding opportunity",
+  "Verified professional recognition",
+  "Greater discoverability",
+  "Relevant professional connections",
+  "Meaningful expert engagements",
+  "A growing presence within the SharingMinds ecosystem",
 ]
 
 const portraits = [
@@ -144,26 +145,29 @@ function ExpertiseTransformation() {
 export function PositioningSection() {
   return (
     <section
-      id="who-we-serve"
+      id="take-your-expertise-further"
       aria-labelledby="positioning-title"
       className="flex scroll-mt-[104px] items-center overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:min-h-[clamp(620px,72vh,760px)] lg:px-12 lg:py-24"
     >
       <div className="mx-auto grid w-full max-w-[1380px] gap-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-center xl:gap-20">
         <div className="max-w-[540px]">
+          <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#2674d3]">
+            Built for Experienced Professionals
+          </p>
           <h2
             id="positioning-title"
             className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em]"
           >
-            Built for Experts
-            <span className="block">Who Should Be in</span>
-            <span className="block">More Important Rooms</span>
+            Take Your Expertise
+            <span className="block">Further</span>
           </h2>
 
           <div className="mt-8 max-w-[500px] text-[16px] leading-[1.75] text-[#263d5d] sm:text-[17px]">
-            <p>Your experience is already valuable.</p>
-            <p className="mt-1">
-              What&apos;s missing is a structured way to extend its reach, relevance, and
-              strategic upside.
+            <p>Your experience has already created value.</p>
+            <p className="mt-3">
+              SharingMinds gives it a structured professional identity—helping the right people
+              recognise your expertise, understand where it is relevant and connect with you for
+              meaningful engagements.
             </p>
           </div>
         </div>
@@ -173,11 +177,11 @@ export function PositioningSection() {
 
           <div className="grid gap-5 text-[#172947] sm:grid-cols-2">
             <div className="rounded-xl border border-[#d6dee7] bg-white p-6 shadow-[0_12px_35px_rgba(21,55,94,0.07)]">
-              <h3 className="mb-4 text-[18px] font-semibold">Most expertise stays trapped in:</h3>
+              <h3 className="mb-5 text-[18px] font-semibold">Experience often grows through:</h3>
               <ul className="space-y-3">
                 {scatteredExpertise.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-[15px]">
-                    <X className="h-5 w-5 shrink-0 stroke-[1.7] text-[#d99c35]" />
+                  <li key={item} className="flex items-center gap-3 text-[15px] leading-[1.5]">
+                    <Circle className="h-4 w-4 shrink-0 fill-[#d99c35]/15 stroke-[1.7] text-[#d99c35]" />
                     {item}
                   </li>
                 ))}
@@ -185,23 +189,21 @@ export function PositioningSection() {
             </div>
 
             <div className="rounded-xl border border-[#bfcfe1] bg-[#f5f9ff] p-6 shadow-[0_12px_35px_rgba(21,55,94,0.07)]">
-              <h3 className="mb-4 text-[18px] font-semibold">SharingMinds turns that into:</h3>
+              <h3 className="mb-5 text-[18px] font-semibold">SharingMinds helps extend it through:</h3>
               <ul className="space-y-3">
-                {structuredExpertise.map((item, index) => (
-                  <li key={item} className="flex items-center gap-3 text-[15px]">
-                    <Check
-                      className={`h-5 w-5 shrink-0 stroke-[2] ${
-                        index === structuredExpertise.length - 1
-                          ? "text-[#d99c35]"
-                          : "text-[#1d70d7]"
-                      }`}
-                    />
+                {structuredExpertise.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] leading-[1.5]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 stroke-[2] text-[#1d70d7]" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
           </div>
+
+          <p className="text-center font-serif text-[clamp(24px,2.4vw,34px)] leading-[1.2] text-[#b77e2f]">
+            Your Experience Has Influence. Give It Greater Reach.
+          </p>
         </div>
       </div>
     </section>

@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/hero-section"
 import { EngagementSection } from "@/components/engagement-section"
 import { LeverageLayerSection } from "@/components/leverage-layer-section"
 import { PositioningSection } from "@/components/positioning-section"
-import { PositioningOutcomesSection } from "@/components/positioning-outcomes-section"
+import { EvaluationCriteriaSection } from "@/components/evaluation-criteria-section"
 import { SystemWorksSection } from "@/components/system-works-section"
 import { TrustActivationSection } from "@/components/trust-activation-section"
 import { ValueStackSection } from "@/components/value-stack-section"
@@ -16,7 +16,7 @@ export default function Page() {
       <LeverageLayerSection />
       <EngagementSection />
       <SystemWorksSection />
-      <PositioningOutcomesSection />
+      <EvaluationCriteriaSection />
       <ValueStackSection />
       <TrustActivationSection />
       <AudienceCtaSection />

@@ -58,7 +58,7 @@ export function LandingHeader() {
 
         <nav
           aria-label="Primary navigation"
-          className="hidden items-center gap-5 min-[1180px]:flex lg:gap-8"
+          className="hidden items-center gap-5 min-[1280px]:flex lg:gap-8"
         >
           {navLinks.map((link) => (
             <Link
@@ -71,7 +71,7 @@ export function LandingHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 min-[1180px]:flex">
+        <div className="hidden items-center gap-4 min-[1280px]:flex">
           <Link
             href="/auth/login"
             className="inline-flex h-10 min-w-[92px] items-center justify-center rounded-[4px] border border-[#4f769b] px-5 text-xs font-semibold text-white transition-colors hover:border-[#63a9e9] hover:bg-white/5"
@@ -80,9 +80,9 @@ export function LandingHeader() {
           </Link>
           <Link
             href={EXPERT_APPLICATION_PATH}
-            className="inline-flex h-10 min-w-[144px] items-center justify-center rounded-[4px] border border-[#229bff] bg-[#0879e4] px-5 text-xs font-semibold text-white shadow-[0_0_18px_rgba(0,142,255,0.72),inset_0_0_12px_rgba(255,255,255,0.16)] transition-all hover:bg-[#168cf4] hover:shadow-[0_0_24px_rgba(0,142,255,0.85)]"
+            className="inline-flex h-10 min-w-[198px] items-center justify-center rounded-[4px] border border-[#229bff] bg-[#0879e4] px-5 text-xs font-semibold text-white shadow-[0_0_18px_rgba(0,142,255,0.72),inset_0_0_12px_rgba(255,255,255,0.16)] transition-all hover:bg-[#168cf4] hover:shadow-[0_0_24px_rgba(0,142,255,0.85)]"
           >
-            Apply as an Expert
+            Start My Expert Application
           </Link>
         </div>
 
@@ -91,7 +91,7 @@ export function LandingHeader() {
           aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded border border-white/20 text-white min-[1180px]:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded border border-white/20 text-white min-[1280px]:hidden"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -99,7 +99,7 @@ export function LandingHeader() {
 
       <div
         className={cn(
-          "absolute inset-x-0 top-full overflow-hidden border-b border-white/10 bg-[#031426]/98 transition-all duration-300 min-[1180px]:hidden",
+          "absolute inset-x-0 top-full overflow-hidden border-b border-white/10 bg-[#031426]/98 transition-all duration-300 min-[1280px]:hidden",
           isOpen ? "max-h-[440px] opacity-100" : "pointer-events-none max-h-0 opacity-0"
         )}
       >
@@ -125,9 +125,9 @@ export function LandingHeader() {
             <Link
               href={EXPERT_APPLICATION_PATH}
               onClick={() => setIsOpen(false)}
-              className="inline-flex h-11 items-center justify-center rounded border border-[#229bff] bg-[#0879e4] px-3 text-center text-sm font-semibold text-white shadow-[0_0_18px_rgba(0,142,255,0.55)]"
+              className="inline-flex min-h-11 items-center justify-center rounded border border-[#229bff] bg-[#0879e4] px-3 py-2 text-center text-xs font-semibold leading-tight text-white shadow-[0_0_18px_rgba(0,142,255,0.55)]"
             >
-              Apply as an Expert
+              Start My Expert Application
             </Link>
           </div>
         </nav>
