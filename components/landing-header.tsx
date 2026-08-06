@@ -20,15 +20,15 @@ function LandingLogo() {
     <Link
       href="/"
       aria-label="SharingMinds home"
-      className="flex shrink-0 items-center"
+      className="flex min-w-0 shrink items-center"
     >
       <BrandLogo
         tone="light"
         priority
-        className="gap-3.5 sm:gap-5"
-        markClassName="sm:h-12 sm:w-24"
-        wordmarkClassName="sm:text-[34px]"
-        taglineClassName="sm:mt-2 sm:text-[12px]"
+        className="gap-2.5 sm:gap-5"
+        markClassName="max-[360px]:h-8 max-[360px]:w-16 sm:h-12 sm:w-24"
+        wordmarkClassName="max-[360px]:text-[21px] sm:text-[34px]"
+        taglineClassName="max-[360px]:mt-1 max-[360px]:text-[7px] sm:mt-2 sm:text-[12px]"
       />
     </Link>
   )
@@ -77,7 +77,7 @@ export function LandingHeader() {
           aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded border border-white/20 text-white min-[1280px]:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded border border-white/20 text-white min-[1280px]:hidden"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
