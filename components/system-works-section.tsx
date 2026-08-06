@@ -1,20 +1,36 @@
+"use client"
+
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 import Link from "next/link"
 import {
+  ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
   Building2,
+  ChevronDown,
   FileText,
   GraduationCap,
   IdCard,
   Network,
   SearchCheck,
   ShieldCheck,
+  type LucideIcon,
 } from "lucide-react"
 
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
-const selectionSteps = [
+type ProcessStep = {
+  number: string
+  title: string
+  description: string
+  detail: string
+  areas?: string[]
+  isEngagement?: boolean
+  icon: LucideIcon
+}
+
+const processSteps: ProcessStep[] = [
   {
     number: "1",
     title: "Submit Your Expert Application",
@@ -31,7 +47,6 @@ const selectionSteps = [
       "Every application is individually reviewed for relevant experience, domain credibility, measurable contribution and practical expertise.",
     detail:
       "This helps us understand where your experience is strongest and where it can create the greatest value.",
-    areas: undefined,
     icon: SearchCheck,
   },
   {
@@ -41,7 +56,6 @@ const selectionSteps = [
       "Shortlisted applicants may be invited to provide additional professional information, supporting evidence, references or participate in a verification conversation.",
     detail:
       "Verification is designed to establish the credibility and relevance of your expertise.",
-    areas: undefined,
     icon: ShieldCheck,
   },
   {
@@ -51,7 +65,6 @@ const selectionSteps = [
       "Applicants who meet the required standards are invited to become SharingMinds Verified Experts.",
     detail:
       "Your approved areas of expertise determine how you are represented across the SharingMinds ecosystem.",
-    areas: undefined,
     icon: BadgeCheck,
   },
   {
@@ -61,8 +74,17 @@ const selectionSteps = [
       "Selected experts receive the applicable membership, profile activation and participation details.",
     detail:
       "Once activated, your Verified Expert profile presents your experience, expertise and areas of contribution in a clear and structured format.",
-    areas: undefined,
     icon: IdCard,
+  },
+  {
+    number: "6",
+    title: "Engage Where Your Expertise Matters",
+    description:
+      "Your expertise can contribute through relevant formats across the four SharingMinds segments:",
+    detail:
+      "Engagement formats may include individual consultations, mentoring, workshops, decision programmes, knowledge initiatives and strategic assignments.",
+    isEngagement: true,
+    icon: Network,
   },
 ]
 
@@ -91,122 +113,220 @@ const engagementAreas = [
   },
 ]
 
+function StepContent({ step, compact = false }: { step: ProcessStep; compact?: boolean }) {
+  const detail = (
+    <div
+      className={cn(
+        "border-l-2 border-[#d89c4a] text-[#c5d0db]",
+        compact
+          ? "mt-3 pl-3 text-[13px] leading-[1.5]"
+          : "mt-5 pl-4 text-[14px] leading-[1.65]",
+      )}
+    >
+      {step.detail}
+    </div>
+  )
+
+  return (
+    <>
+      <p
+        className={cn(
+          "text-[#d0d8e2]",
+          compact ? "text-[14px] leading-[1.55]" : "text-[15px] leading-[1.65]",
+        )}
+      >
+        {step.description}
+      </p>
+
+      {step.isEngagement ? (
+        <div
+          className={cn(
+            "grid",
+            compact ? "mt-3 grid-cols-2 gap-2.5" : "mt-5 grid-cols-1 gap-3 sm:grid-cols-2",
+          )}
+        >
+          {engagementAreas.map(({ title, description, icon: Icon }) => (
+            <article
+              key={title}
+              className={cn(
+                "rounded-xl border border-[#4c6f91]/35 bg-[#0a233e]/80",
+                compact ? "px-3 py-2.5" : "px-4 py-4",
+              )}
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon
+                  className={cn(
+                    "shrink-0 stroke-[1.5] text-[#e1aa58]",
+                    compact ? "h-4 w-4" : "h-5 w-5",
+                  )}
+                  aria-hidden="true"
+                />
+                <h4 className="text-[14px] font-semibold text-white">{title}</h4>
+              </div>
+              <p
+                className={cn(
+                  "text-[#bfcbd7]",
+                  compact ? "mt-1.5 text-[13px] leading-[1.42]" : "mt-2 text-[13px] leading-[1.55]",
+                )}
+              >
+                {description}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        detail
+      )}
+
+      {!step.isEngagement && step.areas && (
+        <ul className={cn("flex flex-wrap", compact ? "mt-3 gap-2" : "mt-5 gap-2.5")}>
+          {step.areas.map((area) => (
+            <li
+              key={area}
+              className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-3.5 py-1.5 text-[12px] font-medium text-[#e7b66f]"
+            >
+              {area}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {step.isEngagement && detail}
+    </>
+  )
+}
+
 export function SystemWorksSection() {
   return (
     <section
       id="how-it-works"
       aria-labelledby="system-works-title"
-      className="relative scroll-mt-[104px] overflow-hidden bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:px-12 lg:py-24"
+      className="relative scroll-mt-[104px] overflow-hidden bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:h-[calc(100svh-104px)] lg:min-h-[600px] lg:px-8 lg:pb-[clamp(12px,1.5vh,20px)] lg:pt-[clamp(36px,5vh,56px)] xl:px-12"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_34%,rgba(16,91,181,0.16),transparent_45%),linear-gradient(105deg,rgba(2,14,29,0.35),transparent_60%)]" />
-      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_36%,rgba(16,91,181,0.19),transparent_42%),linear-gradient(105deg,rgba(2,14,29,0.4),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      <div className="relative mx-auto w-full max-w-[1380px]">
-        <div className="mx-auto max-w-[900px] text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#72b7ff]">
+      <div className="relative z-10 mx-auto w-full max-w-[1380px] lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:gap-[clamp(8px,1.5vh,16px)]">
+        <header className="mx-auto max-w-[900px] text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#72b7ff]">
             Simple. Structured. Selective.
           </p>
           <h2
             id="system-works-title"
-            className="mt-5 font-serif text-[clamp(44px,4.2vw,62px)] font-normal leading-[1.02] tracking-[-0.03em] text-[#f4f1eb]"
+            className="mt-3 text-[clamp(38px,4vw,54px)] font-normal leading-none tracking-[-0.03em] text-[#f4f1eb] lg:mt-2"
           >
             How It Works
           </h2>
-        </div>
+        </header>
 
-        <ol className="relative mt-14 grid gap-7 lg:grid-cols-2">
-          {selectionSteps.map(
-            ({ number, title, description, detail, areas, icon: Icon }, index) => (
-              <li
+        <TabsPrimitive.Root
+          defaultValue="1"
+          orientation="vertical"
+          className="mt-10 hidden min-h-0 grid-cols-[minmax(270px,0.78fr)_minmax(0,1.55fr)] gap-4 lg:grid lg:mt-0 xl:grid-cols-[minmax(310px,0.72fr)_minmax(0,1.55fr)] xl:gap-6"
+        >
+          <TabsPrimitive.List
+            aria-label="Expert application process"
+            className="grid h-full min-h-0 grid-rows-6 gap-2"
+          >
+            {processSteps.map(({ number, title, icon: Icon }) => (
+              <TabsPrimitive.Trigger
                 key={number}
-                className={cn(
-                  "relative rounded-2xl border border-[#52708e]/35 bg-[#071c33]/[0.78] px-6 pb-7 pt-9 shadow-[0_18px_44px_rgba(0,0,0,0.17)] sm:px-8",
-                  index === selectionSteps.length - 1 &&
-                    "lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-[677px]",
-                )}
+                value={number}
+                className="group flex h-full min-h-[48px] w-full items-center gap-3 rounded-xl border border-[#496984]/35 bg-[#071c33]/70 px-3 text-left transition-[border-color,background-color,box-shadow,transform] duration-200 hover:border-[#4f8bc6]/70 hover:bg-[#09233e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c] data-[state=active]:translate-x-1 data-[state=active]:border-[#318ee9] data-[state=active]:bg-[#0b2a49] data-[state=active]:shadow-[0_10px_28px_rgba(0,0,0,0.18),inset_3px_0_0_#e3a957]"
               >
-                <span className="absolute -top-5 left-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#367ed2] bg-[#061a31] font-serif text-[20px] text-[#edb46f] shadow-[0_0_18px_rgba(23,106,223,0.25)] sm:left-8">
-                  {number}
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3c6b98]/65 bg-[#08233e] text-[12px] font-semibold text-[#89b9e8] group-data-[state=active]:border-[#dca958] group-data-[state=active]:bg-[#dca958]/10 group-data-[state=active]:text-[#f0bc70]">
+                  {number.padStart(2, "0")}
                 </span>
-                <span className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58] sm:right-8">
-                  <Icon className="h-6 w-6 stroke-[1.5]" aria-hidden="true" />
-                </span>
-
-                <h3 className="max-w-[80%] text-[21px] font-semibold leading-[1.35] text-[#f3f5f7]">
+                <span className="min-w-0 flex-1 text-[13px] font-semibold leading-[1.25] text-[#eef3f7] xl:text-[14px]">
                   {title}
-                </h3>
-                <p className="mt-4 text-[15px] leading-[1.72] text-[#d0d8e2]">{description}</p>
-                <p className="mt-3 text-[15px] leading-[1.72] text-[#bfcbd7]">{detail}</p>
+                </span>
+                <Icon
+                  className="h-4 w-4 shrink-0 stroke-[1.6] text-[#6687a6] transition-colors group-hover:text-[#93b9dd] group-data-[state=active]:text-[#e1aa58]"
+                  aria-hidden="true"
+                />
+              </TabsPrimitive.Trigger>
+            ))}
+          </TabsPrimitive.List>
 
-                {areas && (
-                  <ul className="mt-5 flex flex-wrap gap-2.5">
-                    {areas.map((area) => (
-                      <li
-                        key={area}
-                        className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-4 py-2 text-[13px] font-medium text-[#e7b66f]"
-                      >
-                        {area}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ),
-          )}
+          <div className="min-h-0">
+            {processSteps.map((step) => {
+              const Icon = step.icon
 
-          <li className="relative rounded-2xl border border-[#52708e]/40 bg-[#071c33]/[0.86] px-6 pb-8 pt-10 shadow-[0_20px_52px_rgba(0,0,0,0.2)] sm:px-8 lg:col-span-2">
-            <span className="absolute -top-5 left-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#367ed2] bg-[#061a31] font-serif text-[20px] text-[#edb46f] shadow-[0_0_18px_rgba(23,106,223,0.25)] sm:left-8">
-              6
-            </span>
-            <span className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58] sm:right-8">
-              <Network className="h-6 w-6 stroke-[1.5]" aria-hidden="true" />
-            </span>
-
-            <h3 className="max-w-[80%] text-[23px] font-semibold leading-[1.35] text-[#f3f5f7]">
-              Engage Where Your Expertise Matters
-            </h3>
-            <p className="mt-4 max-w-[940px] text-[15px] leading-[1.72] text-[#d0d8e2]">
-              Your expertise can contribute through relevant formats across the four
-              SharingMinds segments:
-            </p>
-
-            <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {engagementAreas.map(({ title, description, icon: Icon }) => (
-                <article
-                  key={title}
-                  className="rounded-xl border border-[#4c6f91]/35 bg-[#0a233e]/80 px-5 py-6"
+              return (
+                <TabsPrimitive.Content
+                  key={step.number}
+                  value={step.number}
+                  className="h-full min-h-0 rounded-2xl border border-[#52708e]/45 bg-[#071c33]/90 p-[clamp(16px,1.8vw,24px)] shadow-[0_20px_52px_rgba(0,0,0,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff]"
                 >
-                  <Icon className="h-8 w-8 stroke-[1.45] text-[#e1aa58]" aria-hidden="true" />
-                  <h4 className="mt-4 text-[17px] font-semibold text-white">{title}</h4>
-                  <p className="mt-3 text-[14px] leading-[1.65] text-[#c7d1dc]">{description}</p>
-                </article>
-              ))}
-            </div>
+                  <div className="flex items-start justify-between gap-5">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#72b7ff]">
+                        Step {step.number.padStart(2, "0")} of 06
+                      </p>
+                      <h3 className="mt-2 max-w-[760px] text-[clamp(24px,2.4vw,36px)] font-semibold leading-[1.08] tracking-[-0.02em] text-[#f3f5f7]">
+                        {step.title}
+                      </h3>
+                    </div>
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58]">
+                      <Icon className="h-5 w-5 stroke-[1.5]" aria-hidden="true" />
+                    </span>
+                  </div>
 
-            <p className="mt-7 text-[15px] leading-[1.72] text-[#cbd5df]">
-              Engagement formats may include individual consultations, mentoring, workshops,
-              decision programmes, knowledge initiatives and strategic assignments.
-            </p>
-          </li>
+                  <div className="mt-[clamp(12px,1.7vh,20px)]">
+                    <StepContent step={step} compact />
+                  </div>
+                </TabsPrimitive.Content>
+              )
+            })}
+          </div>
+        </TabsPrimitive.Root>
+
+        <ol className="mt-10 space-y-3 lg:hidden">
+          {processSteps.map((step) => {
+            const Icon = step.icon
+
+            return (
+              <li key={step.number}>
+                <details className="group rounded-2xl border border-[#52708e]/40 bg-[#071c33]/85 shadow-[0_14px_34px_rgba(0,0,0,0.16)]">
+                  <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#65b9ff] [&::-webkit-details-marker]:hidden">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3c7cba] bg-[#08233e] text-[12px] font-semibold text-[#efb86c]">
+                      {step.number.padStart(2, "0")}
+                    </span>
+                    <span className="min-w-0 flex-1 text-[15px] font-semibold leading-[1.3] text-[#f2f5f8]">
+                      {step.title}
+                    </span>
+                    <Icon className="h-5 w-5 shrink-0 stroke-[1.5] text-[#e1aa58]" aria-hidden="true" />
+                    <ChevronDown className="h-4 w-4 shrink-0 text-[#8ca9c4] transition-transform group-open:rotate-180" aria-hidden="true" />
+                  </summary>
+                  <div className="border-t border-[#4b6c8b]/30 px-4 pb-5 pt-4 sm:px-6">
+                    <StepContent step={step} />
+                  </div>
+                </details>
+              </li>
+            )
+          })}
         </ol>
 
-        <div className="mx-auto mt-12 max-w-[940px] rounded-2xl border border-[#4e7092]/40 bg-[#082039]/75 px-6 py-8 text-center sm:px-10">
-          <h3 className="font-serif text-[clamp(28px,3vw,40px)] leading-[1.1] text-[#f4f1eb]">
-            Build Long-Term Professional Value
-          </h3>
-          <p className="mx-auto mt-4 max-w-[760px] text-[16px] leading-[1.72] text-[#cbd5df]">
-            Every meaningful contribution strengthens the visibility, credibility and relevance
-            of your expertise within the SharingMinds ecosystem.
-          </p>
+        <div className="mt-8 rounded-2xl border border-[#4e7092]/40 bg-[#082039]/90 px-5 py-5 sm:px-7 lg:mt-0 lg:flex lg:items-center lg:justify-between lg:gap-6 lg:rounded-xl lg:px-5 lg:py-3.5 xl:px-6">
+          <div className="min-w-0">
+            <h3 className="text-[18px] font-semibold leading-tight text-[#f4f1eb] lg:text-[16px] xl:text-[18px]">
+              Build Long-Term Professional Value
+            </h3>
+            <p className="mt-1 max-w-[820px] text-[13px] leading-[1.45] text-[#bfcbd7]">
+              Every contribution strengthens the visibility, credibility and relevance of your
+              expertise.
+            </p>
+            <p className="mt-1 text-[11px] leading-[1.4] text-[#8596a7]">
+              Applications are individually reviewed. Submission does not guarantee selection.
+            </p>
+          </div>
           <Link
             href={EXPERT_APPLICATION_PATH}
-            className="mt-7 inline-flex min-h-[52px] items-center justify-center rounded-[5px] border border-[#279fff] bg-[#087ee8] px-8 py-3 text-center text-[14px] font-semibold text-white shadow-[0_0_22px_rgba(0,143,255,0.5)] transition-all hover:bg-[#168ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c]"
+            className="mt-5 inline-flex min-h-[46px] shrink-0 items-center justify-center gap-2 rounded-[5px] border border-[#279fff] bg-[#087ee8] px-6 py-2.5 text-center text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.42)] transition-all hover:bg-[#168ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c] lg:mt-0"
           >
             Start My Expert Application
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
-          <p className="mt-4 text-[13px] leading-[1.55] text-[#9eacba]">
-            Applications are individually reviewed. Submission does not guarantee selection.
-          </p>
         </div>
       </div>
     </section>
