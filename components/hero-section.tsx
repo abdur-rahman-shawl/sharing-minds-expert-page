@@ -53,18 +53,13 @@ export function HeroSection() {
             <span className="mt-1 block text-[#edb46f]">Verified Expert Network</span>
           </h1>
 
-          <p className="mt-6 max-w-[600px] text-[clamp(13px,1.12vw,16px)] leading-[1.65] text-[#e0e7ed]">
+          <p className="mt-7 max-w-[590px] border-l-2 border-[#dca559]/70 pl-5 text-[clamp(14px,1.16vw,17px)] leading-[1.7] text-[#e0e7ed]">
             SharingMinds evaluates experienced professionals for inclusion in a curated network
             built around credible expertise, practical judgment and measurable professional
             impact.
           </p>
-          <p className="mt-3 max-w-[610px] text-[clamp(13px,1.12vw,16px)] leading-[1.65] text-[#d4dde6]">
-            Selected applicants receive a verified expert identity and gain a recognised place
-            within the SharingMinds ecosystem, contributing their expertise through advisory,
-            mentoring and knowledge-led engagements.
-          </p>
 
-          <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
               href={EXPERT_APPLICATION_PATH}
               className="inline-flex min-h-[50px] min-w-[225px] items-center justify-center rounded-[4px] border border-[#1ea6ff] bg-[#087ee8] px-7 py-3 text-center text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.85),inset_0_0_14px_rgba(255,255,255,0.13)] transition-all hover:bg-[#168ef5] hover:shadow-[0_0_26px_rgba(0,143,255,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427]"
@@ -79,7 +74,7 @@ export function HeroSection() {
             </Link>
           </div>
 
-          <ul className="mt-8 flex flex-wrap items-center gap-y-3 text-[12px] font-medium text-[#e9c591] sm:gap-x-0">
+          <ul className="mt-9 flex flex-wrap items-center gap-y-3 text-[12px] font-medium text-[#e9c591] sm:gap-x-0">
             {qualities.map((quality, index) => (
               <li key={quality} className="flex items-center">
                 {index > 0 && (
