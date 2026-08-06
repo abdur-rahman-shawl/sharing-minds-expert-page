@@ -1,76 +1,57 @@
+"use client"
+
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 import Image from "next/image"
 import Link from "next/link"
 import {
   BriefcaseBusiness,
   Building2,
-  Check,
   GraduationCap,
   Network,
+  type LucideIcon,
 } from "lucide-react"
 
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
-const applicantAreas = [
+type ApplicantArea = {
+  id: string
+  title: string
+  image: string
+  imageAlt: string
+  icon: LucideIcon
+}
+
+const applicantAreas: ApplicantArea[] = [
   {
+    id: "careers",
     title: "Careers",
-    description:
-      "For working professionals navigating career growth, transitions, leadership and global mobility.",
-    applications: [
-      "Business and functional leaders",
-      "Human resources and talent professionals",
-      "Leadership and executive coaches",
-      "Career transition specialists",
-      "Global mobility and international careers experts",
-      "Former executives and senior practitioners",
-    ],
-    image: "/professional-mentor-headshot-2.jpg",
+    image: "/who-may-apply/careers.webp",
+    imageAlt:
+      "Careers infographic showing professional profiles that may apply and the outcomes their expertise can support.",
     icon: BriefcaseBusiness,
   },
   {
+    id: "businesses",
     title: "Businesses",
-    description:
-      "For founders, MSMEs, operators and business owners making decisions related to growth, hiring, scaling and execution.",
-    applications: [
-      "Founders and entrepreneurs",
-      "Business operators",
-      "Functional and commercial leaders",
-      "Consultants and professional advisors",
-      "Go-to-market and growth specialists",
-      "Finance, operations, hiring and technology experts",
-      "Independent professionals with relevant business expertise",
-    ],
-    image: "/professional-mentor-headshot-3.jpg",
+    image: "/who-may-apply/businesses.webp",
+    imageAlt:
+      "Businesses infographic showing business expert profiles that may apply and the outcomes their expertise can support.",
     icon: Building2,
   },
   {
+    id: "corporates",
     title: "Corporates",
-    description:
-      "For leaders and teams navigating capability development, strategic shifts and organisational change.",
-    applications: [
-      "Senior business and functional leaders",
-      "Industry and domain specialists",
-      "Strategy and transformation professionals",
-      "Organisational development experts",
-      "Technical and subject-matter experts",
-      "Leadership, capability and talent specialists",
-      "Former executives with relevant corporate experience",
-    ],
-    image: "/business-team-collaboration-with-charts-and-analyt.jpg",
+    image: "/who-may-apply/corporates.webp",
+    imageAlt:
+      "Corporates infographic showing corporate expert profiles that may apply and the outcomes their expertise can support.",
     icon: Network,
   },
   {
+    id: "education",
     title: "Education",
-    description:
-      "For students and families making high-stakes education, study-abroad and career-aligned learning decisions.",
-    applications: [
-      "Academics and researchers",
-      "Education leaders and counsellors",
-      "Study-abroad and admissions specialists",
-      "Career-aligned education advisors",
-      "Industry professionals who can connect education with real-world careers",
-      "Subject-matter experts with relevant practical experience",
-    ],
-    image: "/professional-mentor-headshot-9.jpg",
+    image: "/who-may-apply/education.webp",
+    imageAlt:
+      "Education infographic showing education expert profiles that may apply and the outcomes their expertise can support.",
     icon: GraduationCap,
   },
 ]
@@ -80,90 +61,81 @@ export function EngagementSection() {
     <section
       id="who-we-serve"
       aria-labelledby="engagement-title"
-      className="scroll-mt-[104px] overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:px-12 lg:py-24"
+      className="scroll-mt-[104px] overflow-hidden border-b border-[#dbe2e9] bg-[#fbfcfd] px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:h-[calc(100svh-104px)] lg:min-h-[560px] lg:px-8 lg:py-[clamp(14px,2vh,24px)] xl:px-12"
     >
-      <div className="mx-auto w-full max-w-[1380px]">
-        <div className="mx-auto max-w-[900px] text-center">
+      <div className="mx-auto h-full w-full max-w-[1380px]">
+        <TabsPrimitive.Root
+          defaultValue="careers"
+          className="lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:grid-rows-[auto_auto_auto] lg:content-center lg:gap-x-6 lg:gap-y-5 xl:grid-cols-[340px_minmax(0,1fr)] xl:gap-x-8"
+        >
+          <header className="mx-auto max-w-[900px] text-center lg:col-start-1 lg:row-start-1 lg:mx-0 lg:text-left">
           <h2
             id="engagement-title"
-            className="font-serif text-[clamp(42px,4vw,60px)] font-normal leading-[1.02] tracking-[-0.03em]"
+            className="text-[clamp(38px,3.5vw,52px)] font-normal leading-[1.02] tracking-[-0.03em]"
           >
             Who May Apply?
           </h2>
-          <p className="mx-auto mt-7 max-w-[820px] text-[16px] leading-[1.75] text-[#33445b] sm:text-[17px]">
+          <p className="mx-auto mt-4 max-w-[820px] text-[15px] leading-[1.6] text-[#33445b] lg:mx-0 lg:text-[14px] xl:text-[15px]">
             SharingMinds invites applications from experienced professionals whose expertise can
             support decisions across one or more of the following areas.
           </p>
-        </div>
+        </header>
 
-        <div className="mt-12 grid gap-7 lg:grid-cols-2">
-          {applicantAreas.map(({ title, description, applications, image, icon: Icon }) => (
-            <article
-              key={title}
-              className="overflow-hidden rounded-2xl border border-[#c3d0dd] bg-white shadow-[0_18px_48px_rgba(20,42,68,0.08)]"
+        <TabsPrimitive.List
+          aria-label="Who may apply categories"
+          className="mx-auto mt-8 grid max-w-[980px] grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:mt-0 lg:grid-cols-1 lg:gap-2"
+        >
+          {applicantAreas.map(({ id, title, icon: Icon }) => (
+            <TabsPrimitive.Trigger
+              key={id}
+              value={id}
+              className="group flex min-h-[50px] items-center justify-center gap-2.5 rounded-xl border border-[#bdcad7] bg-white px-3 py-2.5 text-[13px] font-semibold text-[#31465d] shadow-[0_8px_22px_rgba(24,55,88,0.05)] transition-[border-color,background-color,color,box-shadow,transform] hover:-translate-y-0.5 hover:border-[#4386c7] hover:text-[#114f91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2 data-[state=active]:border-[#1673d8] data-[state=active]:bg-[#0b2b4d] data-[state=active]:text-white data-[state=active]:shadow-[0_10px_28px_rgba(15,73,132,0.2)] sm:text-[14px] lg:min-h-[44px] lg:justify-start lg:px-4 lg:py-2"
             >
-              <div className="relative h-[175px] overflow-hidden border-b border-[#c8d0d8] sm:h-[195px]">
-                <Image
-                  src={image}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,21,39,0.76),rgba(3,21,39,0.14)_72%)]" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 px-7 pb-6">
-                  <h3 className="font-serif text-[34px] leading-none text-white sm:text-[38px]">
-                    {title}
-                  </h3>
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#e1aa58]/75 bg-[#071b31]/90 text-[#e1aa58]">
-                    <Icon className="h-7 w-7 stroke-[1.45]" aria-hidden="true" />
-                  </span>
-                </div>
-              </div>
+              <Icon
+                className="h-5 w-5 shrink-0 stroke-[1.6] text-[#178f9c] group-data-[state=active]:text-[#61d2d7]"
+                aria-hidden="true"
+              />
+              {title}
+            </TabsPrimitive.Trigger>
+          ))}
+        </TabsPrimitive.List>
 
-              <div className="px-6 py-7 sm:px-8 sm:py-8">
-                <p className="text-[16px] font-medium leading-[1.7] text-[#253951]">
-                  {description}
-                </p>
-                <p className="mt-6 text-[12px] font-bold uppercase tracking-[0.14em] text-[#b77e2f]">
-                  Applications may include
-                </p>
-                <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                  {applications.map((application) => (
-                    <li
-                      key={application}
-                      className="flex items-start gap-3 text-[14px] leading-[1.55] text-[#33445b]"
-                    >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 stroke-[2.2] text-[#2674d3]" />
-                      {application}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
+        <div className="mx-auto mt-5 w-full max-w-[1180px] sm:mt-6 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-0 lg:h-full lg:min-h-0 lg:max-w-none">
+          {applicantAreas.map((area) => (
+            <TabsPrimitive.Content
+              key={area.id}
+              value={area.id}
+              className="h-full min-h-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-4"
+            >
+              <figure className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#bccbd9] bg-white shadow-[0_22px_58px_rgba(20,42,68,0.13)] lg:h-full lg:min-h-0 lg:aspect-auto">
+                <Image
+                  src={area.image}
+                  alt={area.imageAlt}
+                  fill
+                  sizes="(min-width: 1280px) 1000px, (min-width: 1024px) calc(100vw - 380px), (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
+                  className="object-contain"
+                />
+              </figure>
+            </TabsPrimitive.Content>
           ))}
         </div>
 
-        <div className="mx-auto mt-10 max-w-[980px] rounded-2xl border border-[#c8d6e4] bg-[#f1f7fd] px-6 py-7 text-center shadow-[0_12px_32px_rgba(21,55,94,0.06)] sm:px-10">
-          <p className="text-[16px] font-medium leading-[1.7] text-[#1d3552]">
-            Applicants may apply across more than one area where they can demonstrate credible
-            and relevant expertise.
+        <div className="mx-auto mt-8 max-w-[1180px] rounded-2xl border border-[#c8d6e4] bg-[#eef6fc] px-5 py-5 shadow-[0_12px_32px_rgba(21,55,94,0.06)] sm:px-7 lg:col-start-1 lg:row-start-3 lg:mx-0 lg:mt-0 lg:px-4 lg:py-4">
+          <p className="text-[14px] font-semibold leading-[1.5] text-[#1d3552]">
+            Apply where your expertise is strongest.
           </p>
-          <p className="mt-3 text-[15px] leading-[1.7] text-[#42546a]">
-            Every application is individually reviewed based on professional experience, domain
-            credibility, measurable contribution and the applicant&apos;s ability to provide
-            practical, responsible guidance.
+          <p className="mt-1.5 text-[12px] leading-[1.5] text-[#4a5f75] xl:text-[13px]">
+            Applications are individually reviewed for experience, credibility, contribution and
+            practical judgment.
           </p>
-        </div>
-
-        <div className="mt-10 text-center">
           <Link
             href={EXPERT_APPLICATION_PATH}
-            className="inline-flex min-h-[52px] items-center justify-center rounded-[5px] bg-[#1673d8] px-8 py-3 text-center text-[14px] font-semibold text-white shadow-[0_8px_22px_rgba(22,115,216,0.3)] transition-colors hover:bg-[#0e64c0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2"
+            className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-[5px] bg-[#1673d8] px-5 py-2.5 text-center text-[13px] font-semibold text-white shadow-[0_8px_22px_rgba(22,115,216,0.3)] transition-colors hover:bg-[#0e64c0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-2"
           >
             Start My Expert Application
           </Link>
         </div>
+        </TabsPrimitive.Root>
       </div>
     </section>
   )
