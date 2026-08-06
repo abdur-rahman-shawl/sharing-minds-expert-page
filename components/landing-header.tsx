@@ -1,10 +1,10 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
+import { BrandLogo } from "@/components/brand-logo"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -20,29 +20,16 @@ function LandingLogo() {
     <Link
       href="/"
       aria-label="SharingMinds home"
-      className="flex shrink-0 items-center gap-3.5 sm:gap-5"
+      className="flex shrink-0 items-center"
     >
-      <span
-        className="relative h-9 w-[72px] shrink-0 overflow-hidden sm:h-12 sm:w-24"
-        aria-hidden="true"
-      >
-        <Image
-          src="/sharing-minds-logo.png"
-          alt=""
-          width={256}
-          height={118}
-          className="absolute -left-[60px] -top-[9px] h-[88.5px] w-48 max-w-none sm:-left-[80px] sm:-top-3 sm:h-[118px] sm:w-64"
-          priority
-        />
-      </span>
-      <span className="flex flex-col text-white">
-        <span className="text-[25px] font-bold leading-[0.95] tracking-[-0.045em] sm:text-[34px]">
-          sharingminds
-        </span>
-        <span className="mt-1.5 text-[9px] font-medium uppercase leading-none tracking-[0.07em] text-white/[0.65] sm:mt-2 sm:text-[12px]">
-          a human intelligence network
-        </span>
-      </span>
+      <BrandLogo
+        tone="light"
+        priority
+        className="gap-3.5 sm:gap-5"
+        markClassName="sm:h-12 sm:w-24"
+        wordmarkClassName="sm:text-[34px]"
+        taglineClassName="sm:mt-2 sm:text-[12px]"
+      />
     </Link>
   )
 }

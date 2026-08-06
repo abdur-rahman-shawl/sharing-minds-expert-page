@@ -14,7 +14,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-open-sans)'],
-        heading: ['var(--font-montserrat)'],
+        heading: ['var(--font-open-sans)'],
+        serif: ['var(--font-open-sans)'],
       },
       colors: {
         background: 'hsl(var(--background))',

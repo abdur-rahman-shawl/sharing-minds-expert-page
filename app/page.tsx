@@ -5,8 +5,6 @@ import { LeverageLayerSection } from "@/components/leverage-layer-section"
 import { PositioningSection } from "@/components/positioning-section"
 import { EvaluationCriteriaSection } from "@/components/evaluation-criteria-section"
 import { SystemWorksSection } from "@/components/system-works-section"
-import { TrustActivationSection } from "@/components/trust-activation-section"
-import { ValueStackSection } from "@/components/value-stack-section"
 
 export default function Page() {
   return (
@@ -17,8 +15,6 @@ export default function Page() {
       <EngagementSection />
       <SystemWorksSection />
       <EvaluationCriteriaSection />
-      <ValueStackSection />
-      <TrustActivationSection />
       <AudienceCtaSection />
     </div>
   )

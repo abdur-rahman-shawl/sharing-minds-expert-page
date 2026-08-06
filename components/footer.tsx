@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import {
   ArrowRight,
@@ -7,6 +6,8 @@ import {
   Twitter,
   Youtube,
 } from "lucide-react"
+
+import { BrandLogo } from "@/components/brand-logo"
 
 const footerGroups = [
   {
@@ -75,23 +76,14 @@ function FooterLogo() {
     <Link
       href="/"
       aria-label="SharingMinds home"
-      className="inline-flex items-center gap-3 text-white"
+      className="inline-flex items-center text-white"
     >
-      <Image
-        src="/brand/sharingminds-infinity.png"
-        alt=""
-        width={82}
-        height={48}
-        className="h-11 w-[76px] object-contain"
+      <BrandLogo
+        tone="light"
+        markClassName="h-11 w-[88px]"
+        wordmarkClassName="text-[25px] leading-[0.9]"
+        taglineClassName="text-[10px] normal-case tracking-[-0.015em] text-white/90"
       />
-      <span className="flex flex-col">
-        <span className="text-[25px] font-bold leading-[0.9] tracking-[-0.045em]">
-          sharingminds
-        </span>
-        <span className="mt-1.5 text-[10px] font-medium leading-none tracking-[-0.015em] text-white/90">
-          a human intelligence network
-        </span>
-      </span>
     </Link>
   )
 }

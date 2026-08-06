@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { BrandLogo } from '@/components/brand-logo'
 
 type MentorInfo = {
   fullName: string
@@ -88,13 +89,12 @@ export function VipInvitation({ mentor, onNavigateHome, onNavigateDashboard, can
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Image
-              src="/sharing-minds-logo.png"
-              alt="SharingMinds"
-              width={200}
-              height={60}
+            <BrandLogo
               priority
-              className="h-12 w-auto"
+              tone="light"
+              showTagline={false}
+              markClassName="h-10 w-20"
+              wordmarkClassName="text-[24px]"
             />
             <div className="hidden text-xs uppercase tracking-[0.3em] text-amber-200 sm:block">
               Founding Expert Circle

@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { Menu, LogOut, ChevronRight, User } from "lucide-react"
@@ -14,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
+import { BrandLogo } from "@/components/brand-logo"
 
 const navLinks = [
   { href: "/service", label: "Service" },
@@ -69,17 +69,12 @@ export function Header() {
             className="relative flex items-center transition-opacity hover:opacity-90 shrink-0" 
             aria-label="SharingMinds home"
           >
-            <Image
-              src="/sharing-minds-logo.png"
-              alt="SharingMinds logo"
-              width={280}
-              height={90}
-              className={cn(
-                "w-auto transition-all duration-300",
-                // 1.5x bigger: h-9 -> h-14, h-11 -> h-16
-                scrolled ? "h-14" : "h-16"
-              )}
+            <BrandLogo
               priority
+              tone="dark"
+              markClassName={cn("w-24", scrolled ? "h-12" : "h-14")}
+              wordmarkClassName={cn(scrolled ? "text-[27px]" : "text-[30px]")}
+              taglineClassName="text-[9px]"
             />
           </Link>
 
@@ -178,13 +173,12 @@ export function Header() {
               {/* Mobile Header */}
               <div className="p-6 pb-2">
                 <div className="flex items-center gap-2 mb-6">
-                   <Image
-                      src="/sharing-minds-logo.png"
-                      alt="Logo"
-                      width={180}
-                      height={60}
-                      className="h-12 w-auto" // Increased mobile logo size
-                    />
+                   <BrandLogo
+                     tone="dark"
+                     markClassName="h-10 w-20"
+                     wordmarkClassName="text-[24px]"
+                     taglineClassName="text-[8px]"
+                   />
                 </div>
                 {session?.user && (
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 mb-2">

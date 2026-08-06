@@ -1,6 +1,6 @@
 import type React from 'react'
 import type { Metadata } from 'next'
-import { Montserrat, Open_Sans } from 'next/font/google'
+import { Open_Sans } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
@@ -16,12 +16,6 @@ const openSans = Open_Sans({
   variable: '--font-open-sans',
 })
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-montserrat',
-})
-
 export const metadata: Metadata = {
   title: 'SharingMinds - Apply for Expert Verification',
   description:
@@ -31,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${openSans.variable} ${montserrat.variable}`} suppressHydrationWarning>
+    <html lang="en" className={openSans.variable} suppressHydrationWarning>
       <body className="bg-slate-50 text-gray-900">
         <ErrorBoundary>
           <QueryProvider>
