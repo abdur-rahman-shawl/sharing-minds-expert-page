@@ -1,13 +1,10 @@
-"use client"
-
-import * as TabsPrimitive from "@radix-ui/react-tabs"
-import Link from "next/link"
 import {
+  ArrowDown,
+  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
   Building2,
-  ChevronDown,
   FileText,
   GraduationCap,
   IdCard,
@@ -17,7 +14,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 type ProcessStep = {
@@ -25,6 +21,7 @@ type ProcessStep = {
   title: string
   description: string
   detail: string
+  compactDetail?: string
   areas?: string[]
   isEngagement?: boolean
   icon: LucideIcon
@@ -83,117 +80,67 @@ const processSteps: ProcessStep[] = [
       "Your expertise can contribute through relevant formats across the four SharingMinds segments:",
     detail:
       "Engagement formats may include individual consultations, mentoring, workshops, decision programmes, knowledge initiatives and strategic assignments.",
+    compactDetail:
+      "Consultations, mentoring, workshops, decision programmes and strategic assignments.",
     isEngagement: true,
     icon: Network,
   },
 ]
 
 const engagementAreas = [
-  {
-    title: "Careers",
-    description:
-      "Career guidance, leadership development, professional transitions and global mobility.",
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "Businesses",
-    description: "Growth, go-to-market, hiring, scaling, operations and execution.",
-    icon: Building2,
-  },
-  {
-    title: "Corporates",
-    description:
-      "Capability development, strategic transformation, leadership and organisational change.",
-    icon: Network,
-  },
-  {
-    title: "Education",
-    description: "Study-abroad decisions, career-aligned education and academic pathways.",
-    icon: GraduationCap,
-  },
+  { title: "Careers", icon: BriefcaseBusiness },
+  { title: "Businesses", icon: Building2 },
+  { title: "Corporates", icon: Network },
+  { title: "Education", icon: GraduationCap },
 ]
 
-function StepContent({ step, compact = false }: { step: ProcessStep; compact?: boolean }) {
-  const detail = (
-    <div
-      className={cn(
-        "border-l-2 border-[#d89c4a] text-[#c5d0db]",
-        compact
-          ? "mt-3 pl-3 text-[13px] leading-[1.5]"
-          : "mt-5 pl-4 text-[14px] leading-[1.65]",
-      )}
-    >
-      {step.detail}
-    </div>
-  )
+const desktopPlacement = [
+  "lg:col-span-2 lg:col-start-1 lg:row-start-1",
+  "lg:col-start-3 lg:row-start-1",
+  "lg:col-start-4 lg:row-start-1",
+  "lg:col-start-4 lg:row-start-2",
+  "lg:col-start-3 lg:row-start-2",
+  "lg:col-span-2 lg:col-start-1 lg:row-start-2",
+]
 
-  return (
-    <>
-      <p
-        className={cn(
-          "text-[#d0d8e2]",
-          compact ? "text-[14px] leading-[1.55]" : "text-[15px] leading-[1.65]",
-        )}
+function JourneyConnector({ step }: { step: string }) {
+  const connectorClasses =
+    "pointer-events-none absolute z-20 hidden h-7 w-7 items-center justify-center rounded-full border border-[#3b78b5]/60 bg-[#08233e] text-[#e1aa58] shadow-[0_6px_18px_rgba(0,0,0,0.25)] lg:flex"
+
+  if (step === "3") {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn(connectorClasses, "-bottom-[22px] right-[calc(50%-14px)]")}
       >
-        {step.description}
-      </p>
+        <ArrowDown className="h-3.5 w-3.5" />
+      </span>
+    )
+  }
 
-      {step.isEngagement ? (
-        <div
-          className={cn(
-            "grid",
-            compact ? "mt-3 grid-cols-2 gap-2.5" : "mt-5 grid-cols-1 gap-3 sm:grid-cols-2",
-          )}
-        >
-          {engagementAreas.map(({ title, description, icon: Icon }) => (
-            <article
-              key={title}
-              className={cn(
-                "rounded-xl border border-[#4c6f91]/35 bg-[#0a233e]/80",
-                compact ? "px-3 py-2.5" : "px-4 py-4",
-              )}
-            >
-              <div className="flex items-center gap-2.5">
-                <Icon
-                  className={cn(
-                    "shrink-0 stroke-[1.5] text-[#e1aa58]",
-                    compact ? "h-4 w-4" : "h-5 w-5",
-                  )}
-                  aria-hidden="true"
-                />
-                <h4 className="text-[14px] font-semibold text-white">{title}</h4>
-              </div>
-              <p
-                className={cn(
-                  "text-[#bfcbd7]",
-                  compact ? "mt-1.5 text-[13px] leading-[1.42]" : "mt-2 text-[13px] leading-[1.55]",
-                )}
-              >
-                {description}
-              </p>
-            </article>
-          ))}
-        </div>
-      ) : (
-        detail
-      )}
+  if (step === "4" || step === "5") {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn(connectorClasses, "-left-[22px] top-[calc(50%-14px)]")}
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+      </span>
+    )
+  }
 
-      {!step.isEngagement && step.areas && (
-        <ul className={cn("flex flex-wrap", compact ? "mt-3 gap-2" : "mt-5 gap-2.5")}>
-          {step.areas.map((area) => (
-            <li
-              key={area}
-              className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-3.5 py-1.5 text-[12px] font-medium text-[#e7b66f]"
-            >
-              {area}
-            </li>
-          ))}
-        </ul>
-      )}
+  if (step === "1" || step === "2") {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn(connectorClasses, "-right-[22px] top-[calc(50%-14px)]")}
+      >
+        <ArrowRight className="h-3.5 w-3.5" />
+      </span>
+    )
+  }
 
-      {step.isEngagement && detail}
-    </>
-  )
+  return null
 }
 
 export function SystemWorksSection() {
@@ -201,133 +148,118 @@ export function SystemWorksSection() {
     <section
       id="how-it-works"
       aria-labelledby="system-works-title"
-      className="relative scroll-mt-[104px] overflow-hidden bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:h-[calc(100svh-104px)] lg:min-h-[600px] lg:px-8 lg:pb-[clamp(12px,1.5vh,20px)] lg:pt-[clamp(36px,5vh,56px)] xl:px-12"
+      className="relative scroll-mt-[104px] overflow-hidden border-t border-[#24415e]/55 bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:flex lg:min-h-[calc(100svh-104px)] lg:items-center lg:px-8 lg:pb-[clamp(12px,1.5vh,20px)] lg:pt-[clamp(32px,4.5vh,48px)] xl:px-12"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_36%,rgba(16,91,181,0.19),transparent_42%),linear-gradient(105deg,rgba(2,14,29,0.4),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_38%,rgba(16,91,181,0.18),transparent_43%),linear-gradient(105deg,rgba(2,14,29,0.38),transparent_60%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1380px] lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:gap-[clamp(8px,1.5vh,16px)]">
+      <div className="relative z-10 mx-auto w-full max-w-[1380px]">
         <header className="mx-auto max-w-[900px] text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#72b7ff]">
             Simple. Structured. Selective.
           </p>
           <h2
             id="system-works-title"
-            className="mt-3 text-[clamp(38px,4vw,54px)] font-normal leading-none tracking-[-0.03em] text-[#f4f1eb] lg:mt-2"
+            className="mt-2 text-[clamp(40px,3.6vw,54px)] font-normal leading-none tracking-[-0.03em] text-[#f4f1eb]"
           >
             How It Works
           </h2>
         </header>
 
-        <TabsPrimitive.Root
-          defaultValue="1"
-          orientation="vertical"
-          className="mt-10 hidden min-h-0 grid-cols-[minmax(270px,0.78fr)_minmax(0,1.55fr)] gap-4 lg:grid lg:mt-0 xl:grid-cols-[minmax(310px,0.72fr)_minmax(0,1.55fr)] xl:gap-6"
-        >
-          <TabsPrimitive.List
-            aria-label="Expert application process"
-            className="grid h-full min-h-0 grid-rows-6 gap-2"
-          >
-            {processSteps.map(({ number, title, icon: Icon }) => (
-              <TabsPrimitive.Trigger
-                key={number}
-                value={number}
-                className="group flex h-full min-h-[48px] w-full items-center gap-3 rounded-xl border border-[#496984]/35 bg-[#071c33]/70 px-3 text-left transition-[border-color,background-color,box-shadow,transform] duration-200 hover:border-[#4f8bc6]/70 hover:bg-[#09233e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c] data-[state=active]:translate-x-1 data-[state=active]:border-[#318ee9] data-[state=active]:bg-[#0b2a49] data-[state=active]:shadow-[0_10px_28px_rgba(0,0,0,0.18),inset_3px_0_0_#e3a957]"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3c6b98]/65 bg-[#08233e] text-[12px] font-semibold text-[#89b9e8] group-data-[state=active]:border-[#dca958] group-data-[state=active]:bg-[#dca958]/10 group-data-[state=active]:text-[#f0bc70]">
-                  {number.padStart(2, "0")}
-                </span>
-                <span className="min-w-0 flex-1 text-[13px] font-semibold leading-[1.25] text-[#eef3f7] xl:text-[14px]">
-                  {title}
-                </span>
-                <Icon
-                  className="h-4 w-4 shrink-0 stroke-[1.6] text-[#6687a6] transition-colors group-hover:text-[#93b9dd] group-data-[state=active]:text-[#e1aa58]"
-                  aria-hidden="true"
-                />
-              </TabsPrimitive.Trigger>
-            ))}
-          </TabsPrimitive.List>
-
-          <div className="min-h-0">
-            {processSteps.map((step) => {
-              const Icon = step.icon
-
-              return (
-                <TabsPrimitive.Content
-                  key={step.number}
-                  value={step.number}
-                  className="h-full min-h-0 rounded-2xl border border-[#52708e]/45 bg-[#071c33]/90 p-[clamp(16px,1.8vw,24px)] shadow-[0_20px_52px_rgba(0,0,0,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff]"
-                >
-                  <div className="flex items-start justify-between gap-5">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#72b7ff]">
-                        Step {step.number.padStart(2, "0")} of 06
-                      </p>
-                      <h3 className="mt-2 max-w-[760px] text-[clamp(24px,2.4vw,36px)] font-semibold leading-[1.08] tracking-[-0.02em] text-[#f3f5f7]">
-                        {step.title}
-                      </h3>
-                    </div>
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d6a05a]/45 bg-[#0a233e] text-[#e1aa58]">
-                      <Icon className="h-5 w-5 stroke-[1.5]" aria-hidden="true" />
-                    </span>
-                  </div>
-
-                  <div className="mt-[clamp(12px,1.7vh,20px)]">
-                    <StepContent step={step} compact />
-                  </div>
-                </TabsPrimitive.Content>
-              )
-            })}
-          </div>
-        </TabsPrimitive.Root>
-
-        <ol className="mt-10 space-y-3 lg:hidden">
-          {processSteps.map((step) => {
+        <ol className="relative mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 lg:gap-3.5 xl:gap-4">
+          {processSteps.map((step, index) => {
             const Icon = step.icon
+            const isFeature = step.number === "1" || step.number === "6"
 
             return (
-              <li key={step.number}>
-                <details className="group rounded-2xl border border-[#52708e]/40 bg-[#071c33]/85 shadow-[0_14px_34px_rgba(0,0,0,0.16)]">
-                  <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#65b9ff] [&::-webkit-details-marker]:hidden">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3c7cba] bg-[#08233e] text-[12px] font-semibold text-[#efb86c]">
-                      {step.number.padStart(2, "0")}
-                    </span>
-                    <span className="min-w-0 flex-1 text-[15px] font-semibold leading-[1.3] text-[#f2f5f8]">
-                      {step.title}
-                    </span>
-                    <Icon className="h-5 w-5 shrink-0 stroke-[1.5] text-[#e1aa58]" aria-hidden="true" />
-                    <ChevronDown className="h-4 w-4 shrink-0 text-[#8ca9c4] transition-transform group-open:rotate-180" aria-hidden="true" />
-                  </summary>
-                  <div className="border-t border-[#4b6c8b]/30 px-4 pb-5 pt-4 sm:px-6">
-                    <StepContent step={step} />
+              <li
+                key={step.number}
+                className={cn(
+                  "relative flex min-h-[220px] flex-col rounded-2xl border bg-[#071c33]/90 px-5 py-5 shadow-[0_16px_38px_rgba(0,0,0,0.18)]",
+                  "border-[#52708e]/40 lg:min-h-[220px] lg:px-4 lg:py-3.5 xl:min-h-[228px] xl:px-5 xl:py-5",
+                  isFeature &&
+                    "border-[#387dbe]/55 bg-[linear-gradient(135deg,rgba(10,42,73,0.96),rgba(7,28,51,0.94))]",
+                  desktopPlacement[index],
+                )}
+              >
+                <JourneyConnector step={step.number} />
+
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3f78ad] bg-[#08233e] text-[12px] font-semibold text-[#f0bc70]">
+                    {step.number.padStart(2, "0")}
+                  </span>
+                  <h3
+                    className={cn(
+                      "min-w-0 flex-1 text-[17px] font-semibold leading-[1.25] text-[#f3f5f7]",
+                      !isFeature && "lg:text-[15px] xl:text-[16px]",
+                    )}
+                  >
+                    {step.title}
+                  </h3>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#d6a05a]/40 bg-[#0a233e] text-[#e1aa58]">
+                    <Icon className="h-[18px] w-[18px] stroke-[1.5]" aria-hidden="true" />
+                  </span>
+                </div>
+
+                <p
+                  className={cn(
+                    "mt-3 text-[14px] leading-[1.52] text-[#d0d8e2]",
+                    !isFeature && "lg:text-[13px] lg:leading-[1.48] xl:text-[14px]",
+                  )}
+                >
+                  {step.description}
+                </p>
+
+                {step.areas && (
+                  <div className="mt-auto pt-3">
+                    <p className="border-l-2 border-[#d89c4a] pl-3 text-[12px] font-medium text-[#c8d3dd]">
+                      {step.detail}
+                    </p>
+                    <ul className="mt-2.5 flex flex-wrap gap-2">
+                      {step.areas.map((area) => (
+                        <li
+                          key={area}
+                          className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-3 py-1.5 text-[12px] font-medium text-[#e7b66f]"
+                        >
+                          {area}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </details>
+                )}
+
+                {step.isEngagement && (
+                  <div className="mt-auto pt-3">
+                    <ul className="grid grid-cols-2 gap-2">
+                      {engagementAreas.map(({ title, icon: AreaIcon }) => (
+                        <li
+                          key={title}
+                          className="flex items-center gap-2 rounded-lg border border-[#466b8d]/45 bg-[#092440]/80 px-2.5 py-2 text-[12px] font-semibold text-[#edf2f6]"
+                        >
+                          <AreaIcon
+                            className="h-4 w-4 shrink-0 stroke-[1.5] text-[#e1aa58]"
+                            aria-hidden="true"
+                          />
+                          {title}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2.5 border-l-2 border-[#d89c4a] pl-3 text-[12px] leading-[1.4] text-[#bdc9d5]">
+                      <span className="lg:hidden">{step.detail}</span>
+                      <span className="hidden lg:inline">{step.compactDetail}</span>
+                    </p>
+                  </div>
+                )}
+
+                {!isFeature && (
+                  <p className="mt-auto border-l-2 border-[#d89c4a] pl-3 pt-0 text-[12px] leading-[1.45] text-[#bdc9d5] xl:text-[13px]">
+                    {step.detail}
+                  </p>
+                )}
               </li>
             )
           })}
         </ol>
-
-        <div className="mt-8 rounded-2xl border border-[#4e7092]/40 bg-[#082039]/90 px-5 py-5 sm:px-7 lg:mt-0 lg:flex lg:items-center lg:justify-between lg:gap-6 lg:rounded-xl lg:px-5 lg:py-3.5 xl:px-6">
-          <div className="min-w-0">
-            <h3 className="text-[18px] font-semibold leading-tight text-[#f4f1eb] lg:text-[16px] xl:text-[18px]">
-              Build Long-Term Professional Value
-            </h3>
-            <p className="mt-1 max-w-[820px] text-[13px] leading-[1.45] text-[#bfcbd7]">
-              Every contribution strengthens the visibility, credibility and relevance of your
-              expertise.
-            </p>
-            <p className="mt-1 text-[11px] leading-[1.4] text-[#8596a7]">
-              Applications are individually reviewed. Submission does not guarantee selection.
-            </p>
-          </div>
-          <Link
-            href={EXPERT_APPLICATION_PATH}
-            className="mt-5 inline-flex min-h-[46px] shrink-0 items-center justify-center gap-2 rounded-[5px] border border-[#279fff] bg-[#087ee8] px-6 py-2.5 text-center text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.42)] transition-all hover:bg-[#168ef5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#03172c] lg:mt-0"
-          >
-            Start My Expert Application
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </div>
       </div>
     </section>
   )
