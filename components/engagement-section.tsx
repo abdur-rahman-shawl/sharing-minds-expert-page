@@ -17,6 +17,7 @@ type ApplicantArea = {
   id: string
   title: string
   image: string
+  wideImage: string
   imageAlt: string
   icon: LucideIcon
 }
@@ -26,6 +27,7 @@ const applicantAreas: ApplicantArea[] = [
     id: "careers",
     title: "Careers",
     image: "/who-may-apply/careers.webp",
+    wideImage: "/who-may-apply/careers-wide.webp",
     imageAlt:
       "Careers infographic showing professional profiles that may apply and the outcomes their expertise can support.",
     icon: BriefcaseBusiness,
@@ -34,6 +36,7 @@ const applicantAreas: ApplicantArea[] = [
     id: "businesses",
     title: "Businesses",
     image: "/who-may-apply/businesses.webp",
+    wideImage: "/who-may-apply/businesses-wide.webp",
     imageAlt:
       "Businesses infographic showing business expert profiles that may apply and the outcomes their expertise can support.",
     icon: Building2,
@@ -42,6 +45,7 @@ const applicantAreas: ApplicantArea[] = [
     id: "corporates",
     title: "Corporates",
     image: "/who-may-apply/corporates.webp",
+    wideImage: "/who-may-apply/corporates-wide.webp",
     imageAlt:
       "Corporates infographic showing corporate expert profiles that may apply and the outcomes their expertise can support.",
     icon: Network,
@@ -50,6 +54,7 @@ const applicantAreas: ApplicantArea[] = [
     id: "education",
     title: "Education",
     image: "/who-may-apply/education.webp",
+    wideImage: "/who-may-apply/education-wide.webp",
     imageAlt:
       "Education infographic showing education expert profiles that may apply and the outcomes their expertise can support.",
     icon: GraduationCap,
@@ -107,14 +112,20 @@ export function EngagementSection() {
                 value={area.id}
                 className="rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1673d8] focus-visible:ring-offset-4"
               >
-                <figure className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#bccbd9] bg-white shadow-[0_22px_58px_rgba(20,42,68,0.13)] sm:h-[clamp(360px,44svh,460px)] sm:aspect-auto lg:h-[clamp(400px,calc(100svh-210px),660px)]">
-                  <Image
-                    src={area.image}
-                    alt={area.imageAlt}
-                    fill
-                    sizes="(min-width: 1280px) 1000px, (min-width: 1024px) calc(100vw - 350px), (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
-                    className="object-contain"
-                  />
+                <figure className="who-may-apply-figure relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#bccbd9] bg-white shadow-[0_22px_58px_rgba(20,42,68,0.13)]">
+                  <picture className="contents">
+                    <source
+                      media="(min-width: 1280px) and (max-height: 900px)"
+                      srcSet={area.wideImage}
+                    />
+                    <Image
+                      src={area.image}
+                      alt={area.imageAlt}
+                      fill
+                      sizes="(min-width: 1280px) 1000px, (min-width: 1024px) calc(100vw - 350px), (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
+                      className="object-contain"
+                    />
+                  </picture>
                 </figure>
               </TabsPrimitive.Content>
             ))}

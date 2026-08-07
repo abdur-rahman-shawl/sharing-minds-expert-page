@@ -91,6 +91,30 @@
   }
 }
 
+/* Match each Who May Apply frame to its artwork so letterboxing never appears. */
+@media (min-width: 640px) {
+  #who-we-serve .who-may-apply-figure {
+    width: 100%;
+    max-width: clamp(480px, 58.6667svh, 613.3333px);
+    height: auto;
+    margin-inline: auto;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  #who-we-serve .who-may-apply-figure {
+    max-width: clamp(533.3333px, calc(133.3333svh - 280px), 880px);
+  }
+}
+
+@media (min-width: 1280px) and (max-height: 900px) {
+  #who-we-serve .who-may-apply-figure {
+    max-width: clamp(711.1111px, calc(177.7778svh - 373.3333px), 1173.3333px);
+    aspect-ratio: 1672 / 941;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
