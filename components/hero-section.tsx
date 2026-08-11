@@ -44,37 +44,37 @@ export function HeroSection() {
 
       <div className="mx-auto flex w-full max-w-[1380px] items-center px-5 py-12 sm:px-8 lg:px-12">
         <div className="w-full max-w-[clamp(340px,46vw,640px)]">
-          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#79baff] sm:text-[12px]">
+          <p className="mb-[clamp(12px,2vh,20px)] text-[clamp(10px,min(0.8vw,1.45vh),12px)] font-semibold uppercase tracking-[0.18em] text-[#79baff]">
             Founding Expert Applications Are Open
           </p>
 
-          <h1 className="max-w-[620px] font-serif text-[clamp(36px,4vw,58px)] font-normal leading-[1.02] tracking-[-0.025em] text-[#f7f3ed]">
+          <h1 className="max-w-[620px] font-serif text-[clamp(32px,min(3vw,5.6vh),58px)] font-normal leading-[1.02] tracking-[-0.025em] text-[#f7f3ed]">
             Apply for the SharingMinds
             <span className="mt-1 block text-[#edb46f]">Verified Expert Network</span>
           </h1>
 
-          <p className="mt-7 max-w-[590px] border-l-2 border-[#dca559]/70 pl-5 text-[clamp(14px,1.16vw,17px)] leading-[1.7] text-[#e0e7ed]">
+          <p className="mt-[clamp(18px,3vh,28px)] max-w-[590px] border-l-2 border-[#dca559]/70 pl-5 text-[clamp(13px,min(0.92vw,1.75vh),17px)] leading-[1.65] text-[#e0e7ed]">
             SharingMinds evaluates experienced professionals for inclusion in a curated network
             built around credible expertise, practical judgment and measurable professional
             impact.
           </p>
 
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="mt-[clamp(20px,3.2vh,32px)] flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
               href={EXPERT_APPLICATION_PATH}
-              className="inline-flex min-h-[50px] min-w-[225px] items-center justify-center rounded-[4px] border border-[#1ea6ff] bg-[#087ee8] px-7 py-3 text-center text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.85),inset_0_0_14px_rgba(255,255,255,0.13)] transition-all hover:bg-[#168ef5] hover:shadow-[0_0_26px_rgba(0,143,255,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427]"
+              className="inline-flex min-h-[48px] min-w-[225px] items-center justify-center rounded-[4px] border border-[#1ea6ff] bg-[#087ee8] px-7 py-3 text-center text-[clamp(12px,min(0.85vw,1.7vh),13px)] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.85),inset_0_0_14px_rgba(255,255,255,0.13)] transition-all hover:bg-[#168ef5] hover:shadow-[0_0_26px_rgba(0,143,255,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427] sm:min-h-[50px]"
             >
               Start My Expert Application
             </Link>
             <Link
               href="#who-we-serve"
-              className="inline-flex min-h-[50px] min-w-[285px] items-center justify-center rounded-[4px] border border-[#4f7ba2] bg-[#071a2e]/55 px-6 py-3 text-center text-[13px] font-semibold text-white backdrop-blur-sm transition-colors hover:border-[#7ba9d0] hover:bg-[#0d2741]/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ba9d0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427]"
+              className="inline-flex min-h-[48px] min-w-[285px] items-center justify-center rounded-[4px] border border-[#4f7ba2] bg-[#071a2e]/55 px-6 py-3 text-center text-[clamp(12px,min(0.85vw,1.7vh),13px)] font-semibold text-white backdrop-blur-sm transition-colors hover:border-[#7ba9d0] hover:bg-[#0d2741]/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ba9d0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427] sm:min-h-[50px]"
             >
               Review Eligibility and Selection Process
             </Link>
           </div>
 
-          <ul className="mt-9 flex flex-wrap items-center gap-y-3 text-[12px] font-medium text-[#e9c591] sm:gap-x-0">
+          <ul className="mt-[clamp(20px,3.5vh,36px)] flex flex-wrap items-center gap-y-3 text-[clamp(11px,min(0.78vw,1.55vh),12px)] font-medium text-[#e9c591] sm:gap-x-0">
             {qualities.map((quality, index) => (
               <li key={quality} className="flex items-center">
                 {index > 0 && (
