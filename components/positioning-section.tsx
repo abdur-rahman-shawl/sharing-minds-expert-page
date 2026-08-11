@@ -21,9 +21,21 @@ export function PositioningSection() {
     <section
       id="take-your-expertise-further"
       aria-labelledby="positioning-title"
-      className="scroll-mt-[104px] overflow-hidden border-b border-[#dbe2e9] bg-white px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:px-12 lg:py-24"
+      className="relative isolate scroll-mt-[104px] overflow-hidden border-b border-[#dbe2e9] bg-[#f8f4ec] px-5 py-16 text-[#0d2147] sm:px-8 sm:py-20 lg:px-12 lg:py-24"
     >
-      <div className="mx-auto grid w-full max-w-[1380px] gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start xl:gap-20">
+      <Image
+        src="/positioning-background.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="pointer-events-none -z-30 object-cover object-center"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.78)_0%,rgba(255,255,255,0.58)_58%,rgba(255,255,255,0.48)_100%)] lg:bg-[linear-gradient(90deg,rgba(255,255,255,0.80)_0%,rgba(255,255,255,0.68)_38%,rgba(255,255,255,0.18)_70%,rgba(255,255,255,0.10)_100%)]"
+      />
+
+      <div className="relative z-10 mx-auto grid w-full max-w-[1380px] gap-14 xl:grid-cols-[0.8fr_1.2fr] xl:items-start xl:gap-20">
         <div className="max-w-[560px]">
           <header>
             <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#2674d3]">
@@ -56,18 +68,26 @@ export function PositioningSection() {
         </div>
 
         <div className="grid gap-6">
-          <div className="relative mx-auto h-[250px] w-full max-w-[760px] bg-white sm:h-[290px]">
+          <div className="relative h-[250px] w-full sm:h-[310px] lg:h-auto lg:min-h-[300px] lg:max-h-[390px] lg:aspect-[21/10]">
             <Image
-              src="/experience-infinity-dots.png"
-              alt="A dotted blue and gold SharingMinds infinity symbol"
+              src="/positioning-infinity.webp"
+              alt="An infinity symbol formed from a network of expert portraits"
               fill
               sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-contain object-center"
+              className="object-contain object-center lg:object-cover"
+              style={{
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%)",
+                WebkitMaskComposite: "source-in",
+                maskImage:
+                  "linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%)",
+                maskComposite: "intersect",
+              }}
             />
           </div>
 
           <div className="grid gap-5 text-[#172947] sm:grid-cols-2">
-            <div className="h-full rounded-xl border border-[#d6dee7] bg-white p-6 shadow-[0_12px_35px_rgba(21,55,94,0.07)] sm:p-7">
+            <div className="h-full rounded-xl border border-white/80 bg-white/85 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
               <h3 className="mb-5 text-[18px] font-semibold">
                 Experience often grows through:
               </h3>
@@ -81,7 +101,7 @@ export function PositioningSection() {
               </ul>
             </div>
 
-            <div className="h-full rounded-xl border border-[#bfcfe1] bg-[#f5f9ff] p-6 shadow-[0_12px_35px_rgba(21,55,94,0.07)] sm:p-7">
+            <div className="h-full rounded-xl border border-[#bfcfe1]/80 bg-[#f5f9ff]/88 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
               <h3 className="mb-5 text-[18px] font-semibold">
                 SharingMinds helps extend it through:
               </h3>
