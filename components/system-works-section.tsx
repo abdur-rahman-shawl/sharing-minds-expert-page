@@ -1,265 +1,133 @@
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  BadgeCheck,
-  BriefcaseBusiness,
-  Building2,
-  FileText,
-  GraduationCap,
-  IdCard,
-  Network,
-  SearchCheck,
-  ShieldCheck,
-  type LucideIcon,
-} from "lucide-react"
+"use client"
 
+import { useCallback, useState, type KeyboardEvent } from "react"
+import { ChevronRight } from "lucide-react"
+
+import { JourneyStagePanel } from "@/components/how-it-works/journey-stage-panel"
+import { journeyStages } from "@/components/how-it-works/journey-data"
 import { cn } from "@/lib/utils"
 
-type ProcessStep = {
-  number: string
-  title: string
-  description: string
-  detail: string
-  compactDetail?: string
-  areas?: string[]
-  isEngagement?: boolean
-  icon: LucideIcon
-}
-
-const processSteps: ProcessStep[] = [
-  {
-    number: "1",
-    title: "Submit Your Expert Application",
-    description:
-      "Tell us about your professional experience, areas of expertise, operating context and the decisions where your judgment creates value.",
-    detail: "You may apply across one or more areas:",
-    areas: ["Careers", "Businesses", "Corporates", "Education"],
-    icon: FileText,
-  },
-  {
-    number: "2",
-    title: "Application Review",
-    description:
-      "Every application is individually reviewed for relevant experience, domain credibility, measurable contribution and practical expertise.",
-    detail:
-      "This helps us understand where your experience is strongest and where it can create the greatest value.",
-    icon: SearchCheck,
-  },
-  {
-    number: "3",
-    title: "Complete Verification",
-    description:
-      "Shortlisted applicants may be invited to provide additional professional information, supporting evidence, references or participate in a verification conversation.",
-    detail:
-      "Verification is designed to establish the credibility and relevance of your expertise.",
-    icon: ShieldCheck,
-  },
-  {
-    number: "4",
-    title: "Expert Selection",
-    description:
-      "Applicants who meet the required standards are invited to become SharingMinds Verified Experts.",
-    detail:
-      "Your approved areas of expertise determine how you are represented across the SharingMinds ecosystem.",
-    icon: BadgeCheck,
-  },
-  {
-    number: "5",
-    title: "Activate Your Expert Membership",
-    description:
-      "Selected experts receive the applicable membership, profile activation and participation details.",
-    detail:
-      "Once activated, your Verified Expert profile presents your experience, expertise and areas of contribution in a clear and structured format.",
-    icon: IdCard,
-  },
-  {
-    number: "6",
-    title: "Engage Where Your Expertise Matters",
-    description:
-      "Your expertise can contribute through relevant formats across the four SharingMinds segments:",
-    detail:
-      "Engagement formats may include individual consultations, mentoring, workshops, decision programmes, knowledge initiatives and strategic assignments.",
-    compactDetail:
-      "Consultations, mentoring, workshops, decision programmes and strategic assignments.",
-    isEngagement: true,
-    icon: Network,
-  },
-]
-
-const engagementAreas = [
-  { title: "Careers", icon: BriefcaseBusiness },
-  { title: "Businesses", icon: Building2 },
-  { title: "Corporates", icon: Network },
-  { title: "Education", icon: GraduationCap },
-]
-
-const desktopPlacement = [
-  "lg:col-span-2 lg:col-start-1 lg:row-start-1",
-  "lg:col-start-3 lg:row-start-1",
-  "lg:col-start-4 lg:row-start-1",
-  "lg:col-start-4 lg:row-start-2",
-  "lg:col-start-3 lg:row-start-2",
-  "lg:col-span-2 lg:col-start-1 lg:row-start-2",
-]
-
-function JourneyConnector({ step }: { step: string }) {
-  const connectorClasses =
-    "pointer-events-none absolute z-20 hidden h-7 w-7 items-center justify-center rounded-full border border-[#3b78b5]/60 bg-[#08233e] text-[#e1aa58] shadow-[0_6px_18px_rgba(0,0,0,0.25)] lg:flex"
-
-  if (step === "3") {
-    return (
-      <span
-        aria-hidden="true"
-        className={cn(connectorClasses, "-bottom-[22px] right-[calc(50%-14px)]")}
-      >
-        <ArrowDown className="h-3.5 w-3.5" />
-      </span>
-    )
-  }
-
-  if (step === "4" || step === "5") {
-    return (
-      <span
-        aria-hidden="true"
-        className={cn(connectorClasses, "-left-[22px] top-[calc(50%-14px)]")}
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-      </span>
-    )
-  }
-
-  if (step === "1" || step === "2") {
-    return (
-      <span
-        aria-hidden="true"
-        className={cn(connectorClasses, "-right-[22px] top-[calc(50%-14px)]")}
-      >
-        <ArrowRight className="h-3.5 w-3.5" />
-      </span>
-    )
-  }
-
-  return null
-}
+const LAST_STAGE_INDEX = journeyStages.length - 1
 
 export function SystemWorksSection() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const activeStage = journeyStages[activeIndex]
+
+  const selectStage = useCallback((index: number) => {
+    setActiveIndex(index)
+  }, [])
+
+  const showNextStage = useCallback(() => {
+    setActiveIndex((currentIndex) =>
+      currentIndex === LAST_STAGE_INDEX ? 0 : currentIndex + 1,
+    )
+  }, [])
+
+  const handleStageKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
+    let nextIndex: number | null = null
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      nextIndex = activeIndex === LAST_STAGE_INDEX ? 0 : activeIndex + 1
+    }
+
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nextIndex = activeIndex === 0 ? LAST_STAGE_INDEX : activeIndex - 1
+    }
+
+    if (event.key === "Home") nextIndex = 0
+    if (event.key === "End") nextIndex = LAST_STAGE_INDEX
+
+    if (nextIndex === null) return
+
+    event.preventDefault()
+    setActiveIndex(nextIndex)
+
+    window.requestAnimationFrame(() => {
+      document.getElementById(`journey-stage-tab-${nextIndex + 1}`)?.focus()
+    })
+  }, [activeIndex])
+
   return (
     <section
       id="how-it-works"
       aria-labelledby="system-works-title"
-      className="relative scroll-mt-[104px] overflow-hidden border-t border-[#24415e]/55 bg-[#03172c] px-5 py-16 text-white sm:px-8 sm:py-20 lg:flex lg:min-h-[calc(100svh-104px)] lg:items-center lg:px-8 lg:pb-[clamp(12px,1.5vh,20px)] lg:pt-[clamp(32px,4.5vh,48px)] xl:px-12"
+      className="relative scroll-mt-[104px] overflow-hidden border-t border-[#24415e]/55 bg-[#03172c] px-3 py-10 text-white sm:px-5 sm:py-14 lg:flex lg:min-h-[calc(100svh-104px)] lg:items-center lg:px-6 lg:py-3 xl:px-8"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_38%,rgba(16,91,181,0.18),transparent_43%),linear-gradient(105deg,rgba(2,14,29,0.38),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_38%,rgba(16,91,181,0.18),transparent_46%),linear-gradient(105deg,rgba(2,14,29,0.42),transparent_64%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(93,154,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(93,154,217,0.035)_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1380px]">
-        <header className="mx-auto max-w-[900px] text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#72b7ff]">
-            Simple. Structured. Selective.
-          </p>
-          <h2
-            id="system-works-title"
-            className="mt-2 text-[clamp(40px,3.6vw,54px)] font-normal leading-none tracking-[-0.03em] text-[#f4f1eb]"
-          >
-            How It Works
-          </h2>
-        </header>
-
-        <ol className="relative mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 lg:gap-3.5 xl:gap-4">
-          {processSteps.map((step, index) => {
-            const Icon = step.icon
-            const isFeature = step.number === "1" || step.number === "6"
-
-            return (
-              <li
-                key={step.number}
-                className={cn(
-                  "relative flex min-h-[220px] flex-col rounded-2xl border bg-[#071c33]/90 px-5 py-5 shadow-[0_16px_38px_rgba(0,0,0,0.18)]",
-                  "border-[#52708e]/40 lg:min-h-[220px] lg:px-4 lg:py-3.5 xl:min-h-[228px] xl:px-5 xl:py-5",
-                  isFeature &&
-                    "border-[#387dbe]/55 bg-[linear-gradient(135deg,rgba(10,42,73,0.96),rgba(7,28,51,0.94))]",
-                  desktopPlacement[index],
-                )}
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] overflow-hidden rounded-[24px] border border-[#29435f]/70 bg-[#071a31] shadow-[0_24px_70px_rgba(0,0,0,0.30)] lg:h-[clamp(560px,calc(100svh-132px),680px)]">
+        <p className="sr-only" role="status" aria-live="polite">
+          Stage {activeStage.id} of {journeyStages.length} selected: {activeStage.title}
+        </p>
+        <div className="grid lg:h-full lg:grid-cols-[minmax(250px,35.7%)_minmax(0,64.3%)]">
+          <aside className="border-b border-[#29435f]/70 bg-[#06172c]/96 px-4 py-5 sm:px-6 sm:py-6 lg:flex lg:min-h-0 lg:flex-col lg:border-b-0 lg:border-r lg:px-[clamp(16px,1.6vw,24px)] lg:py-[clamp(16px,2.2vh,26px)]">
+            <header className="shrink-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#e3b45f] xl:text-[11px]">
+                A Structured Expert Journey
+              </p>
+              <h2
+                id="system-works-title"
+                className="mt-2 text-[clamp(31px,3vw,42px)] font-semibold leading-none tracking-[-0.04em] text-[#f7f1e8]"
               >
-                <JourneyConnector step={step.number} />
+                How It Works
+              </h2>
+              <p className="mt-3 max-w-[410px] text-[12px] leading-[1.48] text-[#d5dee7] lg:max-w-[260px] lg:text-[11px] xl:text-[12px]">
+                A six-stage process designed to understand, verify and activate expertise before it
+                enters the SharingMinds ecosystem.
+              </p>
+            </header>
 
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3f78ad] bg-[#08233e] text-[12px] font-semibold text-[#f0bc70]">
-                    {step.number.padStart(2, "0")}
-                  </span>
-                  <h3
-                    className={cn(
-                      "min-w-0 flex-1 text-[17px] font-semibold leading-[1.25] text-[#f3f5f7]",
-                      !isFeature && "lg:text-[15px] xl:text-[16px]",
-                    )}
-                  >
-                    {step.title}
-                  </h3>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#d6a05a]/40 bg-[#0a233e] text-[#e1aa58]">
-                    <Icon className="h-[18px] w-[18px] stroke-[1.5]" aria-hidden="true" />
-                  </span>
-                </div>
+            <nav
+              className="mt-5 lg:min-h-0 lg:flex-1"
+              aria-label="Expert journey stages"
+            >
+              <ol className="grid grid-cols-6 gap-2 sm:grid-cols-3 lg:flex lg:h-full lg:flex-col lg:justify-between lg:gap-1.5">
+                {journeyStages.map((stage, index) => {
+                  const isActive = activeIndex === index
 
-                <p
-                  className={cn(
-                    "mt-3 text-[14px] leading-[1.52] text-[#d0d8e2]",
-                    !isFeature && "lg:text-[13px] lg:leading-[1.48] xl:text-[14px]",
-                  )}
-                >
-                  {step.description}
-                </p>
-
-                {step.areas && (
-                  <div className="mt-auto pt-3">
-                    <p className="border-l-2 border-[#d89c4a] pl-3 text-[12px] font-medium text-[#c8d3dd]">
-                      {step.detail}
-                    </p>
-                    <ul className="mt-2.5 flex flex-wrap gap-2">
-                      {step.areas.map((area) => (
-                        <li
-                          key={area}
-                          className="rounded-full border border-[#3f76ad]/55 bg-[#0a2542] px-3 py-1.5 text-[12px] font-medium text-[#e7b66f]"
+                  return (
+                    <li key={stage.id} className="min-w-0 lg:flex-1">
+                      <button
+                        id={`journey-stage-tab-${stage.id}`}
+                        type="button"
+                        onClick={() => selectStage(index)}
+                        onKeyDown={handleStageKeyDown}
+                        className={cn(
+                          "group relative flex min-h-11 w-full items-center justify-center rounded-xl border border-[#344b64]/80 bg-[#0a1d34]/85 px-1.5 text-left transition-[border-color,background-color,box-shadow] duration-200 hover:border-[#7a653f] hover:bg-[#10243c] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4d28c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#06172c] sm:justify-start sm:gap-3 sm:px-3 lg:h-full lg:min-h-0 lg:rounded-xl lg:px-2.5 xl:px-3",
+                          isActive &&
+                            "border-[#d3a347] bg-[#12243a] shadow-[inset_4px_0_0_#d3a347]",
+                        )}
+                        aria-current={isActive ? "step" : undefined}
+                        aria-controls="journey-stage-panel"
+                        tabIndex={isActive ? 0 : -1}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#425d79] bg-[#0b2139] text-[11px] font-semibold text-[#efbe68] transition-colors",
+                            isActive && "border-[#d3a347] bg-[#d3a347] text-[#071a31]",
+                          )}
                         >
-                          {area}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                          {String(stage.id).padStart(2, "0")}
+                        </span>
+                        <span className="hidden min-w-0 flex-1 text-[12px] font-semibold leading-[1.18] text-[#f2f3f4] sm:block lg:text-[11px] xl:text-[12px]">
+                          {stage.title}
+                        </span>
+                        <ChevronRight
+                          className="hidden h-4 w-4 shrink-0 text-[#e3b45f] sm:block"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only sm:hidden">{stage.title}</span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+            </nav>
+          </aside>
 
-                {step.isEngagement && (
-                  <div className="mt-auto pt-3">
-                    <ul className="grid grid-cols-2 gap-2">
-                      {engagementAreas.map(({ title, icon: AreaIcon }) => (
-                        <li
-                          key={title}
-                          className="flex items-center gap-2 rounded-lg border border-[#466b8d]/45 bg-[#092440]/80 px-2.5 py-2 text-[12px] font-semibold text-[#edf2f6]"
-                        >
-                          <AreaIcon
-                            className="h-4 w-4 shrink-0 stroke-[1.5] text-[#e1aa58]"
-                            aria-hidden="true"
-                          />
-                          {title}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-2.5 border-l-2 border-[#d89c4a] pl-3 text-[12px] leading-[1.4] text-[#bdc9d5]">
-                      <span className="lg:hidden">{step.detail}</span>
-                      <span className="hidden lg:inline">{step.compactDetail}</span>
-                    </p>
-                  </div>
-                )}
-
-                {!isFeature && (
-                  <p className="mt-auto border-l-2 border-[#d89c4a] pl-3 pt-0 text-[12px] leading-[1.45] text-[#bdc9d5] xl:text-[13px]">
-                    {step.detail}
-                  </p>
-                )}
-              </li>
-            )
-          })}
-        </ol>
+          <JourneyStagePanel stage={activeStage} onNext={showNextStage} />
+        </div>
       </div>
     </section>
   )
