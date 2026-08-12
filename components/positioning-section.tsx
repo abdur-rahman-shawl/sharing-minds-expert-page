@@ -67,53 +67,31 @@ export function PositioningSection() {
           </div>
         </div>
 
-        <div className="grid gap-6">
-          <div className="relative h-[250px] w-full sm:h-[310px] lg:h-auto lg:min-h-[300px] lg:max-h-[390px] lg:aspect-[21/10]">
-            <Image
-              src="/positioning-infinity.webp"
-              alt="An infinity symbol formed from a network of expert portraits"
-              fill
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-contain object-center lg:object-cover"
-              style={{
-                WebkitMaskImage:
-                  "linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%)",
-                WebkitMaskComposite: "source-in",
-                maskImage:
-                  "linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%)",
-                maskComposite: "intersect",
-              }}
-            />
+        <div className="grid items-stretch gap-5 text-[#172947] sm:grid-cols-2">
+          <div className="h-full rounded-xl border border-white/80 bg-white/85 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
+            <h3 className="mb-5 text-[18px] font-semibold">Experience often grows through:</h3>
+            <ul className="space-y-3">
+              {scatteredExpertise.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-[15px] leading-[1.5]">
+                  <Circle className="h-4 w-4 shrink-0 fill-[#d99c35]/15 stroke-[1.7] text-[#d99c35]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <div className="grid gap-5 text-[#172947] sm:grid-cols-2">
-            <div className="h-full rounded-xl border border-white/80 bg-white/85 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
-              <h3 className="mb-5 text-[18px] font-semibold">
-                Experience often grows through:
-              </h3>
-              <ul className="space-y-3">
-                {scatteredExpertise.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-[15px] leading-[1.5]">
-                    <Circle className="h-4 w-4 shrink-0 fill-[#d99c35]/15 stroke-[1.7] text-[#d99c35]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="h-full rounded-xl border border-[#bfcfe1]/80 bg-[#f5f9ff]/88 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
-              <h3 className="mb-5 text-[18px] font-semibold">
-                SharingMinds helps extend it through:
-              </h3>
-              <ul className="space-y-3">
-                {structuredExpertise.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-[15px] leading-[1.5]">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 stroke-[2] text-[#1d70d7]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="h-full rounded-xl border border-[#bfcfe1]/80 bg-[#f5f9ff]/88 p-6 shadow-[0_16px_42px_rgba(21,55,94,0.10)] backdrop-blur-md sm:p-7">
+            <h3 className="mb-5 text-[18px] font-semibold">
+              SharingMinds helps extend it through:
+            </h3>
+            <ul className="space-y-3">
+              {structuredExpertise.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[15px] leading-[1.5]">
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 stroke-[2] text-[#1d70d7]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
