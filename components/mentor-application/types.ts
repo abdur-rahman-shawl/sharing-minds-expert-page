@@ -8,9 +8,19 @@ export type MentorApplicationStatus =
   | 'REJECTED'
   | 'WITHDRAWN'
 
+export type LiveRegistrationDraftStatus =
+  | 'DRAFT'
+  | 'READY_FOR_AUTH'
+  | 'AUTHENTICATED'
+  | 'FINALIZING'
+  | 'COMPLETED'
+  | 'EXPIRED'
+  | 'ABANDONED'
+
 export interface MentorApplication {
   id: string
   status: MentorApplicationStatus
+  registrationDraftStatus?: LiveRegistrationDraftStatus
   email: string
   fullName?: string | null
   phone?: string | null

@@ -5,8 +5,12 @@ import {
   saveExpertRegistrationDraft,
   serializeExpertRegistrationDraft,
 } from '@/lib/expert-registration/drafts'
-import { getExpertRegistrationDraftFromRequest } from '@/lib/expert-registration/draft-session'
+import {
+  clearExpertRegistrationDraftCookie,
+  getExpertRegistrationDraftFromRequest,
+} from '@/lib/expert-registration/draft-session'
 import { isLiveExpertRegistrationEnabled } from '@/lib/expert-registration/feature'
+import { isRestorableExpertRegistrationDraft } from '@/lib/expert-registration/lifecycle'
 import {
   assertTrustedOrigin,
   MentorApplicationSecurityError,
@@ -28,13 +32,19 @@ export async function GET(request: NextRequest) {
 
   try {
     const draft = await getExpertRegistrationDraftFromRequest(request)
-    return NextResponse.json(
+    const restorableDraft =
+      draft && isRestorableExpertRegistrationDraft(draft.status) ? draft : null
+    const response = NextResponse.json(
       {
         success: true,
-        draft: draft ? await serializeExpertRegistrationDraft(draft) : null,
+        draft: restorableDraft
+          ? await serializeExpertRegistrationDraft(restorableDraft)
+          : null,
       },
       { headers: NO_STORE_HEADERS },
     )
+    if (!restorableDraft) clearExpertRegistrationDraftCookie(response)
+    return response
   } catch (error) {
     console.error('[expert-registration] Unable to restore draft', error)
     return NextResponse.json(

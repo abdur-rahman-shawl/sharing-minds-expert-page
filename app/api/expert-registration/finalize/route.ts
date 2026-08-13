@@ -4,9 +4,15 @@ import { z } from 'zod'
 import {
   ExpertRegistrationDraftError,
 } from '@/lib/expert-registration/drafts'
-import { getExpertRegistrationDraftFromRequest } from '@/lib/expert-registration/draft-session'
+import {
+  clearExpertRegistrationDraftCookie,
+  getExpertRegistrationDraftFromRequest,
+} from '@/lib/expert-registration/draft-session'
 import { isLiveExpertRegistrationEnabled } from '@/lib/expert-registration/feature'
 import { finalizeExpertRegistration } from '@/lib/expert-registration/finalize'
+import {
+  shouldClearExpertRegistrationDraftAfterFinalization,
+} from '@/lib/expert-registration/lifecycle'
 import { sendMentorApplicationReceivedEmail } from '@/lib/mentor-applications/email'
 import { getAuthenticatedApplicationUser } from '@/lib/mentor-applications/auth'
 import {
@@ -99,7 +105,7 @@ export async function POST(request: NextRequest) {
       authMethod: parsed.data.authMethod,
     })
 
-    if (!result.replayed) {
+    if (result.outcome === 'CREATED') {
       try {
         await sendMentorApplicationReceivedEmail({
           email: result.mentor.email,
@@ -111,10 +117,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(
-      { success: true, mentor: result.mentor, replayed: result.replayed },
-      { status: result.replayed ? 200 : 201, headers: NO_STORE_HEADERS },
+    const response = NextResponse.json(
+      { success: true, mentor: result.mentor, outcome: result.outcome },
+      {
+        status: result.outcome === 'CREATED' ? 201 : 200,
+        headers: NO_STORE_HEADERS,
+      },
     )
+    if (shouldClearExpertRegistrationDraftAfterFinalization(result.outcome)) {
+      clearExpertRegistrationDraftCookie(response)
+    }
+    return response
   } catch (error) {
     if (error instanceof MentorApplicationSecurityError) {
       return NextResponse.json(

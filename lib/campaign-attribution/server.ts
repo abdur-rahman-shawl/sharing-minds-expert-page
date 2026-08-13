@@ -26,6 +26,7 @@ import {
   readSignedCampaignIdentifier,
   signCampaignIdentifier,
 } from './security'
+import { preserveFirstRecordedTimestamp } from './sql'
 
 type CaptureCampaignVisitInput = {
   path: string
@@ -129,7 +130,7 @@ async function updateVisit(
     .set({
       pageViewCount: sql`${campaignVisits.pageViewCount} + 1`,
       applicationViewedAt: isApplicationPath(path)
-        ? sql`coalesce(${campaignVisits.applicationViewedAt}, ${now})`
+        ? preserveFirstRecordedTimestamp(campaignVisits.applicationViewedAt)
         : undefined,
       lastSeenAt: now,
       updatedAt: now,
@@ -182,7 +183,9 @@ export async function captureCampaignVisit(
     await db
       .update(campaignVisits)
       .set({
-        applicationViewedAt: sql`coalesce(${campaignVisits.applicationViewedAt}, ${now})`,
+        applicationViewedAt: preserveFirstRecordedTimestamp(
+          campaignVisits.applicationViewedAt,
+        ),
         updatedAt: now,
       })
       .where(
@@ -280,7 +283,9 @@ export async function markCurrentCampaignVisitOtpRequested(
   await db
     .update(campaignVisits)
     .set({
-      otpRequestedAt: sql`coalesce(${campaignVisits.otpRequestedAt}, ${now})`,
+      otpRequestedAt: preserveFirstRecordedTimestamp(
+        campaignVisits.otpRequestedAt,
+      ),
       lastSeenAt: now,
       updatedAt: now,
     })

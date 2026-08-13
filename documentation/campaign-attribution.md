@@ -1,6 +1,6 @@
 # Campaign attribution and expert-application insights
 
-Last updated: 27 July 2026
+Last updated: 13 August 2026
 
 ## Purpose
 
@@ -45,8 +45,9 @@ in UTM parameters.
 1. A visit is a 30-minute first-party session. Page navigation extends it.
 2. A new explicit campaign or external referral starts a new acquisition visit.
 3. Direct navigation does not overwrite a non-direct touch for 30 days.
-4. The active non-direct touch is linked when OTP verification creates the
-   application. The authenticated-application path follows the same rule.
+4. The active non-direct touch is linked when OTP verification creates a legacy
+   application. Live registration v3 links the touch to its anonymous draft and
+   copies it to the canonical mentor during finalization.
 5. An existing application is never re-attributed. Historical applications
    without a link remain `UNATTRIBUTED`.
 6. Cookie identifiers are random, signed, `HttpOnly`, `SameSite=Lax`, and
@@ -126,3 +127,11 @@ The Excel workbook contains:
 8. Verify `/campaign-stats` in source, campaign, and ad-variation views.
 9. Record the enablement timestamp; earlier applications remain explicitly
    unattributed.
+
+## Implementation notes
+
+Milestone columns such as `application_viewed_at` and `otp_requested_at` are
+write-once. Existing values are preserved with `COALESCE`, and a previously
+empty value is populated with PostgreSQL `CURRENT_TIMESTAMP`. JavaScript `Date`
+objects must not be interpolated directly into raw Drizzle SQL fragments because
+that bypasses the timestamp column encoder used by normal `.set(...)` values.

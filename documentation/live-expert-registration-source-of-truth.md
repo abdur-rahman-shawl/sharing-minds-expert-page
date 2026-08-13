@@ -17,7 +17,7 @@ The intended experience is:
 
 1. A visitor opens `/verified-experts` and completes the existing eight-step expert form.
 2. The professional form contains no email input and does not ask for an email OTP.
-3. At the final step, the visitor authenticates with Google, LinkedIn, or email and password.
+3. At the final step, the visitor authenticates with Google or email and password.
 4. Email authentication is presented in a modal with Sign in and Create account modes. Create
    account asks for email, password, and password confirmation.
 5. After authentication, the server obtains the email exclusively from the authenticated session
@@ -41,7 +41,7 @@ Implemented:
 - anonymous, HTTP-only-cookie-bound drafts with seven-day expiry and server-side autosave;
 - complete pre-auth validation and private upload of the required profile image/resume plus
   optional supporting evidence;
-- Google, LinkedIn, email sign in, email account creation, and existing-session completion;
+- Google, email sign in, email account creation, and existing-session completion;
 - locked, idempotent direct creation of the mentor, role, file links, consents, and audit event;
 - explicit live provenance, auth method, schema version, normalized location IDs, and campaign
   attribution on the mentor;
@@ -73,7 +73,9 @@ so the standard Webpack build must be rerun in the pinned Node 22 deployment/run
 - Keep the current form questions, validation, normalized location selectors, files, and five
   legal acknowledgements.
 - Put authentication at the end of the form.
-- Support Google, LinkedIn, existing email/password accounts, and new email/password accounts.
+- Support Google, existing email/password accounts, and new email/password accounts in the public
+  registration UI. Keep the LinkedIn server callback temporarily compatible only for OAuth flows
+  that were already in progress when the UI changed.
 - Preserve all legacy application data for a later migration.
 - Store new registrations directly against canonical platform users and mentors.
 - Distinguish live production registrations from POC, migrated, platform, and admin-created data.
@@ -85,7 +87,7 @@ creation endpoint must never trust an email submitted as form data.
 
 ## 3. Security qualification: removing email verification
 
-Google and LinkedIn generally provide an identity backed by their OAuth/OpenID flow. A new
+Google provides an identity backed by its OAuth/OpenID flow. A new
 email/password account without email verification does not prove ownership of the supplied
 mailbox. The requested v3 flow will therefore allow submission without an OTP, but it must not
 incorrectly set `users.email_verified=true` for an email/password signup.
@@ -110,7 +112,7 @@ long passphrases. The confirmation value is never stored or logged.
 
 ## 4. Why a new anonymous draft aggregate is required
 
-Authentication happens after the form, while Google and LinkedIn require leaving the page for an
+Authentication happens after the form, while Google requires leaving the page for an
 OAuth callback. React state and browser `File` objects do not reliably survive that redirect.
 Storing the entire application, resume, and profile image in `localStorage` would expose sensitive
 PII and still would not safely preserve file objects.
@@ -137,7 +139,6 @@ flowchart LR
   A["Complete expert form"] --> B["Server-side anonymous draft"]
   B --> C{"Authenticate at final step"}
   C -->|Google| D["Better Auth session"]
-  C -->|LinkedIn| D
   C -->|Email sign in or sign up| D
   D --> E["Authenticated finalization transaction"]
   E --> F["users and auth_accounts"]
@@ -153,7 +154,7 @@ supplied user ID or email.
 
 ## 6. User journeys
 
-### 6.1 Google or LinkedIn
+### 6.1 Google
 
 1. Validate every form step, required file, and legal acknowledgement.
 2. Save the latest validated payload, current legal versions, selected files, and campaign
@@ -163,7 +164,7 @@ supplied user ID or email.
    `/verified-experts/complete`.
 5. Better Auth creates or reuses the user/account and establishes a session.
 6. The callback page calls the idempotent finalization endpoint.
-7. On success, show the submitted/under-review state.
+7. On success, clear the anonymous draft cookie and show the submitted/under-review state.
 
 The recommended implementation uses the provider's normal redirect flow. A custom OAuth popup
 is less reliable on mobile browsers and introduces opener/postMessage and popup-blocking failure
@@ -187,6 +188,10 @@ modes. The email experience remains a modal as requested.
 
 If the email already belongs to an account, offer Sign in without deleting the draft. Passwords,
 provider tokens, raw sessions, and password confirmation must never enter draft storage.
+
+The UI switches directly to Sign in, retains the normalized email, clears both password fields,
+and explains that the account already exists. Better Auth remains the only authority that decides
+whether the email already belongs to a user.
 
 ### 6.4 Already-authenticated visitor
 
@@ -336,7 +341,8 @@ canonical mentor registration. It must:
 1. Enforce the feature flag, same-origin request, rate limit, and active Better Auth session.
 2. Obtain `user_id` and email only from the server-side session.
 3. Lock the draft and user with a transaction/advisory lock.
-4. Reject expired, incomplete, foreign, or already-consumed drafts.
+4. Reject expired, incomplete, or foreign drafts. Return idempotent success when the exact draft
+   was already consumed by the same user.
 5. Revalidate the complete v3 schema, legal versions, normalized location hierarchy, required
    profile image/resume, actual file signatures, and size limits.
 6. Detect an existing mentor for the user before insertion.
@@ -347,7 +353,16 @@ canonical mentor registration. It must:
 10. Associate file metadata with the mentor and populate stable profile/resume endpoints.
 11. Insert versioned consent events and a mentor creation audit record.
 12. Mark the draft `COMPLETED` with the user and mentor IDs.
-13. Commit, then send the registration-received email outside the transaction.
+13. Return one typed outcome: `CREATED`, `REPLAYED`, or `EXISTING_PROFILE`.
+
+The pre-existing shared `mentors_profile_audit` contract is `mentor_id`, `user_id`, non-null
+`previous_data`, non-null `updated_data`, and timezone-aware `changed_at`. It does not contain a
+`changed_by` column. A live registration creation event writes `{}` as the before-state and the
+registration provenance metadata as the after-state. The audit insert remains inside the same
+transaction so a failure cannot leave a partial mentor registration.
+14. Commit, then send the registration-received email outside the transaction only for `CREATED`.
+15. Clear the browser draft cookie only for `CREATED` or `REPLAYED`; retain it for
+    `EXISTING_PROFILE` so the visitor can authenticate with the correct account.
 
 `registration_draft_id` is a unique idempotency key. Repeating finalization after a timeout must
 return the already-created mentor rather than creating a duplicate.
@@ -364,7 +379,7 @@ or a partially committed profile.
 | New user, no mentor, no legacy application | Create the mentor normally. |
 | Existing user, no mentor | Create the mentor after successful sign-in. |
 | User already has the mentor created from this draft | Return idempotent success. |
-| User already has a mentor from another source | Do not overwrite it; return an existing-profile state for manual reconciliation. |
+| User already has a mentor from another source | Do not overwrite it; return `EXISTING_PROFILE`, show the existing status, and preserve the new draft for account switching. |
 | Exact-email legacy application exists, no mentor | Create from the new live form, record the legacy match on the draft, and leave the old application untouched. |
 | Legacy application is approved/rejected/in review | Do not inherit or overwrite its decision during v3 finalization. Flag it for future reconciliation. |
 | Email/password signup uses an existing user email | Preserve the draft and ask the person to sign in. |
@@ -413,15 +428,43 @@ browser-enforced `__Secure-` prefix in production and an unprefixed equivalent d
 development; browsers reject `__Secure-` cookies that are issued without the Secure attribute.
 This environment-aware naming is required for local autosave and draft restoration to work.
 
-Recommended UI changes:
+Implemented UI behavior:
 
 - remove the current email/OTP access card from `RegistrationForm`;
 - start directly with the unchanged expert wizard;
 - remove `application.email` as a required wizard prop and validation input;
 - replace the step-eight Submit button with an authentication panel;
-- add Google and LinkedIn buttons plus an Email button;
+- add Google and Email buttons; request Google's account chooser for shared-device safety;
 - implement the email Sign in/Create account modal with accessible tabs, validation, loading,
   provider errors, password visibility controls, and focus management;
+
+### 11.2 Repeat registration and terminal draft lifecycle
+
+The `mentor_registration_drafts` row is an audit and idempotency record. Its browser cookie is only
+an anonymous working-session pointer. These lifecycles must not be conflated:
+
+- `DRAFT` and `READY_FOR_AUTH` may be restored in the browser;
+- `COMPLETED`, `EXPIRED`, `ABANDONED`, `AUTHENTICATED`, and `FINALIZING` are never reopened as an
+  editable wizard;
+- a completed database row is retained, while its browser cookie is expired after confirmed
+  `CREATED` or `REPLAYED` finalization;
+- a stale terminal/unknown cookie self-heals on the next current-draft request and a new blank
+  draft is issued;
+- `EXISTING_PROFILE` retains the prepared draft so `Use a different account` can sign out and
+  return directly to the authentication step; and
+- `Start another application` signs out the current account and reloads the public registration
+  route. Because the successful draft cookie is already gone, the new person receives a blank
+  draft.
+
+Logging out of Better Auth does not itself own or mutate draft state. This separation prevents
+account logout from deleting an unfinished application while ensuring successful submissions do
+not repopulate the form. A concurrent tab that tries to save a completed/rotated draft receives a
+terminal response, stops editing, and asks the visitor to reload.
+
+The canonical uniqueness invariant remains one `users` row and one `mentors` row per account. A
+same-email account with an existing mentor sees its current application status; this public flow
+never inserts a duplicate mentor or overwrites the existing profile. A future rejected-profile
+resubmission workflow must use immutable revisions rather than additional mentor rows.
 - show `Submit as <session email>` for an existing session;
 - use `/verified-experts/complete` for OAuth recovery/finalization; and
 - update every “no account required/verified email” CTA, lifecycle message, email template, and
@@ -491,7 +534,7 @@ Recommended release sequence:
 1. Take a database backup and record status/source counts for applications, users, and mentors.
 2. Apply and verify the additive v3 migration manually.
 3. Deploy schema and server code with v3 disabled.
-4. Verify Google/LinkedIn callback URLs, trusted origins, private bucket, roles, email sender, and
+4. Verify the Google callback URL, trusted origins, private bucket, roles, email sender, and
    rate-limit IP configuration.
 5. Disable legacy automatic claim/reconciliation and verify that signing in does not modify a
    legacy application.
@@ -539,7 +582,7 @@ mentors, drafts, consent records, or additive columns created while v3 was activ
 ### Phase C: final-step authentication — implemented; provider-console verification pending
 
 - Build the reusable authentication panel and accessible email modal.
-- Configure and test Google, LinkedIn, email sign-in, and email sign-up callbacks against the
+- Configure and test Google, email sign-in, and email sign-up callbacks against the
   exact deployed origin.
 - Add the OAuth completion/retry page and bind it to the server draft cookie.
 - Gate every legacy claim/reconciliation entry point independently before enabling v3.
@@ -550,6 +593,8 @@ mentors, drafts, consent records, or additive columns created while v3 was activ
 - Map all professional fields to mentors, assign the mentor role, attach files, write consents and
   audit records, and send the receipt after commit.
 - Return a canonical mentor-status response and update the submitted-state UI.
+- Rotate completed browser drafts, preserve account-mismatch drafts, and expose typed finalization
+  outcomes for deterministic client handling.
 
 ### Phase E: transitional operations — reporting/copy implemented; rollout monitoring pending
 
@@ -578,7 +623,7 @@ available in the same deployment.
 ### Database integration tests
 
 - New email/password user creates one user, account, mentor, role, files, consents, and audit row.
-- Google and LinkedIn callback finalization.
+- Google callback finalization and compatibility for any LinkedIn callback already in flight.
 - Existing user without a mentor.
 - Existing mentor conflict without overwrite.
 - Matching legacy application remains byte-for-byte/status-for-status unchanged.
@@ -591,7 +636,7 @@ available in the same deployment.
 
 ### Browser/E2E tests
 
-- Desktop and mobile completion for Google, LinkedIn, email sign in, and email sign up.
+- Desktop and mobile completion for Google, email sign in, and email sign up.
 - OAuth cancellation, popup/modal dismissal, callback error, expired session, and retry.
 - Browser refresh at every step without loss of server-saved text or uploaded files.
 - Accessible keyboard/focus behavior and error announcements.
@@ -684,3 +729,17 @@ verified in the target environment.
 - Corrected draft-cookie naming for local HTTP so browsers retain the anonymous draft token and
   incremental autosave/restore requests remain authorized; production continues using the
   browser-enforced `__Secure-` prefix.
+- Aligned the mentor-profile audit Drizzle declaration and both audit writers with the verified
+  shared PostgreSQL contract (`user_id`, non-null before/after JSON, timezone-aware timestamp),
+  allowing a failed OAuth finalization to be retried without changing the saved draft.
+- Separated the durable draft audit record from the disposable browser draft session. Successful
+  finalization now expires the cookie, stale completed cookies self-heal, and a new visit starts
+  blank without deleting the completed PostgreSQL record.
+- Added explicit `CREATED`, `REPLAYED`, and `EXISTING_PROFILE` outcomes. Existing mentor accounts
+  are never overwritten; the prepared draft remains available while the visitor switches to the
+  correct Google/email account.
+- Removed LinkedIn from the public final-step UI, configured Google to request account selection,
+  normalized email input, and added direct existing-email sign-in guidance with password cleanup.
+- Added shared-device `Start another application` and `Use a different account` actions plus
+  concurrent-tab terminal-state recovery. No database migration was required for this lifecycle
+  correction.

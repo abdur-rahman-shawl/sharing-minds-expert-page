@@ -6,8 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { MentorApplicationStatus } from '@/components/mentor/mentor-application-status'
 import { Button } from '@/components/ui/button'
-import { useSession } from '@/lib/auth-client'
-import type { MentorStatusData } from '@/lib/mentor-onboarding'
+import { signOut, useSession } from '@/lib/auth-client'
+import {
+  EXPERT_REGISTRATION_FINALIZATION_OUTCOMES,
+  type ExpertRegistrationFinalizationOutcome,
+  type ExpertRegistrationFinalizationResult,
+} from '@/lib/expert-registration/lifecycle'
 
 const AUTH_METHODS = new Set(['GOOGLE', 'LINKEDIN'])
 
@@ -24,9 +28,12 @@ export default function ExpertRegistrationCompleteClient() {
   const searchParams = useSearchParams()
   const { data: session, isPending } = useSession()
   const attempted = useRef(false)
-  const [mentor, setMentor] = useState<MentorStatusData | null>(null)
+  const [completion, setCompletion] =
+    useState<ExpertRegistrationFinalizationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isWorking, setIsWorking] = useState(true)
+  const [isSwitchingAccount, setIsSwitchingAccount] = useState(false)
+  const [accountActionError, setAccountActionError] = useState<string | null>(null)
 
   const complete = useCallback(async () => {
     const method = searchParams.get('method') || ''
@@ -51,14 +58,26 @@ export default function ExpertRegistrationCompleteClient() {
         body: JSON.stringify({ authMethod: method }),
       })
       const body = await responseJson(response)
-      if (!response.ok || body.success !== true || !body.mentor) {
+      const outcome = body.outcome
+      if (
+        !response.ok ||
+        body.success !== true ||
+        !body.mentor ||
+        typeof outcome !== 'string' ||
+        !EXPERT_REGISTRATION_FINALIZATION_OUTCOMES.includes(
+          outcome as ExpertRegistrationFinalizationOutcome,
+        )
+      ) {
         throw new Error(
           typeof body.error === 'string'
             ? body.error
             : 'Unable to complete the expert registration',
         )
       }
-      setMentor(body.mentor as unknown as MentorStatusData)
+      setCompletion({
+        mentor: body.mentor as ExpertRegistrationFinalizationResult['mentor'],
+        outcome: outcome as ExpertRegistrationFinalizationOutcome,
+      })
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to complete registration')
     } finally {
@@ -72,13 +91,53 @@ export default function ExpertRegistrationCompleteClient() {
     void complete()
   }, [complete, isPending])
 
-  if (mentor) {
+  const continueWithAnotherAccount = async () => {
+    setIsSwitchingAccount(true)
+    setAccountActionError(null)
+    try {
+      const result = await signOut()
+      if (result?.error) {
+        throw new Error(result.error.message || 'Unable to close the current account session')
+      }
+      window.location.assign('/verified-experts')
+    } catch (caught) {
+      setAccountActionError(
+        caught instanceof Error
+          ? caught.message
+          : 'Unable to prepare another expert application',
+      )
+      setIsSwitchingAccount(false)
+    }
+  }
+
+  if (completion) {
+    const existingProfile = completion.outcome === 'EXISTING_PROFILE'
     return (
       <MentorApplicationStatus
-        mentor={mentor}
+        mentor={completion.mentor}
         onNavigateHome={() => router.push('/')}
         onNavigateDashboard={() => router.push('/dashboard')}
         onNavigateVipLounge={() => router.push('/vip-lounge')}
+        contextNotice={
+          existingProfile
+            ? {
+                title: 'This account already has an expert application',
+                description:
+                  'The new form was not submitted and your existing expert profile was not changed. Use a different account if this application belongs to another person.',
+              }
+            : undefined
+        }
+        onStartAnotherApplication={() => void continueWithAnotherAccount()}
+        startAnotherLabel={
+          existingProfile ? 'Use a different account' : 'Start another application'
+        }
+        startAnotherDescription={
+          existingProfile
+            ? 'You will be signed out of this account. The completed form will remain saved so the correct person can authenticate and submit it.'
+            : 'You will be signed out of this account. The submitted application will remain safe, and a new blank application will open.'
+        }
+        isStartingAnother={isSwitchingAccount}
+        actionError={accountActionError}
       />
     )
   }
