@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentRequirements } from '@/lib/legal-documents'
 import {
   mentorApplicationConsentsSchema,
   mentorApplicationDraftFieldsSchema,
@@ -134,7 +134,7 @@ describe('mentor application validation boundaries', () => {
 
   it('accepts every current legal document exactly at its current version', () => {
     const result = mentorApplicationConsentsSchema.safeParse(
-      legalDocuments.map(document => ({
+      applicationConsentRequirements.map(document => ({
         documentId: document.id,
         version: document.version,
         accepted: true,
@@ -149,7 +149,7 @@ describe('mentor application validation boundaries', () => {
       documentId: string
       version: string
       accepted: true
-    }> = legalDocuments.map(document => ({
+    }> = applicationConsentRequirements.map(document => ({
       documentId: document.id,
       version: document.version,
       accepted: true as const,

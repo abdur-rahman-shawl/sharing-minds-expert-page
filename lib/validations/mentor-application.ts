@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentRequirements } from '@/lib/legal-documents'
 import {
   CREDIBILITY_SIGNAL_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
@@ -235,10 +235,10 @@ export const mentorApplicationConsentSchema = z.object({
 
 export const mentorApplicationConsentsSchema = z
   .array(mentorApplicationConsentSchema)
-  .length(legalDocuments.length)
+  .length(applicationConsentRequirements.length)
   .superRefine((consents, context) => {
     const expectedVersions = new Map(
-      legalDocuments.map(document => [document.id, document.version]),
+      applicationConsentRequirements.map(document => [document.id, document.version]),
     )
     const receivedIds = new Set(consents.map(consent => consent.documentId))
 

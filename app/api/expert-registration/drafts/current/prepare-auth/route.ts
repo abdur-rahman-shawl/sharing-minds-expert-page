@@ -16,7 +16,7 @@ import {
 } from '@/lib/expert-registration/drafts'
 import { getExpertRegistrationDraftFromRequest } from '@/lib/expert-registration/draft-session'
 import { isLiveExpertRegistrationEnabled } from '@/lib/expert-registration/feature'
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentDocuments } from '@/lib/legal-documents'
 import { validateApplicationLocation } from '@/lib/mentor-applications/application'
 import {
   MENTOR_APPLICATION_MULTIPART_MAX_BYTES,
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     }
 
     const legalSnapshot = parsedConsents.data.map(consent => {
-      const document = legalDocuments.find(item => item.id === consent.documentId)!
+      const document = applicationConsentDocuments.find(item => item.id === consent.documentId)!
       return {
         documentId: document.id,
         label: document.label,
