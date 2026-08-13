@@ -19,23 +19,40 @@ import {
   revokeMentorApplicationSession,
   setMentorApplicationSessionCookie,
 } from '@/lib/mentor-applications/session'
+import { getCurrentAttributionVisitId } from '@/lib/campaign-attribution/server'
+import {
+  isLegacyMentorApplicationAccessEnabled,
+  isLegacyMentorApplicationIntakeEnabled,
+} from '@/lib/expert-registration/feature'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isLegacyMentorApplicationAccessEnabled()) {
+      return jsonError('Legacy application access is currently unavailable', 503)
+    }
     assertTrustedOrigin(request)
     const user = await getVerifiedApplicationUser(request)
     if (!user) {
       return jsonError('A verified SharingMinds account is required', 401)
     }
 
+    let attributionVisitId: string | null = null
+    try {
+      attributionVisitId = await getCurrentAttributionVisitId(request)
+    } catch (error) {
+      console.error('[campaign-attribution] Unable to resolve application source', error)
+    }
+
     const result = await createAuthenticatedApplicationSession({
       userId: user.id,
       email: user.email,
+      attributionVisitId,
       requestIp: getRequestIpHash(request),
       userAgent: getRequestUserAgent(request),
+      allowCreate: isLegacyMentorApplicationIntakeEnabled(),
     })
 
     if (result.application.status === 'APPROVED') {

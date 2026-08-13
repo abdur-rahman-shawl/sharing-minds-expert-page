@@ -15,12 +15,20 @@ import {
 } from '@/lib/mentor-applications/security'
 import { setMentorApplicationSessionCookie } from '@/lib/mentor-applications/session'
 import { verifyMentorApplicationOtpSchema } from '@/lib/validations/mentor-application'
+import { getCurrentAttributionVisitId } from '@/lib/campaign-attribution/server'
+import {
+  isLegacyMentorApplicationAccessEnabled,
+  isLegacyMentorApplicationIntakeEnabled,
+} from '@/lib/expert-registration/feature'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isLegacyMentorApplicationAccessEnabled()) {
+      return jsonError('Legacy application access is currently unavailable', 503)
+    }
     assertTrustedOrigin(request)
 
     let body: unknown
@@ -35,10 +43,19 @@ export async function POST(request: NextRequest) {
       return jsonError('The verification code is invalid or has expired', 400)
     }
 
+    let attributionVisitId: string | null = null
+    try {
+      attributionVisitId = await getCurrentAttributionVisitId(request)
+    } catch (error) {
+      console.error('[campaign-attribution] Unable to resolve application source', error)
+    }
+
     const result = await verifyMentorApplicationOtpAndIssueSession({
       ...parsed.data,
+      attributionVisitId,
       requestIp: getRequestIpHash(request),
       userAgent: getRequestUserAgent(request),
+      allowCreate: isLegacyMentorApplicationIntakeEnabled(),
     })
 
     if (!result.verified || !result.data) {

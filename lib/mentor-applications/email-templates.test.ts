@@ -35,6 +35,17 @@ describe('mentor application received email', () => {
     expect(email.text).not.toContain('View application status')
   })
 
+  it('uses account-backed language for live registrations', () => {
+    const email = renderMentorApplicationReceivedEmail({
+      ...templateInput,
+      accountBacked: true,
+    })
+
+    expect(email.text).toContain('SharingMinds account email address')
+    expect(email.text).toContain('securely connected to your SharingMinds account')
+    expect(email.text).not.toContain('secured by this verified email')
+  })
+
   it('escapes applicant-controlled HTML and collapses control characters', () => {
     const email = renderMentorApplicationReceivedEmail({
       ...templateInput,

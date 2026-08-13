@@ -7,6 +7,7 @@ import { mentorApplications } from '@/lib/db/schema'
 import { jsonError, validationError } from '@/lib/mentor-applications/http'
 import { verifyMentorApplicationInternalAuthorization } from '@/lib/mentor-applications/internal-auth'
 import { promoteMentorApplication } from '@/lib/mentor-applications/promotion'
+import { isLegacyMentorApplicationAutoClaimEnabled } from '@/lib/expert-registration/feature'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -18,6 +19,9 @@ const reconciliationSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isLegacyMentorApplicationAutoClaimEnabled()) {
+      return jsonError('Legacy application reconciliation is currently paused', 503)
+    }
     if (
       !verifyMentorApplicationInternalAuthorization(
         request.headers.get('authorization'),

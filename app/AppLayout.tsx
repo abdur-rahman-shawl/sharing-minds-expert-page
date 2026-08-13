@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Footer } from '@/components/footer'
 import { LandingHeader } from '@/components/landing-header'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
+import { CampaignAttributionTracker } from '@/components/providers/campaign-attribution-tracker'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -15,7 +16,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname.startsWith('/auth')
   const isVipPage = pathname.startsWith('/vip-lounge')
   const isDashboardPage = pathname.startsWith('/dashboard')
-  const hideChrome = isAuthPage || isVipPage || isDashboardPage
+  const isReportPage = pathname.startsWith('/reports')
+  const hideChrome = isAuthPage || isVipPage || isDashboardPage || isReportPage
 
   useEffect(() => {
     if (isLoading) return
@@ -37,6 +39,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <Suspense fallback={null}>
+        <CampaignAttributionTracker />
+      </Suspense>
       {!hideChrome && <LandingHeader />}
       <main className="flex-1">{children}</main>
       {!hideChrome && <Footer />}

@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
 import { useSession } from '@/lib/auth-client'
+import { captureCurrentCampaignVisit } from '@/lib/campaign-attribution/client'
 
 type AccessStep = 'loading' | 'email' | 'otp' | 'form' | 'status'
 
@@ -72,6 +73,7 @@ export default function RegistrationForm() {
 
       try {
         if (session?.user && session.user.emailVerified) {
+          await captureCurrentCampaignVisit()
           const sessionResponse = await fetch('/api/mentor-applications/session', {
             method: 'POST',
             credentials: 'include',
@@ -149,6 +151,7 @@ export default function RegistrationForm() {
   }, [resendSeconds])
 
   const requestOtp = async (email: string) => {
+    await captureCurrentCampaignVisit()
     const response = await fetch('/api/mentor-applications/email/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

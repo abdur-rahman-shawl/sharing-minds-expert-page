@@ -2,6 +2,7 @@ import { pgTable, text, timestamp, uuid, jsonb, pgEnum, index } from 'drizzle-or
 import { relations } from 'drizzle-orm';
 import { users } from './users';
 import { mentorApplications } from './mentor-applications';
+import { mentors } from './mentors';
 
 export const consentActionEnum = pgEnum('consent_action', [
   'granted',
@@ -23,6 +24,9 @@ export const consentEvents = pgTable('consent_events', {
     () => mentorApplications.id,
     { onDelete: 'set null' },
   ),
+  mentorId: uuid('mentor_id').references(() => mentors.id, {
+    onDelete: 'set null',
+  }),
   userEmail: text('user_email'),
   userRole: text('user_role'),
   consentType: text('consent_type').notNull(),
@@ -48,6 +52,11 @@ export const consentEvents = pgTable('consent_events', {
     table.consentType,
     table.createdAt
   ),
+  mentorTypeCreatedIdx: index('consent_events_mentor_type_created_idx').on(
+    table.mentorId,
+    table.consentType,
+    table.createdAt,
+  ),
 }));
 
 export const consentEventsRelations = relations(consentEvents, ({ one }) => ({
@@ -58,6 +67,10 @@ export const consentEventsRelations = relations(consentEvents, ({ one }) => ({
   mentorApplication: one(mentorApplications, {
     fields: [consentEvents.mentorApplicationId],
     references: [mentorApplications.id],
+  }),
+  mentor: one(mentors, {
+    fields: [consentEvents.mentorId],
+    references: [mentors.id],
   }),
 }));
 

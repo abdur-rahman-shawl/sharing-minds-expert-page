@@ -87,6 +87,7 @@ export async function sendEmailOtp(input: {
 export async function sendMentorApplicationReceivedEmail(input: {
   email: string
   fullName: string
+  accountBacked?: boolean
 }): Promise<void> {
   const sender = process.env.GMAIL_APP_USER
   const password = process.env.GMAIL_APP_PASSWORD
@@ -100,6 +101,7 @@ export async function sendMentorApplicationReceivedEmail(input: {
     email: input.email,
     fullName: input.fullName,
     logoUrl: getPublicUrl('/brand/sharingminds-infinity-email.png'),
+    accountBacked: input.accountBacked,
   })
 
   await transporter.sendMail({

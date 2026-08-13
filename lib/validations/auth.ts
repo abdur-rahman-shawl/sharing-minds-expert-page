@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const passwordValidation = z
   .string()
   .min(8, { message: 'Password must be at least 8 characters long' })
+  .max(128, { message: 'Password must not exceed 128 characters' })
   .regex(/[a-zA-Z]/, { message: 'Password must contain at least one letter' })
   .regex(/[0-9]/, { message: 'Password must contain at least one number' })
 
