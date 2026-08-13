@@ -1122,7 +1122,7 @@ export function ExpertApplicationWizard({
           </div>
 
           <fieldset className="space-y-4">
-            <legend className="text-base font-semibold text-slate-800">Normalized location *</legend>
+            <legend className="text-base font-semibold text-slate-800">Location *</legend>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Country</Label>

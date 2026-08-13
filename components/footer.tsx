@@ -51,7 +51,7 @@ const footerGroups = [
 const socialLinks = [
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com",
+    href: "https://www.linkedin.com/company/sharingminds",
     icon: Linkedin,
   },
   {
@@ -171,7 +171,7 @@ export function Footer() {
 
       <div className="border-t border-[#2d4155]/80">
         <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-4 px-6 py-5 text-[11px] text-[#aeb8c4] sm:px-10 md:flex-row md:items-center md:justify-between lg:px-12">
-          <p>© 2025 SharingMinds. All rights reserved.</p>
+          <p>© 2025–2026 SharingMinds. All rights reserved.</p>
 
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-7 gap-y-3">
             <Link href="/policies#privacy" className="transition-colors hover:text-white">
