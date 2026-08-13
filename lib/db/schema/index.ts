@@ -16,4 +16,7 @@ export * from './mentor-application-sessions';
 export * from './mentor-application-files';
 export * from './mentor-application-revisions';
 export * from './mentor-application-events';
+export * from './mentor-registration-enums';
+export * from './mentor-registration-drafts';
+export * from './mentor-registration-files';
 export * from './consent-events';

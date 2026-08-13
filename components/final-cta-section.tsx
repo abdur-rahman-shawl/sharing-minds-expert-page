@@ -90,7 +90,7 @@ export function FinalCTASection() {
                   </Button>
 
                   <p className="text-center text-sm font-medium text-slate-500">
-                    No account required. Your verified email secures the application.
+                    Complete the form first, then connect it securely to your account.
                   </p>
                 </div>
               )}

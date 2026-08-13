@@ -1,0 +1,11 @@
+export const LIVE_EXPERT_REGISTRATION_SCHEMA_VERSION = 3
+
+export const EXPERT_REGISTRATION_DRAFT_COOKIE =
+  process.env.EXPERT_REGISTRATION_DRAFT_COOKIE_NAME ||
+  '__Secure-sharingminds-expert-registration-draft'
+
+export const EXPERT_REGISTRATION_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
+export const EXPERT_REGISTRATION_DRAFT_COOKIE_PATH = '/'
+
+export const LIVE_EXPERT_REGISTRATION_SOURCE =
+  'LIVE_EXPERT_REGISTRATION' as const

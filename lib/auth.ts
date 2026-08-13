@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { eq } from 'drizzle-orm';
 import { db } from './db';
@@ -7,6 +8,8 @@ import { betterAuthAccounts, betterAuthSessions, betterAuthVerifications } from 
 import { roles, userRoles } from './db/schema';
 import { areMentorApplicationsEnabled } from './mentor-applications/feature';
 import { claimMentorApplicationForVerifiedUser } from './mentor-applications/promotion';
+import { isLegacyMentorApplicationAutoClaimEnabled } from './expert-registration/feature';
+import { passwordValidation } from './validations/auth';
 
 async function assignDefaultMenteeRole(userId: string) {
   const existingRoles = await db
@@ -35,7 +38,10 @@ async function assignDefaultMenteeRole(userId: string) {
 }
 
 async function reconcileVerifiedMentorApplication(userId: string) {
-  if (!areMentorApplicationsEnabled()) return;
+  if (
+    !areMentorApplicationsEnabled() ||
+    !isLegacyMentorApplicationAutoClaimEnabled()
+  ) return;
 
   const [user] = await db
     .select({
@@ -74,6 +80,8 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
   },
   socialProviders: {
     google: {
@@ -92,6 +100,21 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
+  },
+  hooks: {
+    before: createAuthMiddleware(async context => {
+      if (context.path !== '/sign-up/email') return;
+
+      const password = context.body?.password;
+      const validation = passwordValidation.safeParse(password);
+      if (!validation.success) {
+        throw new APIError('BAD_REQUEST', {
+          message:
+            validation.error.issues[0]?.message ||
+            'Password does not meet the security requirements',
+        });
+      }
+    }),
   },
   databaseHooks: {
     session: {

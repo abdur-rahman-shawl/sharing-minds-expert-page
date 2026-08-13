@@ -1,13 +1,13 @@
 import 'server-only'
 
-import { and, gte, inArray, lt } from 'drizzle-orm'
+import { and, eq, gte, inArray, lt } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import {
   campaignVisits,
   mentorApplications,
+  mentors,
   type CampaignVisit,
-  type MentorApplication,
 } from '@/lib/db/schema'
 import type {
   CampaignPerformanceData,
@@ -18,10 +18,12 @@ import type {
 
 export const CAMPAIGN_PERFORMANCE_MAX_VISITS = 100_000
 
-export type CampaignPerformanceApplication = Pick<
-  MentorApplication,
-  'id' | 'attributionVisitId' | 'status' | 'submittedAt'
->
+export type CampaignPerformanceApplication = {
+  id: string
+  attributionVisitId: string | null
+  status: string
+  submittedAt: Date | null
+}
 
 export type {
   CampaignPerformanceData,
@@ -266,6 +268,36 @@ export async function getCampaignPerformanceData(input: {
       .from(mentorApplications)
       .where(inArray(mentorApplications.attributionVisitId, chunk))
     applications.push(...rows)
+
+    const liveMentors = await db
+      .select({
+        id: mentors.id,
+        attributionVisitId: mentors.attributionVisitId,
+        verificationStatus: mentors.verificationStatus,
+        submittedAt: mentors.registrationSubmittedAt,
+      })
+      .from(mentors)
+      .where(
+        and(
+          inArray(mentors.attributionVisitId, chunk),
+          eq(mentors.registrationSource, 'LIVE_EXPERT_REGISTRATION'),
+        ),
+      )
+    applications.push(
+      ...liveMentors.map(mentor => ({
+        id: mentor.id,
+        attributionVisitId: mentor.attributionVisitId,
+        submittedAt: mentor.submittedAt,
+        status:
+          mentor.verificationStatus === 'VERIFIED'
+            ? 'APPROVED'
+            : mentor.verificationStatus === 'REJECTED'
+              ? 'REJECTED'
+              : mentor.verificationStatus === 'RESUBMITTED'
+                ? 'RESUBMITTED'
+                : 'IN_REVIEW',
+      })),
+    )
   }
 
   return buildCampaignPerformanceData({

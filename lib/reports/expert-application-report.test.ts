@@ -81,6 +81,9 @@ describe('expert application report formatting', () => {
   it('provides plain-language status meanings', () => {
     expect(getApplicationStatusMeaning('DRAFT')).toContain('Not submitted')
     expect(getApplicationStatusMeaning('APPROVED')).toContain('accepted')
+    expect(getApplicationStatusMeaning('IN_PROGRESS')).toContain(
+      'account-backed registration',
+    )
   })
 
   it('creates a deterministic, filesystem-safe filename', () => {

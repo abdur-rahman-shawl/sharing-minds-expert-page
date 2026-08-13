@@ -1,6 +1,11 @@
-import { pgTable, text, timestamp, boolean, integer, decimal, jsonb, pgEnum, uuid } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { pgTable, text, timestamp, boolean, integer, decimal, jsonb, pgEnum, uuid, check, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
 import { users } from './users';
+import { campaignVisits } from './campaign-visits';
+import {
+  mentorRegistrationAuthMethodEnum,
+  mentorRegistrationSourceEnum,
+} from './mentor-registration-enums';
 
 // Define verification status enum
 export const verificationStatusEnum = pgEnum('verification_status', [
@@ -77,9 +82,34 @@ export const mentors = pgTable('mentors', {
   city: text('city'),
   state: text('state'),
   country: text('country'),
+  countryId: text('country_id'),
   profileImageUrl: text('profile_image_url'), // URL to uploaded profile picture
   bannerImageUrl: text('banner_image_url'), // URL to uploaded banner/cover photo (4:1 ratio recommended)
   resumeUrl: text('resume_url'), // URL to uploaded resume
+
+  // Registration provenance and exact v3 form values. These remain nullable
+  // so existing POC/platform rows are never mislabeled as live registrations.
+  registrationSource: mentorRegistrationSourceEnum('registration_source'),
+  registrationAuthMethod: mentorRegistrationAuthMethodEnum(
+    'registration_auth_method',
+  ),
+  registrationSchemaVersion: integer('registration_schema_version'),
+  registrationDraftId: uuid('registration_draft_id'),
+  registrationSubmittedAt: timestamp('registration_submitted_at', {
+    withTimezone: true,
+  }),
+  stateId: text('state_id'),
+  cityId: text('city_id'),
+  otherIndustry: text('other_industry'),
+  otherExpertise: text('other_expertise'),
+  otherLanguage: text('other_language'),
+  attributionVisitId: uuid('attribution_visit_id').references(
+    () => campaignVisits.id,
+    { onDelete: 'set null' },
+  ),
+  attributionCapturedAt: timestamp('attribution_captured_at', {
+    withTimezone: true,
+  }),
 
   // Verification and status
   isVerified: boolean('is_verified').default(false),
@@ -101,7 +131,25 @@ export const mentors = pgTable('mentors', {
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, table => ({
+  registrationDraftUnique: uniqueIndex('mentors_registration_draft_unique')
+    .on(table.registrationDraftId)
+    .where(sql`${table.registrationDraftId} is not null`),
+  registrationSourceSubmittedIdx: index(
+    'mentors_registration_source_submitted_idx',
+  ).on(table.registrationSource, table.registrationSubmittedAt.desc()),
+  attributionVisitIdx: index('mentors_attribution_visit_idx')
+    .on(table.attributionVisitId)
+    .where(sql`${table.attributionVisitId} is not null`),
+  registrationSchemaVersionCheck: check(
+    'mentors_registration_schema_version_check',
+    sql`${table.registrationSchemaVersion} is null or ${table.registrationSchemaVersion} > 0`,
+  ),
+  attributionTimestampCheck: check(
+    'mentors_attribution_timestamp_check',
+    sql`${table.attributionVisitId} is null or ${table.attributionCapturedAt} is not null`,
+  ),
+}));
 
 // Relations
 export const mentorsRelations = relations(mentors, ({ one }) => ({

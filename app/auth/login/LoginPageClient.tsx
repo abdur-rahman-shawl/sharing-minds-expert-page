@@ -58,7 +58,7 @@ export default function LoginPageClient() {
 
           <p className="mt-4 max-w-lg text-base leading-7 text-slate-600 sm:text-[1.05rem]">
             After your expert application is approved, we&apos;ll activate sign-in and dashboard
-            access and notify you at your verified email.
+            access and notify you through your SharingMinds account email.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center">

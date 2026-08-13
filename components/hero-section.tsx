@@ -205,7 +205,7 @@ export function HeroSection() {
             </Button>
 
             <p className="text-sm font-medium text-slate-600">
-              No platform account required. Verify your email to save and submit your application.
+              Complete your expert profile first, then sign in securely to submit it.
             </p>
           </div>
         )}

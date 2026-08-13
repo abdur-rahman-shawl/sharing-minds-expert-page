@@ -20,12 +20,19 @@ import {
   setMentorApplicationSessionCookie,
 } from '@/lib/mentor-applications/session'
 import { getCurrentAttributionVisitId } from '@/lib/campaign-attribution/server'
+import {
+  isLegacyMentorApplicationAccessEnabled,
+  isLegacyMentorApplicationIntakeEnabled,
+} from '@/lib/expert-registration/feature'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isLegacyMentorApplicationAccessEnabled()) {
+      return jsonError('Legacy application access is currently unavailable', 503)
+    }
     assertTrustedOrigin(request)
     const user = await getVerifiedApplicationUser(request)
     if (!user) {
@@ -45,6 +52,7 @@ export async function POST(request: NextRequest) {
       attributionVisitId,
       requestIp: getRequestIpHash(request),
       userAgent: getRequestUserAgent(request),
+      allowCreate: isLegacyMentorApplicationIntakeEnabled(),
     })
 
     if (result.application.status === 'APPROVED') {

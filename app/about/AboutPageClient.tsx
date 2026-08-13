@@ -357,7 +357,7 @@ export default function AboutPageClient() {
                   </Button>
 
                   <p className="text-sm font-medium text-slate-500">
-                    No account required. Verify your email and complete the application securely.
+                    Complete your expert profile, then connect it securely to your account.
                   </p>
                 </div>
               )}

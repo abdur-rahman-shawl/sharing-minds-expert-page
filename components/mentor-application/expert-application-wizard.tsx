@@ -554,16 +554,21 @@ function FileField({
 type ExpertApplicationWizardProps = {
   application: MentorApplication
   onApplicationChange: (application: MentorApplication) => void
-  onSubmitted: (application: MentorApplication) => void
+  onSubmitted?: (application: MentorApplication) => void
+  onReadyForAuthentication?: (draft: MentorApplication) => void
   onExit: () => void
+  registrationMode?: 'legacy' | 'live'
 }
 
 export function ExpertApplicationWizard({
   application,
   onApplicationChange,
   onSubmitted,
+  onReadyForAuthentication,
   onExit,
+  registrationMode = 'legacy',
 }: ExpertApplicationWizardProps) {
+  const isLiveRegistration = registrationMode === 'live'
   const [form, setForm] = useState(() => createInitialForm(application))
   const [step, setStep] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -765,18 +770,24 @@ export function ExpertApplicationWizard({
     autosaveController.current = controller
     const timer = window.setTimeout(async () => {
       try {
-        const response = await fetch('/api/mentor-applications/current', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          signal: controller.signal,
-          body: serialized,
-        })
+        const response = await fetch(
+          isLiveRegistration
+            ? '/api/expert-registration/drafts/current'
+            : '/api/mentor-applications/current',
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            signal: controller.signal,
+            body: serialized,
+          },
+        )
         const result = await readResponseJson(response)
         if (!response.ok || result.success !== true) throw new Error('Draft save failed')
         lastSavedPayload.current = serialized
         setAutosaveState('saved')
-        if (result.application) onApplicationChange(result.application as MentorApplication)
+        const savedRecord = isLiveRegistration ? result.draft : result.application
+        if (savedRecord) onApplicationChange(savedRecord as MentorApplication)
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
           console.error('Expert application autosave failed', error)
@@ -789,7 +800,7 @@ export function ExpertApplicationWizard({
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [draftPayload, onApplicationChange])
+  }, [draftPayload, isLiveRegistration, onApplicationChange])
 
   useEffect(() => {
     return () => {
@@ -935,14 +946,22 @@ export function ExpertApplicationWizard({
         ),
       )
 
-      const response = await fetch('/api/mentor-applications/current/submit', {
-        method: 'POST',
-        headers: { 'Idempotency-Key': key },
-        credentials: 'include',
-        body,
-      })
+      const response = await fetch(
+        isLiveRegistration
+          ? '/api/expert-registration/drafts/current/prepare-auth'
+          : '/api/mentor-applications/current/submit',
+        {
+          method: 'POST',
+          headers: { 'Idempotency-Key': key },
+          credentials: 'include',
+          body,
+        },
+      )
       const responseBody = await readResponseJson(response)
-      if (!response.ok || responseBody.success !== true || !responseBody.application) {
+      const submittedRecord = isLiveRegistration
+        ? responseBody.draft
+        : responseBody.application
+      if (!response.ok || responseBody.success !== true || !submittedRecord) {
         throw new Error(
           typeof responseBody.error === 'string'
             ? responseBody.error
@@ -951,7 +970,11 @@ export function ExpertApplicationWizard({
       }
       idempotencyKey.current = null
       sessionStorage.removeItem(`mentor-application-step:${application.id}`)
-      onSubmitted(responseBody.application as MentorApplication)
+      if (isLiveRegistration) {
+        onReadyForAuthentication?.(submittedRecord as MentorApplication)
+      } else {
+        onSubmitted?.(submittedRecord as MentorApplication)
+      }
     } catch (error) {
       setSubmissionError(
         error instanceof Error ? error.message : 'Unable to submit the application',
@@ -1039,10 +1062,12 @@ export function ExpertApplicationWizard({
                   error={errors.professionalHeadline}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Verified email</Label>
-                <Input value={application.email} disabled className="h-11 bg-slate-100" />
-              </div>
+              {!isLiveRegistration && (
+                <div className="space-y-2">
+                  <Label>Verified email</Label>
+                  <Input value={application.email} disabled className="h-11 bg-slate-100" />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="phone">Mobile number *</Label>
                 <div className="grid grid-cols-[9rem_1fr] gap-2">
@@ -1559,7 +1584,9 @@ export function ExpertApplicationWizard({
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
             <p>
               Your application will be reviewed within approximately 5–10 business days.
-              Submission does not create a platform account or guarantee selection.
+              {isLiveRegistration
+                ? ' You will securely sign in before the application is submitted.'
+                : ' Submission does not create a platform account or guarantee selection.'}
             </p>
           </div>
         </div>
@@ -1725,10 +1752,14 @@ export function ExpertApplicationWizard({
                     className="h-11 bg-slate-900 hover:bg-slate-800"
                   >
                     {isSubmitting
-                      ? 'Submitting application...'
+                      ? isLiveRegistration
+                        ? 'Preparing secure sign in...'
+                        : 'Submitting application...'
                       : application.status === 'CHANGES_REQUESTED'
                         ? 'Resubmit application'
-                        : 'Submit application'}
+                        : isLiveRegistration
+                          ? 'Continue to secure sign in'
+                          : 'Submit application'}
                     {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
                   </Button>
                 )}

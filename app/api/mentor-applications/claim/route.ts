@@ -17,12 +17,16 @@ import {
   setMentorApplicationSessionCookie,
 } from '@/lib/mentor-applications/session'
 import { MentorApplicationConflictError } from '@/lib/mentor-applications/application'
+import { isLegacyMentorApplicationAutoClaimEnabled } from '@/lib/expert-registration/feature'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isLegacyMentorApplicationAutoClaimEnabled()) {
+      return jsonError('Legacy application linking is currently paused', 503)
+    }
     assertTrustedOrigin(request)
     const user = await getVerifiedApplicationUser(request)
     if (!user) return jsonError('A verified SharingMinds account is required', 401)

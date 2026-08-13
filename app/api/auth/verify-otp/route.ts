@@ -7,6 +7,7 @@ import { users } from '@/lib/db/schema'
 import { areMentorApplicationsEnabled } from '@/lib/mentor-applications/feature'
 import { verifyEmailOtp } from '@/lib/mentor-applications/otp'
 import { claimMentorApplicationForVerifiedUser } from '@/lib/mentor-applications/promotion'
+import { isLegacyMentorApplicationAutoClaimEnabled } from '@/lib/expert-registration/feature'
 import {
   assertTrustedOrigin,
   MentorApplicationSecurityError,
@@ -81,7 +82,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (areMentorApplicationsEnabled()) {
+    if (
+      areMentorApplicationsEnabled() &&
+      isLegacyMentorApplicationAutoClaimEnabled()
+    ) {
       try {
         await claimMentorApplicationForVerifiedUser({
           userId: session.user.id,

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, desc, gte, inArray, lt } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, lt } from 'drizzle-orm'
 import writeXlsxFile, {
   type Cell,
   type SheetData,
@@ -10,14 +10,23 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import {
   campaignVisits,
+  consentEvents,
   mentorApplicationFiles,
   mentorApplicationRevisions,
   mentorApplications,
+  mentorRegistrationDrafts,
+  mentorRegistrationFiles,
+  mentors,
   type CampaignVisit,
+  type ConsentEvent,
+  type Mentor,
   type MentorApplication,
   type MentorApplicationFile,
   type MentorApplicationRevision,
+  type MentorRegistrationDraft,
+  type MentorRegistrationFile,
 } from '@/lib/db/schema'
+import { legalDocuments } from '@/lib/legal-documents'
 import { isCampaignAttributionEnabled } from '@/lib/campaign-attribution/feature'
 import {
   buildCampaignPerformanceData,
@@ -150,6 +159,10 @@ const STATUS_DETAILS: Record<string, string> = {
   APPROVED: 'Approved — expert application was accepted',
   REJECTED: 'Rejected — expert application was not accepted',
   WITHDRAWN: 'Withdrawn — applicant withdrew the application',
+  IN_PROGRESS: 'Submitted — live account-backed registration is awaiting review',
+  VERIFIED: 'Approved — live expert registration was verified',
+  REVERIFICATION: 'Reverification required for the live mentor profile',
+  UPDATED_PROFILE: 'Updated live mentor profile is awaiting review',
 }
 
 const REPORT_COLUMNS: Array<{
@@ -162,6 +175,12 @@ const REPORT_COLUMNS: Array<{
   { header: 'Registered At (IST)', key: 'registeredAtIst', width: 25 },
   { header: 'Registered At (UTC)', key: 'registeredAtUtc', width: 27 },
   { header: 'Email', key: 'email', width: 34 },
+  { header: 'Record Type', key: 'recordType', width: 24 },
+  { header: 'Registration Source', key: 'registrationSource', width: 32 },
+  { header: 'Registration Auth Method', key: 'registrationAuthMethod', width: 28 },
+  { header: 'Canonical User ID', key: 'canonicalUserId', width: 34 },
+  { header: 'Canonical Mentor ID', key: 'canonicalMentorId', width: 38 },
+  { header: 'Legacy Application Match ID', key: 'legacyApplicationMatchId', width: 38 },
   { header: 'Database Status', key: 'databaseStatus', width: 22 },
   { header: 'Status in Simple Terms', key: 'statusMeaning', width: 54 },
   { header: 'Record Basis', key: 'recordBasis', width: 38 },
@@ -382,9 +401,131 @@ function formatIndiaDateTime(value: Date | null | undefined): string {
   return value ? formatIndiaParts(value).dateTime : ''
 }
 
-function fileSizeMb(file: MentorApplicationFile | undefined): number | string {
+function fileSizeMb(file: { sizeBytes: number } | undefined): number | string {
   if (!file) return ''
   return Math.round((file.sizeBytes / (1024 * 1024)) * 100) / 100
+}
+
+function buildLiveMentorReportRow(input: {
+  mentor: Mentor
+  draft?: MentorRegistrationDraft
+  files: MentorRegistrationFile[]
+  consents: ConsentEvent[]
+  attributionVisit?: CampaignVisit
+}): ExpertApplicationReportRow {
+  const { mentor, draft, files, consents, attributionVisit } = input
+  const registeredAt = mentor.registrationSubmittedAt || mentor.createdAt
+  const registered = formatIndiaParts(registeredAt)
+  const currentFile = (kind: MentorRegistrationFile['kind']) =>
+    files.find(file => file.kind === kind && file.isCurrent)
+  const profileImage = currentFile('PROFILE_IMAGE')
+  const resume = currentFile('RESUME')
+  const consentSummaryText = consents
+    .map(consent => {
+      const label =
+        legalDocuments.find(document => document.id === consent.consentType)?.label ||
+        consent.consentType
+      return consent.consentVersion
+        ? `${label} (version ${consent.consentVersion})`
+        : label
+    })
+    .join(' | ')
+
+  return {
+    applicationId: mentor.registrationDraftId || mentor.id,
+    registeredAtIst: registered.dateTime,
+    registrationDateIst: registered.date,
+    registrationTimeIst: registered.time,
+    registeredAtUtc: registeredAt.toISOString(),
+    email: mentor.email || '',
+    recordType: 'LIVE_MENTOR_REGISTRATION',
+    registrationSource: mentor.registrationSource || '',
+    registrationAuthMethod: mentor.registrationAuthMethod || '',
+    canonicalUserId: mentor.userId,
+    canonicalMentorId: mentor.id,
+    legacyApplicationMatchId: draft?.legacyApplicationId || '',
+    databaseStatus: mentor.verificationStatus,
+    statusMeaning: getApplicationStatusMeaning(mentor.verificationStatus),
+    recordBasis: 'Canonical live account-backed mentor registration',
+    fullName: mentor.fullName || '',
+    phone: mentor.phone || '',
+    source: mentor.creationSource,
+    marketingChannel: attributionVisit?.channel || 'UNATTRIBUTED',
+    marketingSource: attributionVisit?.source || 'unattributed',
+    marketingMedium: attributionVisit?.medium || '',
+    marketingCampaign: attributionVisit?.campaign || '',
+    marketingContent: attributionVisit?.content || '',
+    marketingTerm: attributionVisit?.term || '',
+    campaignLandingPath: attributionVisit?.landingPath || '',
+    campaignReferrerHost: attributionVisit?.referrerHost || '',
+    attributedVisitAtIst: formatIndiaDateTime(attributionVisit?.startedAt),
+    emailVerifiedAtIst: '',
+    submittedAtIst: formatIndiaDateTime(mentor.registrationSubmittedAt),
+    reviewedAtIst: '',
+    decidedAtIst:
+      mentor.verificationStatus === 'VERIFIED' || mentor.verificationStatus === 'REJECTED'
+        ? formatIndiaDateTime(mentor.updatedAt)
+        : '',
+    linkedAtIst: formatIndiaDateTime(mentor.registrationSubmittedAt),
+    promotedAtIst: formatIndiaDateTime(mentor.registrationSubmittedAt),
+    updatedAtIst: formatIndiaDateTime(mentor.updatedAt),
+    linkedToUser: 'Yes',
+    promotedToMentor: 'Yes',
+    country: mentor.country || '',
+    countryId: mentor.countryId || '',
+    state: mentor.state || '',
+    stateId: mentor.stateId || '',
+    city: mentor.city || '',
+    cityId: mentor.cityId || '',
+    professionalHeadline: mentor.headline || '',
+    title: mentor.title || '',
+    company: mentor.company || '',
+    websiteUrl: mentor.websiteUrl || '',
+    linkedinUrl: mentor.linkedinUrl || '',
+    employmentType: mentor.employmentType || '',
+    industries: (mentor.industries || []).join(' | '),
+    otherIndustry: mentor.otherIndustry || '',
+    expertise: (() => {
+      try {
+        const parsed = mentor.expertise ? JSON.parse(mentor.expertise) : []
+        return Array.isArray(parsed) ? parsed.join(' | ') : mentor.expertise || ''
+      } catch {
+        return mentor.expertise || ''
+      }
+    })(),
+    otherExpertise: mentor.otherExpertise || '',
+    experienceYears: mentor.experience ?? '',
+    experienceBand: mentor.experienceBand || '',
+    requestedHourlyRate: mentor.hourlyRate || '',
+    currency: mentor.currency || '',
+    availabilityCadence: '',
+    weeklyAvailabilityBand: mentor.weeklyAvailabilityBand || '',
+    preferredSessionMode: mentor.preferredSessionMode || '',
+    languages: (mentor.languages || []).join(' | '),
+    otherLanguage: mentor.otherLanguage || '',
+    serviceInterests: (mentor.serviceInterests || []).join(' | '),
+    credibilitySignals: (mentor.credibilitySignals || []).join(' | '),
+    about: mentor.about || '',
+    challengeSolved: mentor.challengeSolved || '',
+    measurableOutcomes: mentor.measurableOutcomes || '',
+    guidanceValueProposition: mentor.guidanceValueProposition || '',
+    hasPriorMentoringExperience: booleanValue(mentor.hasPriorMentoringExperience),
+    hasProfessionalMisconduct: '',
+    misconductExplanation: '',
+    profileImageFileName: profileImage?.originalFileName || '',
+    resumeFileName: resume?.originalFileName || '',
+    portfolioFileName: currentFile('PORTFOLIO')?.originalFileName || '',
+    caseStudyFileName: currentFile('CASE_STUDY')?.originalFileName || '',
+    presentationFileName: currentFile('PRESENTATION')?.originalFileName || '',
+    awardsCertificationsFileName:
+      currentFile('AWARDS_CERTIFICATIONS')?.originalFileName || '',
+    profileImageSizeMb: fileSizeMb(profileImage),
+    resumeSizeMb: fileSizeMb(resume),
+    acceptedConsents: consentSummaryText,
+    consentCount: consents.length,
+    applicationSchemaVersion: mentor.registrationSchemaVersion || '',
+    submissionRevision: '',
+  }
 }
 
 function attachmentIdsFromSnapshot(snapshot: UnknownRecord | null): Map<string, string> {
@@ -499,6 +640,12 @@ function buildReportRow(input: {
     registrationTimeIst: registered.time,
     registeredAtUtc: application.createdAt.toISOString(),
     email: textValue(currentOrSnapshot('email', application.email)),
+    recordType: 'LEGACY_MENTOR_APPLICATION',
+    registrationSource: 'LEGACY_GUEST_APPLICATION',
+    registrationAuthMethod: application.source,
+    canonicalUserId: application.linkedUserId || '',
+    canonicalMentorId: application.mentorId || '',
+    legacyApplicationMatchId: '',
     databaseStatus: application.status,
     statusMeaning: getApplicationStatusMeaning(application.status),
     recordBasis,
@@ -633,23 +780,37 @@ export async function getExpertApplicationReportData(
           ...range,
         }),
       )
-  const applications = await db
-    .select()
-    .from(mentorApplications)
-    .where(
-      and(
-        gte(mentorApplications.createdAt, range.startAt),
-        lt(mentorApplications.createdAt, range.endAt),
-      ),
-    )
-    .orderBy(desc(mentorApplications.createdAt))
-    .limit(EXPERT_REPORT_MAX_ROWS + 1)
+  const [applications, liveMentors] = await Promise.all([
+    db
+      .select()
+      .from(mentorApplications)
+      .where(
+        and(
+          gte(mentorApplications.createdAt, range.startAt),
+          lt(mentorApplications.createdAt, range.endAt),
+        ),
+      )
+      .orderBy(desc(mentorApplications.createdAt))
+      .limit(EXPERT_REPORT_MAX_ROWS + 1),
+    db
+      .select()
+      .from(mentors)
+      .where(
+        and(
+          eq(mentors.registrationSource, 'LIVE_EXPERT_REGISTRATION'),
+          gte(mentors.registrationSubmittedAt, range.startAt),
+          lt(mentors.registrationSubmittedAt, range.endAt),
+        ),
+      )
+      .orderBy(desc(mentors.registrationSubmittedAt))
+      .limit(EXPERT_REPORT_MAX_ROWS + 1),
+  ])
 
-  if (applications.length > EXPERT_REPORT_MAX_ROWS) {
+  if (applications.length + liveMentors.length > EXPERT_REPORT_MAX_ROWS) {
     throw new ExpertApplicationReportTooLargeError(EXPERT_REPORT_MAX_ROWS)
   }
 
-  if (applications.length === 0) {
+  if (applications.length === 0 && liveMentors.length === 0) {
     return {
       range,
       generatedAt: new Date(),
@@ -659,30 +820,56 @@ export async function getExpertApplicationReportData(
   }
 
   const applicationIds = applications.map(application => application.id)
-  const attributionVisitIds = applications
-    .map(application => application.attributionVisitId)
+  const liveMentorIds = liveMentors.map(mentor => mentor.id)
+  const attributionVisitIds = [...applications, ...liveMentors]
+    .map(record => record.attributionVisitId)
     .filter((id): id is string => Boolean(id))
-  const [revisions, files, attributionVisits] = await Promise.all([
-    db
-      .select()
-      .from(mentorApplicationRevisions)
-      .where(inArray(mentorApplicationRevisions.applicationId, applicationIds))
-      .orderBy(
-        desc(mentorApplicationRevisions.submittedAt),
-        desc(mentorApplicationRevisions.revision),
-      ),
-    db
-      .select()
-      .from(mentorApplicationFiles)
-      .where(inArray(mentorApplicationFiles.applicationId, applicationIds))
-      .orderBy(desc(mentorApplicationFiles.createdAt)),
+  const [revisions, files, liveDrafts, liveFiles, liveConsents, attributionVisits] =
+    await Promise.all([
+    applicationIds.length
+      ? db
+          .select()
+          .from(mentorApplicationRevisions)
+          .where(inArray(mentorApplicationRevisions.applicationId, applicationIds))
+          .orderBy(
+            desc(mentorApplicationRevisions.submittedAt),
+            desc(mentorApplicationRevisions.revision),
+          )
+      : Promise.resolve([]),
+    applicationIds.length
+      ? db
+          .select()
+          .from(mentorApplicationFiles)
+          .where(inArray(mentorApplicationFiles.applicationId, applicationIds))
+          .orderBy(desc(mentorApplicationFiles.createdAt))
+      : Promise.resolve([]),
+    liveMentorIds.length
+      ? db
+          .select()
+          .from(mentorRegistrationDrafts)
+          .where(inArray(mentorRegistrationDrafts.mentorId, liveMentorIds))
+      : Promise.resolve([]),
+    liveMentorIds.length
+      ? db
+          .select()
+          .from(mentorRegistrationFiles)
+          .where(inArray(mentorRegistrationFiles.mentorId, liveMentorIds))
+          .orderBy(desc(mentorRegistrationFiles.createdAt))
+      : Promise.resolve([]),
+    liveMentorIds.length
+      ? db
+          .select()
+          .from(consentEvents)
+          .where(inArray(consentEvents.mentorId, liveMentorIds))
+          .orderBy(desc(consentEvents.createdAt))
+      : Promise.resolve([]),
     attributionVisitIds.length > 0
       ? db
           .select()
           .from(campaignVisits)
           .where(inArray(campaignVisits.id, attributionVisitIds))
       : Promise.resolve([]),
-  ])
+    ])
 
   const latestRevisionByApplication = new Map<string, MentorApplicationRevision>()
   for (const revision of revisions) {
@@ -701,11 +888,31 @@ export async function getExpertApplicationReportData(
     attributionVisits.map(visit => [visit.id, visit]),
   )
 
-  return {
-    range,
-    generatedAt: new Date(),
-    campaignPerformance: await campaignPerformancePromise,
-    rows: applications.map(application =>
+  const liveFilesByMentor = new Map<string, MentorRegistrationFile[]>()
+  for (const file of liveFiles) {
+    if (!file.mentorId) continue
+    const current = liveFilesByMentor.get(file.mentorId) || []
+    current.push(file)
+    liveFilesByMentor.set(file.mentorId, current)
+  }
+  const liveConsentsByMentor = new Map<string, ConsentEvent[]>()
+  for (const consent of liveConsents) {
+    if (!consent.mentorId) continue
+    const current = liveConsentsByMentor.get(consent.mentorId) || []
+    current.push(consent)
+    liveConsentsByMentor.set(consent.mentorId, current)
+  }
+  const liveDraftByMentor = new Map(
+    liveDrafts
+      .filter(
+        (draft): draft is MentorRegistrationDraft & { mentorId: string } =>
+          Boolean(draft.mentorId),
+      )
+      .map(draft => [draft.mentorId, draft]),
+  )
+
+  const rows = [
+    ...applications.map(application =>
       buildReportRow({
         application,
         latestRevision: latestRevisionByApplication.get(application.id),
@@ -715,6 +922,28 @@ export async function getExpertApplicationReportData(
           : undefined,
       }),
     ),
+    ...liveMentors.map(mentor =>
+      buildLiveMentorReportRow({
+        mentor,
+        draft: liveDraftByMentor.get(mentor.id),
+        files: liveFilesByMentor.get(mentor.id) || [],
+        consents: liveConsentsByMentor.get(mentor.id) || [],
+        attributionVisit: mentor.attributionVisitId
+          ? attributionVisitsById.get(mentor.attributionVisitId)
+          : undefined,
+      }),
+    ),
+  ].sort(
+    (left, right) =>
+      new Date(String(right.registeredAtUtc)).getTime() -
+      new Date(String(left.registeredAtUtc)).getTime(),
+  )
+
+  return {
+    range,
+    generatedAt: new Date(),
+    campaignPerformance: await campaignPerformancePromise,
+    rows,
   }
 }
 
@@ -785,6 +1014,10 @@ function buildSummarySheet(report: ExpertApplicationReportData): SheetData {
     ['Approved', statusCounts.get('APPROVED') || 0],
     ['Rejected', statusCounts.get('REJECTED') || 0],
     ['Withdrawn', statusCounts.get('WITHDRAWN') || 0],
+    ['Verification in progress', statusCounts.get('IN_PROGRESS') || 0],
+    ['Verified mentors', statusCounts.get('VERIFIED') || 0],
+    ['Reverification', statusCounts.get('REVERIFICATION') || 0],
+    ['Profile updated', statusCounts.get('UPDATED_PROFILE') || 0],
   ]
 
   return [
@@ -813,7 +1046,7 @@ function buildSummarySheet(report: ExpertApplicationReportData): SheetData {
       },
       {
         ...dataCell(
-          'Submitted applications use their latest immutable submission revision. Drafts use their current saved record and are explicitly marked as not submitted.',
+          'Legacy submissions use their latest immutable revision. Live account-backed registrations use the canonical mentor record. Legacy drafts remain explicitly marked as not submitted.',
         ),
         height: 42,
       },

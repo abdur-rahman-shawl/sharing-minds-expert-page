@@ -9,6 +9,7 @@ export type MentorApplicationReceivedEmailTemplateInput = {
   fullName: string
   email: string
   logoUrl: string
+  accountBacked?: boolean
 }
 
 function escapeHtml(value: string): string {
@@ -32,6 +33,15 @@ export function renderMentorApplicationReceivedEmail(
   const safeFullName = escapeHtml(fullName)
   const safeEmail = escapeHtml(email)
   const safeLogoUrl = escapeHtml(input.logoUrl)
+  const contactDescription = input.accountBacked
+    ? 'your SharingMinds account email address'
+    : 'this verified email address'
+  const securityNote = input.accountBacked
+    ? 'Your application is securely connected to your SharingMinds account. Use this account to access future verification and dashboard updates.'
+    : 'Your application is secured by this verified email. When you later join sharingminds, use the same address so your approved expert profile can be connected to your account.'
+  const sentReason = input.accountBacked
+    ? 'an expert verification application was submitted through your SharingMinds account.'
+    : 'an expert verification application was submitted using this verified address.'
   const subject = 'Your sharingminds expert application is now under review'
   const preheader =
     'We have received your application. Our verification team will review it within 5-10 business days.'
@@ -92,7 +102,7 @@ export function renderMentorApplicationReceivedEmail(
                         </tr>
                         <tr>
                           <td width="34" valign="top" style="width:34px;padding-bottom:15px;"><div style="width:24px;height:24px;border-radius:12px;background:#4169e1;color:#ffffff;font-size:12px;line-height:24px;text-align:center;font-weight:700;">2</div></td>
-                          <td valign="top" style="padding:2px 0 15px;font-size:14px;line-height:21px;color:#4d5870;"><strong style="color:#172033;">Personal follow-up, if needed.</strong> If we require additional context, we will write to this verified email address.</td>
+                          <td valign="top" style="padding:2px 0 15px;font-size:14px;line-height:21px;color:#4d5870;"><strong style="color:#172033;">Personal follow-up, if needed.</strong> If we require additional context, we will write to ${contactDescription}.</td>
                         </tr>
                         <tr>
                           <td width="34" valign="top" style="width:34px;"><div style="width:24px;height:24px;border-radius:12px;background:#4169e1;color:#ffffff;font-size:12px;line-height:24px;text-align:center;font-weight:700;">3</div></td>
@@ -103,18 +113,18 @@ export function renderMentorApplicationReceivedEmail(
                   </tr>
                 </table>
 
-                <p style="margin:28px 0 0;font-size:15px;line-height:24px;color:#4d5870;">No further action is required at this stage. If we need any additional context, our verification team will contact you at this verified email address.</p>
+                <p style="margin:28px 0 0;font-size:15px;line-height:24px;color:#4d5870;">No further action is required at this stage. If we need any additional context, our verification team will contact you at ${contactDescription}.</p>
 
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:34px;">
                   <tr>
-                    <td style="padding:16px 18px;background:#f8fafc;border-left:3px solid #8aa4f4;font-size:13px;line-height:20px;color:#5b667d;">Your application is secured by this verified email. When you later join sharingminds, use the same address so your approved expert profile can be connected to your account.</td>
+                    <td style="padding:16px 18px;background:#f8fafc;border-left:3px solid #8aa4f4;font-size:13px;line-height:20px;color:#5b667d;">${securityNote}</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
               <td style="padding:24px 34px 8px;background:#ffffff;border:1px solid #e3e9f3;border-top:0;border-radius:0 0 20px 20px;text-align:center;">
-                <p style="margin:0;font-size:12px;line-height:19px;color:#7a8499;">This message was sent to ${safeEmail} because an expert verification application was submitted using this verified address.</p>
+                <p style="margin:0;font-size:12px;line-height:19px;color:#7a8499;">This message was sent to ${safeEmail} because ${sentReason}</p>
                 <p style="margin:12px 0 18px;font-size:12px;line-height:18px;color:#9aa3b5;">sharingminds &middot; A human intelligence network</p>
               </td>
             </tr>
@@ -133,14 +143,14 @@ We have received your application to join sharingminds as a verified expert. Eve
 
 What happens next
 1. Structured review: We will assess your professional background, expertise, and supporting evidence.
-2. Personal follow-up, if needed: If we require additional context, we will write to this verified email address.
+2. Personal follow-up, if needed: If we require additional context, we will write to ${contactDescription}.
 3. Review update: Most applications are reviewed within approximately 5-10 business days.
 
-No further action is required at this stage. If we need any additional context, our verification team will contact you at this verified email address.
+No further action is required at this stage. If we need any additional context, our verification team will contact you at ${contactDescription}.
 
-Your application is secured by this verified email. When you later join sharingminds, use the same address so your approved expert profile can be connected to your account.
+${securityNote}
 
-This message was sent to ${email} because an expert verification application was submitted using this verified address.
+This message was sent to ${email} because ${sentReason}
 
 sharingminds - A human intelligence network`
 

@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import RegistrationForm from "@/app/registration/RegistrationForm"
+import LiveRegistrationForm from "@/app/registration/LiveRegistrationForm"
 import { areMentorApplicationsEnabled } from "@/lib/mentor-applications/feature"
+import { isLiveExpertRegistrationEnabled } from "@/lib/expert-registration/feature"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export const dynamic = "force-dynamic"
@@ -16,7 +18,8 @@ export const metadata: Metadata = {
 }
 
 export default function VerifiedExpertsPage() {
-  if (!areMentorApplicationsEnabled()) {
+  const liveRegistrationEnabled = isLiveExpertRegistrationEnabled()
+  if (!liveRegistrationEnabled && !areMentorApplicationsEnabled()) {
     return (
       <div className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900">
         <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-slate-50 to-white" />
@@ -50,6 +53,8 @@ export default function VerifiedExpertsPage() {
       </div>
     )
   }
+
+  if (liveRegistrationEnabled) return <LiveRegistrationForm />
 
   return <RegistrationForm />
 }

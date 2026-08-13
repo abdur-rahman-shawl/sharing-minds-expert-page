@@ -158,12 +158,30 @@ export async function verifyMentorApplicationOtpAndIssueSession(input: {
   attributionVisitId?: string | null
   requestIp?: string | null
   userAgent?: string | null
+  allowCreate?: boolean
 }) {
   return verifyEmailOtp({
     challengeId: input.challengeId,
     code: input.code,
     purpose: 'MENTOR_APPLICATION_ACCESS',
     onVerified: async (transaction, verification) => {
+      if (input.allowCreate === false) {
+        const [existing] = await transaction
+          .select({ id: mentorApplications.id })
+          .from(mentorApplications)
+          .where(
+            eq(
+              mentorApplications.normalizedEmail,
+              verification.normalizedEmail,
+            ),
+          )
+          .limit(1)
+        if (!existing) {
+          throw new MentorApplicationConflictError(
+            'New legacy mentor applications are no longer accepted',
+          )
+        }
+      }
       const { application } = await upsertVerifiedApplication({
         transaction,
         email: verification.normalizedEmail,
@@ -187,8 +205,24 @@ export async function createAuthenticatedApplicationSession(input: {
   attributionVisitId?: string | null
   requestIp?: string | null
   userAgent?: string | null
+  allowCreate?: boolean
 }) {
   const result = await db.transaction(async transaction => {
+    if (input.allowCreate === false) {
+      const [existing] = await transaction
+        .select({ id: mentorApplications.id })
+        .from(mentorApplications)
+        .where(
+          eq(mentorApplications.normalizedEmail, normalizeEmail(input.email)),
+        )
+        .limit(1)
+      if (!existing) {
+        throw new MentorApplicationConflictError(
+          'New legacy mentor applications are no longer accepted',
+        )
+      }
+    }
+
     const { application: initialApplication } = await upsertVerifiedApplication({
       transaction,
       email: input.email,

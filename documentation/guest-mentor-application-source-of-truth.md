@@ -1,6 +1,13 @@
 # Guest Mentor Application — Source of Truth
 
 Last updated: 27 July 2026
+
+> **Implemented successor, pending activation:** The guest email-OTP flow documented here remains
+> available for historical access. The account-backed, authentication-at-submit v3 path is
+> implemented behind a disabled feature flag and documented in
+> `documentation/live-expert-registration-source-of-truth.md`. Migration 006 must be manually
+> applied and verified before v3 is enabled. Existing guest application data remains untouched.
+
 Owner: SharingMinds engineering
 Implementation branch: `arm-kan-232`
 
