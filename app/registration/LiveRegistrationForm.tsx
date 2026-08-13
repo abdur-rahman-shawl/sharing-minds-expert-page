@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { LiveRegistrationAuth } from '@/components/expert-registration/live-registration-auth'
@@ -26,51 +26,64 @@ export default function LiveRegistrationForm() {
   const [completedMentor, setCompletedMentor] = useState<MentorStatusData | null>(null)
   const [screen, setScreen] = useState<'loading' | 'form' | 'auth' | 'error'>('loading')
   const [error, setError] = useState<string | null>(null)
+  const bootstrapRequest = useRef<Promise<MentorApplication> | null>(null)
 
   useEffect(() => {
-    if (mentorStatusLoading || isMentor) return
+    // Better Auth refreshes the session when a background tab becomes visible.
+    // Once the form is open, that refresh must remain in the background: rendering
+    // the loading screen would unmount the wizard and discard in-memory File values.
+    if (mentorStatusLoading || isMentor || screen !== 'loading') return
     let active = true
 
-    const bootstrap = async () => {
-      try {
-        await captureCurrentCampaignVisit()
-        let response = await fetch('/api/expert-registration/drafts/current', {
+    const bootstrap = async (): Promise<MentorApplication> => {
+      await captureCurrentCampaignVisit()
+      let response = await fetch('/api/expert-registration/drafts/current', {
+        credentials: 'include',
+        cache: 'no-store',
+      })
+      let body = await responseJson(response)
+
+      if (response.ok && body.success === true && !body.draft) {
+        response = await fetch('/api/expert-registration/drafts', {
+          method: 'POST',
           credentials: 'include',
-          cache: 'no-store',
         })
-        let body = await responseJson(response)
+        body = await responseJson(response)
+      }
 
-        if (response.ok && body.success === true && !body.draft) {
-          response = await fetch('/api/expert-registration/drafts', {
-            method: 'POST',
-            credentials: 'include',
-          })
-          body = await responseJson(response)
-        }
+      const nextDraft = body.draft as MentorApplication | undefined
+      if (!response.ok || body.success !== true || !nextDraft) {
+        throw new Error(
+          typeof body.error === 'string'
+            ? body.error
+            : 'Unable to start the expert registration',
+        )
+      }
 
-        const nextDraft = body.draft as MentorApplication | undefined
-        if (!response.ok || body.success !== true || !nextDraft) {
-          throw new Error(
-            typeof body.error === 'string'
-              ? body.error
-              : 'Unable to start the expert registration',
-          )
-        }
+      return nextDraft
+    }
+
+    // Reuse an in-flight bootstrap across React's development effect replay and
+    // transient auth-state changes so the client cannot create competing drafts.
+    const request = bootstrapRequest.current || bootstrap()
+    bootstrapRequest.current = request
+
+    void request
+      .then(nextDraft => {
         if (!active) return
         setDraft(nextDraft)
         setScreen('form')
-      } catch (caught) {
+      })
+      .catch(caught => {
         if (!active) return
         setError(caught instanceof Error ? caught.message : 'Unable to start registration')
         setScreen('error')
-      }
-    }
+      })
 
-    void bootstrap()
     return () => {
       active = false
     }
-  }, [isMentor, mentorStatusLoading])
+  }, [isMentor, mentorStatusLoading, screen])
 
   const statusMentor = completedMentor || (isMentor ? mentor : null)
   if (!mentorStatusLoading && statusMentor) {
@@ -84,7 +97,7 @@ export default function LiveRegistrationForm() {
     )
   }
 
-  if (screen === 'loading' || mentorStatusLoading) {
+  if (screen === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
