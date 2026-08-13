@@ -5,6 +5,7 @@ import type { NextRequest, NextResponse } from 'next/server'
 
 import { db } from '@/lib/db'
 import { campaignVisits, type CampaignVisit } from '@/lib/db/schema'
+import { withTransientDatabaseRetry } from '@/lib/db/retry'
 
 import {
   CAMPAIGN_APPLICATION_PATH,
@@ -75,18 +76,21 @@ async function findActiveVisit(input: {
   now: Date
 }): Promise<CampaignVisit | null> {
   if (!input.visitId) return null
+  const visitId = input.visitId
   const idleCutoff = new Date(input.now.getTime() - VISIT_IDLE_MILLISECONDS)
-  const [visit] = await db
-    .select()
-    .from(campaignVisits)
-    .where(
-      and(
-        eq(campaignVisits.id, input.visitId),
-        eq(campaignVisits.visitorId, input.visitorId),
-        gt(campaignVisits.lastSeenAt, idleCutoff),
-      ),
-    )
-    .limit(1)
+  const [visit] = await withTransientDatabaseRetry(() =>
+    db
+      .select()
+      .from(campaignVisits)
+      .where(
+        and(
+          eq(campaignVisits.id, visitId),
+          eq(campaignVisits.visitorId, input.visitorId),
+          gt(campaignVisits.lastSeenAt, idleCutoff),
+        ),
+      )
+      .limit(1),
+  )
   return visit || null
 }
 

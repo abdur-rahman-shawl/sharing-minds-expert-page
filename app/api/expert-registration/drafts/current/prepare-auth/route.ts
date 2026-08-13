@@ -9,6 +9,7 @@ import {
   mentorRegistrationFiles,
   type MentorRegistrationFileKind,
 } from '@/lib/db/schema'
+import { isTransientDatabaseError } from '@/lib/db/retry'
 import {
   ExpertRegistrationDraftError,
   serializeExpertRegistrationDraft,
@@ -320,6 +321,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: error.message },
         { status: error.status, headers: NO_STORE_HEADERS },
+      )
+    }
+    if (isTransientDatabaseError(error)) {
+      console.warn('[expert-registration] Registration storage is temporarily unavailable')
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Secure registration storage is temporarily unavailable. Your form remains open; please try again.',
+        },
+        {
+          status: 503,
+          headers: { ...NO_STORE_HEADERS, 'Retry-After': '2' },
+        },
       )
     }
     console.error('[expert-registration] Unable to prepare registration', error)

@@ -24,7 +24,18 @@ function initializeDatabase() {
   }
 
   const connectionString = process.env.DATABASE_URL;
-  clientInstance = postgres(connectionString, { prepare: false });
+  const configuredConnectTimeout = Number(
+    process.env.DATABASE_CONNECT_TIMEOUT_SECONDS || '5',
+  );
+  const connectTimeout =
+    Number.isFinite(configuredConnectTimeout) && configuredConnectTimeout > 0
+      ? Math.min(configuredConnectTimeout, 30)
+      : 5;
+
+  clientInstance = postgres(connectionString, {
+    prepare: false,
+    connect_timeout: connectTimeout,
+  });
   dbInstance = drizzle(clientInstance);
 
   return { db: dbInstance, client: clientInstance };

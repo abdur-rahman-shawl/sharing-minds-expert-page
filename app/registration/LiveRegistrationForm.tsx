@@ -40,7 +40,12 @@ export default function LiveRegistrationForm() {
     let active = true
 
     const bootstrap = async (): Promise<MentorApplication> => {
-      await captureCurrentCampaignVisit()
+      // Preserve attribution when it responds promptly, but never hold the
+      // registration form behind a slow analytics/database request.
+      await Promise.race([
+        captureCurrentCampaignVisit(),
+        new Promise<void>(resolve => window.setTimeout(resolve, 1_500)),
+      ])
       let response = await fetch('/api/expert-registration/drafts/current', {
         credentials: 'include',
         cache: 'no-store',
