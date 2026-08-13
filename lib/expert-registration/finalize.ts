@@ -39,6 +39,10 @@ import {
   LIVE_EXPERT_REGISTRATION_SOURCE,
 } from './constants'
 import { ExpertRegistrationDraftError } from './drafts'
+import {
+  getExistingMentorFinalizationOutcome,
+  type ExpertRegistrationFinalizationOutcome,
+} from './lifecycle'
 import { getExpertRegistrationFileUrl } from './urls'
 import type { AuthenticatedApplicationUser } from '@/lib/mentor-applications/auth'
 import type { NextRequest } from 'next/server'
@@ -169,7 +173,10 @@ export async function finalizeExpertRegistration(input: {
           'The completed mentor registration requires reconciliation',
         )
       }
-      return { mentor: completedMentor, replayed: true }
+      return {
+        mentor: completedMentor,
+        outcome: 'REPLAYED' as ExpertRegistrationFinalizationOutcome,
+      }
     }
 
     if (draft.updatedAt.getTime() !== input.draft.updatedAt.getTime()) {
@@ -198,7 +205,11 @@ export async function finalizeExpertRegistration(input: {
       .where(eq(mentors.userId, input.user.id))
       .limit(1)
     if (existingMentor) {
-      if (existingMentor.registrationDraftId === draft.id) {
+      const existingMentorOutcome = getExistingMentorFinalizationOutcome({
+        existingRegistrationDraftId: existingMentor.registrationDraftId,
+        currentDraftId: draft.id,
+      })
+      if (existingMentorOutcome === 'REPLAYED') {
         const now = new Date()
         await transaction
           .update(mentorRegistrationDrafts)
@@ -211,12 +222,15 @@ export async function finalizeExpertRegistration(input: {
             updatedAt: now,
           })
           .where(eq(mentorRegistrationDrafts.id, draft.id))
-        return { mentor: existingMentor, replayed: true }
+        return {
+          mentor: existingMentor,
+          outcome: 'REPLAYED' as ExpertRegistrationFinalizationOutcome,
+        }
       }
-      throw new ExpertRegistrationDraftError(
-        'This account already has a mentor profile. Existing profile data was not overwritten.',
-        409,
-      )
+      return {
+        mentor: existingMentor,
+        outcome: existingMentorOutcome,
+      }
     }
 
     const currentFiles = await transaction
@@ -390,14 +404,14 @@ export async function finalizeExpertRegistration(input: {
 
     await transaction.insert(mentorsProfileAudit).values({
       mentorId: mentor.id,
-      previousData: null,
+      userId: input.user.id,
+      previousData: {},
       updatedData: {
         action: 'LIVE_EXPERT_REGISTRATION_CREATED',
         registrationDraftId: draft.id,
         registrationSource: LIVE_EXPERT_REGISTRATION_SOURCE,
         registrationSchemaVersion: LIVE_EXPERT_REGISTRATION_SCHEMA_VERSION,
       },
-      changedBy: input.user.id,
       changedAt: now,
     })
 
@@ -414,11 +428,14 @@ export async function finalizeExpertRegistration(input: {
       })
       .where(eq(mentorRegistrationDrafts.id, draft.id))
 
-    return { mentor, replayed: false }
+    return {
+      mentor,
+      outcome: 'CREATED' as ExpertRegistrationFinalizationOutcome,
+    }
   })
 
   return {
     mentor: serializeMentorStatus(result.mentor),
-    replayed: result.replayed,
+    outcome: result.outcome,
   }
 }

@@ -9,6 +9,7 @@ import {
   setExpertRegistrationDraftCookie,
 } from '@/lib/expert-registration/draft-session'
 import { isLiveExpertRegistrationEnabled } from '@/lib/expert-registration/feature'
+import { isRestorableExpertRegistrationDraft } from '@/lib/expert-registration/lifecycle'
 import {
   assertTrustedOrigin,
   MentorApplicationSecurityError,
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
   try {
     assertTrustedOrigin(request)
     const current = await getExpertRegistrationDraftFromRequest(request)
-    if (current) {
+    if (current && isRestorableExpertRegistrationDraft(current.status)) {
       return NextResponse.json(
         {
           success: true,

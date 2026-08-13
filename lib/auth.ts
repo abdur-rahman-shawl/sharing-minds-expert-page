@@ -89,7 +89,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       scope: ['openid', 'email', 'profile'],
       accessType: 'offline',
-      prompt: 'consent',
+      prompt: 'select_account consent',
     },
     linkedin: {
       clientId: process.env.LINKEDIN_CLIENT_ID!,

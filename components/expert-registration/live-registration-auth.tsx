@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
-import { FaLinkedin } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
 import { Button } from '@/components/ui/button'
@@ -17,7 +16,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { signIn, signUp, useSession } from '@/lib/auth-client'
-import type { MentorStatusData } from '@/lib/mentor-onboarding'
+import {
+  EXPERT_REGISTRATION_FINALIZATION_OUTCOMES,
+  type ExpertRegistrationFinalizationOutcome,
+  type ExpertRegistrationFinalizationResult,
+} from '@/lib/expert-registration/lifecycle'
 import { signInSchema, signUpSchema } from '@/lib/validations/auth'
 
 type AuthMethod = 'GOOGLE' | 'LINKEDIN' | 'EMAIL_PASSWORD' | 'EXISTING_SESSION'
@@ -37,7 +40,7 @@ export function LiveRegistrationAuth({
 }: {
   fullName: string
   onBack: () => void
-  onCompleted: (mentor: MentorStatusData) => void
+  onCompleted: (result: ExpertRegistrationFinalizationResult) => void
 }) {
   const { data: session, isPending } = useSession()
   const [emailOpen, setEmailOpen] = useState(false)
@@ -50,6 +53,13 @@ export function LiveRegistrationAuth({
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
+  const resetSensitiveFields = () => {
+    setPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setFieldErrors({})
+  }
+
   const finalize = async (authMethod: AuthMethod) => {
     let lastError = 'Unable to complete the expert registration'
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -60,8 +70,20 @@ export function LiveRegistrationAuth({
         body: JSON.stringify({ authMethod }),
       })
       const body = await responseJson(response)
-      if (response.ok && body.success === true && body.mentor) {
-        onCompleted(body.mentor as unknown as MentorStatusData)
+      const outcome = body.outcome
+      if (
+        response.ok &&
+        body.success === true &&
+        body.mentor &&
+        typeof outcome === 'string' &&
+        EXPERT_REGISTRATION_FINALIZATION_OUTCOMES.includes(
+          outcome as ExpertRegistrationFinalizationOutcome,
+        )
+      ) {
+        onCompleted({
+          mentor: body.mentor as ExpertRegistrationFinalizationResult['mentor'],
+          outcome: outcome as ExpertRegistrationFinalizationOutcome,
+        })
         return
       }
       lastError =
@@ -72,15 +94,14 @@ export function LiveRegistrationAuth({
     throw new Error(lastError)
   }
 
-  const handleSocial = async (provider: 'google' | 'linkedin') => {
+  const handleGoogle = async () => {
     setIsWorking(true)
     setError(null)
     try {
-      const authMethod = provider === 'google' ? 'GOOGLE' : 'LINKEDIN'
-      const callbackURL = `${window.location.origin}/verified-experts/complete?method=${authMethod}`
-      const result = await signIn.social({ provider, callbackURL })
+      const callbackURL = `${window.location.origin}/verified-experts/complete?method=GOOGLE`
+      const result = await signIn.social({ provider: 'google', callbackURL })
       if (result?.error) {
-        throw new Error(result.error.message || `Unable to continue with ${provider}`)
+        throw new Error(result.error.message || 'Unable to continue with Google')
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to open secure sign in')
@@ -139,6 +160,17 @@ export function LiveRegistrationAuth({
             })
 
       if (result.error) {
+        if (
+          mode === 'sign-up' &&
+          result.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL'
+        ) {
+          setMode('sign-in')
+          resetSensitiveFields()
+          setError(
+            'An account already exists for this email. Sign in with its password, or close this window and continue with Google.',
+          )
+          return
+        }
         throw new Error(
           result.error.message ||
             (mode === 'sign-up'
@@ -147,8 +179,9 @@ export function LiveRegistrationAuth({
         )
       }
 
-      await finalize('EMAIL_PASSWORD')
       setEmailOpen(false)
+      resetSensitiveFields()
+      await finalize('EMAIL_PASSWORD')
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -207,16 +240,9 @@ export function LiveRegistrationAuth({
                   variant="outline"
                   className="h-12 w-full justify-center"
                   disabled={isPending || isWorking}
-                  onClick={() => void handleSocial('google')}
+                  onClick={() => void handleGoogle()}
                 >
                   <FcGoogle className="mr-3 h-5 w-5" /> Continue with Google
-                </Button>
-                <Button
-                  className="h-12 w-full bg-[#0A66C2] text-white hover:bg-[#084f96]"
-                  disabled={isPending || isWorking}
-                  onClick={() => void handleSocial('linkedin')}
-                >
-                  <FaLinkedin className="mr-3 h-5 w-5" /> Continue with LinkedIn
                 </Button>
                 <div className="relative py-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
                   <span className="relative z-10 bg-white px-3">or</span>
@@ -250,7 +276,17 @@ export function LiveRegistrationAuth({
         </section>
       </div>
 
-      <Dialog open={emailOpen} onOpenChange={open => !isWorking && setEmailOpen(open)}>
+      <Dialog
+        open={emailOpen}
+        onOpenChange={open => {
+          if (isWorking) return
+          setEmailOpen(open)
+          if (!open) {
+            resetSensitiveFields()
+            setError(null)
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Continue securely with email</DialogTitle>
@@ -264,7 +300,7 @@ export function LiveRegistrationAuth({
             onValueChange={value => {
               setMode(value as 'sign-in' | 'sign-up')
               setError(null)
-              setFieldErrors({})
+              resetSensitiveFields()
             }}
           >
             <TabsList className="grid w-full grid-cols-2">

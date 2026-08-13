@@ -137,6 +137,7 @@ export async function serializeExpertRegistrationDraft(
   return {
     id: draft.id,
     status: 'DRAFT' as const,
+    registrationDraftStatus: draft.status,
     email: '',
     ...payload,
     profileImageUrl: file('PROFILE_IMAGE')

@@ -57,3 +57,19 @@ WHERE conname IN (
   'consent_events_mentor_id_fkey'
 )
 ORDER BY conname;
+
+-- V3 finalization writes a mentor-creation event to the pre-existing shared
+-- audit table. Verify the canonical contract expected by every codebase.
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'mentors_profile_audit'
+  AND column_name IN (
+    'id',
+    'mentor_id',
+    'user_id',
+    'previous_data',
+    'updated_data',
+    'changed_at'
+  )
+ORDER BY ordinal_position;

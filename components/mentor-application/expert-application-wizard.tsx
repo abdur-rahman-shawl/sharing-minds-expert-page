@@ -573,6 +573,7 @@ export function ExpertApplicationWizard({
   const [step, setStep] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [draftUnavailableError, setDraftUnavailableError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [autosaveState, setAutosaveState] = useState<AutosaveState>('idle')
   const [consents, setConsents] = useState<Record<LegalDocumentId, boolean>>(() =>
@@ -761,6 +762,7 @@ export function ExpertApplicationWizard({
     form.presentation, form.awardsCertifications])
 
   useEffect(() => {
+    if (draftUnavailableError) return
     const serialized = JSON.stringify(draftPayload)
     if (serialized === lastSavedPayload.current) return
 
@@ -783,7 +785,19 @@ export function ExpertApplicationWizard({
           },
         )
         const result = await readResponseJson(response)
-        if (!response.ok || result.success !== true) throw new Error('Draft save failed')
+        if (!response.ok || result.success !== true) {
+          const message =
+            typeof result.error === 'string' ? result.error : 'Draft save failed'
+          if (
+            isLiveRegistration &&
+            (response.status === 401 || response.status === 409)
+          ) {
+            setDraftUnavailableError(
+              'This application was completed or changed in another tab. Reload to continue with a fresh, safe state.',
+            )
+          }
+          throw new Error(message)
+        }
         lastSavedPayload.current = serialized
         setAutosaveState('saved')
         const savedRecord = isLiveRegistration ? result.draft : result.application
@@ -800,7 +814,7 @@ export function ExpertApplicationWizard({
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [draftPayload, isLiveRegistration, onApplicationChange])
+  }, [draftPayload, draftUnavailableError, isLiveRegistration, onApplicationChange])
 
   useEffect(() => {
     return () => {
@@ -876,6 +890,7 @@ export function ExpertApplicationWizard({
   }
 
   const goForward = () => {
+    if (draftUnavailableError) return
     if (!validateStep(step)) return
     setSubmissionError(null)
     setStep(current => Math.min(STEPS.length - 1, current + 1))
@@ -883,6 +898,7 @@ export function ExpertApplicationWizard({
   }
 
   const handleSubmit = async () => {
+    if (draftUnavailableError) return
     if (!validateStep(7)) return
     const result = validationResult()
     if (!result.success) {
@@ -962,6 +978,14 @@ export function ExpertApplicationWizard({
         ? responseBody.draft
         : responseBody.application
       if (!response.ok || responseBody.success !== true || !submittedRecord) {
+        if (
+          isLiveRegistration &&
+          (response.status === 401 || response.status === 409)
+        ) {
+          setDraftUnavailableError(
+            'This application was completed or changed in another tab. Reload to continue with a fresh, safe state.',
+          )
+        }
         throw new Error(
           typeof responseBody.error === 'string'
             ? responseBody.error
@@ -1728,26 +1752,47 @@ export function ExpertApplicationWizard({
                   {submissionError}
                 </div>
               )}
+              {draftUnavailableError && (
+                <div
+                  role="alert"
+                  className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+                >
+                  <p>{draftUnavailableError}</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={() => window.location.reload()}
+                  >
+                    Reload registration
+                  </Button>
+                </div>
+              )}
               {renderStep()}
 
               <div className="mt-10 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-between">
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={step === 0 || isSubmitting}
+                  disabled={step === 0 || isSubmitting || Boolean(draftUnavailableError)}
                   onClick={() => setStep(current => Math.max(0, current - 1))}
                   className="h-11"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" /> Previous
                 </Button>
                 {step < STEPS.length - 1 ? (
-                  <Button type="button" onClick={goForward} className="h-11 bg-slate-900 hover:bg-slate-800">
+                  <Button
+                    type="button"
+                    onClick={goForward}
+                    disabled={Boolean(draftUnavailableError)}
+                    className="h-11 bg-slate-900 hover:bg-slate-800"
+                  >
                     Save and continue <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
                   <Button
                     type="button"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || Boolean(draftUnavailableError)}
                     onClick={() => void handleSubmit()}
                     className="h-11 bg-slate-900 hover:bg-slate-800"
                   >

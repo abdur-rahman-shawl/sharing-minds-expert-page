@@ -9,7 +9,8 @@ import type { MentorApplication } from '@/components/mentor-application/types'
 import { MentorApplicationStatus } from '@/components/mentor/mentor-application-status'
 import { useMentorStatus } from '@/hooks/use-mentor-status'
 import { captureCurrentCampaignVisit } from '@/lib/campaign-attribution/client'
-import type { MentorStatusData } from '@/lib/mentor-onboarding'
+import { signOut } from '@/lib/auth-client'
+import type { ExpertRegistrationFinalizationResult } from '@/lib/expert-registration/lifecycle'
 
 async function responseJson(response: Response): Promise<Record<string, unknown>> {
   try {
@@ -23,9 +24,12 @@ export default function LiveRegistrationForm() {
   const router = useRouter()
   const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
   const [draft, setDraft] = useState<MentorApplication | null>(null)
-  const [completedMentor, setCompletedMentor] = useState<MentorStatusData | null>(null)
+  const [completion, setCompletion] =
+    useState<ExpertRegistrationFinalizationResult | null>(null)
   const [screen, setScreen] = useState<'loading' | 'form' | 'auth' | 'error'>('loading')
   const [error, setError] = useState<string | null>(null)
+  const [accountActionError, setAccountActionError] = useState<string | null>(null)
+  const [isSwitchingAccount, setIsSwitchingAccount] = useState(false)
   const bootstrapRequest = useRef<Promise<MentorApplication> | null>(null)
 
   useEffect(() => {
@@ -72,7 +76,9 @@ export default function LiveRegistrationForm() {
       .then(nextDraft => {
         if (!active) return
         setDraft(nextDraft)
-        setScreen('form')
+        setScreen(
+          nextDraft.registrationDraftStatus === 'READY_FOR_AUTH' ? 'auth' : 'form',
+        )
       })
       .catch(caught => {
         if (!active) return
@@ -85,14 +91,54 @@ export default function LiveRegistrationForm() {
     }
   }, [isMentor, mentorStatusLoading, screen])
 
-  const statusMentor = completedMentor || (isMentor ? mentor : null)
+  const continueWithAnotherAccount = async () => {
+    setIsSwitchingAccount(true)
+    setAccountActionError(null)
+    try {
+      const result = await signOut()
+      if (result?.error) {
+        throw new Error(result.error.message || 'Unable to close the current account session')
+      }
+      window.location.assign('/verified-experts')
+    } catch (caught) {
+      setAccountActionError(
+        caught instanceof Error
+          ? caught.message
+          : 'Unable to prepare another expert application',
+      )
+      setIsSwitchingAccount(false)
+    }
+  }
+
+  const statusMentor = completion?.mentor || (isMentor ? mentor : null)
   if (!mentorStatusLoading && statusMentor) {
+    const existingProfile = completion?.outcome === 'EXISTING_PROFILE'
     return (
       <MentorApplicationStatus
         mentor={statusMentor}
         onNavigateHome={() => router.push('/')}
         onNavigateDashboard={() => router.push('/dashboard')}
         onNavigateVipLounge={() => router.push('/vip-lounge')}
+        contextNotice={
+          existingProfile
+            ? {
+                title: 'This account already has an expert application',
+                description:
+                  'The new form was not submitted and your existing expert profile was not changed. Use a different account if this application belongs to another person.',
+              }
+            : undefined
+        }
+        onStartAnotherApplication={() => void continueWithAnotherAccount()}
+        startAnotherLabel={
+          existingProfile ? 'Use a different account' : 'Start another application'
+        }
+        startAnotherDescription={
+          existingProfile
+            ? 'You will be signed out of this account. The completed form will remain saved so the correct person can authenticate and submit it.'
+            : 'You will be signed out of this account. The submitted application will remain safe, and a new blank application will open.'
+        }
+        isStartingAnother={isSwitchingAccount}
+        actionError={accountActionError}
       />
     )
   }
@@ -133,7 +179,7 @@ export default function LiveRegistrationForm() {
       <LiveRegistrationAuth
         fullName={draft.fullName || 'SharingMinds Expert'}
         onBack={() => setScreen('form')}
-        onCompleted={setCompletedMentor}
+        onCompleted={setCompletion}
       />
     )
   }

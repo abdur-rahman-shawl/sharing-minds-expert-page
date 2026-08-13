@@ -24,4 +24,16 @@ describe('email account validation', () => {
       expect(result.error.issues[0]?.path).toEqual(['confirmPassword'])
     }
   })
+
+  it('normalizes email addresses before authentication', () => {
+    const result = signUpSchema.safeParse({
+      name: 'Asha Rao',
+      email: '  ASHA@Example.COM  ',
+      password: 'SecurePassphrase1',
+      confirmPassword: 'SecurePassphrase1',
+    })
+
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.email).toBe('asha@example.com')
+  })
 })

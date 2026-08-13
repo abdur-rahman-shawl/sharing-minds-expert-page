@@ -229,9 +229,9 @@ export async function POST(request: NextRequest) {
         try {
             await db.insert(mentorsProfileAudit).values({
                 mentorId: currentMentor.id,
+                userId,
                 previousData: currentMentor as unknown as Record<string, unknown>,
                 updatedData: updatedMentor as unknown as Record<string, unknown>,
-                changedBy: userId,
             })
         } catch (auditError) {
             console.error('Audit log insert failed:', auditError)

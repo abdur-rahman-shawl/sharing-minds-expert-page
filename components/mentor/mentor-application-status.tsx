@@ -10,6 +10,17 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
   getMentorAccess,
   type MentorStatusData,
   type MentorVerificationStatus,
@@ -80,6 +91,15 @@ interface MentorApplicationStatusProps {
   onNavigateHome: () => void
   onNavigateDashboard: () => void
   onNavigateVipLounge: () => void
+  contextNotice?: {
+    title: string
+    description: string
+  }
+  onStartAnotherApplication?: () => void
+  startAnotherLabel?: string
+  startAnotherDescription?: string
+  isStartingAnother?: boolean
+  actionError?: string | null
 }
 
 export function MentorApplicationStatus({
@@ -87,6 +107,13 @@ export function MentorApplicationStatus({
   onNavigateHome,
   onNavigateDashboard,
   onNavigateVipLounge,
+  contextNotice,
+  onStartAnotherApplication,
+  startAnotherLabel = 'Start another application',
+  startAnotherDescription =
+    'You will be signed out of the current account. Your submitted application will remain safe.',
+  isStartingAnother = false,
+  actionError,
 }: MentorApplicationStatusProps) {
   const presentation = STATUS_PRESENTATIONS[mentor.verificationStatus]
   const access = getMentorAccess(mentor)
@@ -98,7 +125,9 @@ export function MentorApplicationStatus({
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-16">
       <div className="w-full max-w-2xl space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl sm:p-10">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${presentation.iconClassName}`}>
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${presentation.iconClassName}`}
+          >
             <Icon className="h-6 w-6" aria-hidden="true" />
           </div>
           <div className="space-y-3">
@@ -123,6 +152,15 @@ export function MentorApplicationStatus({
           </div>
         )}
 
+        {contextNotice && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-950">
+            <p className="font-semibold">{contextNotice.title}</p>
+            <p className="mt-1 text-sm leading-6 text-blue-800">
+              {contextNotice.description}
+            </p>
+          </div>
+        )}
+
         {mentor.verificationNotes && (
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -141,7 +179,43 @@ export function MentorApplicationStatus({
           </Badge>
         </div>
 
+        {actionError && (
+          <div
+            role="alert"
+            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          >
+            {actionError}
+          </div>
+        )}
+
         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          {onStartAnotherApplication && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  disabled={isStartingAnother}
+                >
+                  {isStartingAnother ? 'Preparing...' : startAnotherLabel}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{startAnotherLabel}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {startAnotherDescription}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onStartAnotherApplication}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           {access.canAccessVipLounge && (
             <Button
               className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
