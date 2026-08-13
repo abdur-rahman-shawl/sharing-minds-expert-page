@@ -1,8 +1,9 @@
 # Live Expert Registration v3: Source of Truth and Implementation Plan
 
-Last updated: 7 August 2026
+Last updated: 13 August 2026
 
-Status: Implemented in application code; database migration and environment cutover pending
+Status: Implemented; migration 006 applied and constraint verification confirmed by the database
+owner; production cutover validation remains operational
 
 Schema version: `3`
 Source value for every new production registration: `LIVE_EXPERT_REGISTRATION`
@@ -29,9 +30,10 @@ unchanged. They will be handled by a separately approved, idempotent migration i
 
 ### 1.1 Current implementation state
 
-The branch now contains the complete inactive v3 path. It remains dormant until operations
-manually applies and verifies migration 006 and sets `EXPERT_REGISTRATION_V3_ENABLED=true`.
-No SQL in this implementation is executed automatically.
+The branch contains the complete v3 path. The database owner manually applied migration 006 and
+confirmed the expected constraint verification result. The feature remains controlled per
+environment by `EXPERT_REGISTRATION_V3_ENABLED=true`; no SQL is executed automatically by this
+application.
 
 Implemented:
 
@@ -392,6 +394,25 @@ orphaning a server file every time a visitor selects/reselects a local file duri
 steps while still persisting all files before an OAuth redirect. Replacement metadata remains
 versioned and previous storage objects are deleted after the database commit.
 
+### 11.1 In-progress form continuity
+
+An active registration wizard must remain mounted while the browser tab is backgrounded and when
+the applicant opens `/policies` in a separate tab. Better Auth revalidates its session when the
+registration tab becomes visible again; this is a background refresh and must not restore the
+page-level loading screen or rerun draft bootstrap after the wizard has opened. Unmounting the
+wizard would discard unsaved React state and browser-only `File` objects.
+
+The server draft remains the durable autosave authority for serializable form values. Sensitive
+registration data is deliberately not copied into `localStorage` or `sessionStorage`. The current
+step alone may be stored in `sessionStorage`; selected files remain in memory until
+`prepare-auth` securely uploads them. This makes lifecycle stability—not browser PII storage—the
+required protection against tab-switch data loss.
+
+The draft cookie is HTTP-only, SameSite=Lax, and Secure in production. Its default name uses the
+browser-enforced `__Secure-` prefix in production and an unprefixed equivalent during local HTTP
+development; browsers reject `__Secure-` cookies that are issued without the Secure attribute.
+This environment-aware naming is required for local autosave and draft restoration to work.
+
 Recommended UI changes:
 
 - remove the current email/OTP access card from `RegistrationForm`;
@@ -638,7 +659,8 @@ verified in the target environment.
   `mentor_applications`.
 - Required legacy auto-claim to be disabled before v3 rollout.
 - Deferred all mutation/migration of existing guest application data to a separate project.
-- Implemented migration 006 and verification SQL without executing them against PostgreSQL.
+- Implemented migration 006 and verification SQL; the database owner subsequently applied the
+  migration and confirmed the expected constraint verification result.
 - Implemented the v3 draft, private-file, final-auth, OAuth recovery, and canonical finalization
   paths behind `EXPERT_REGISTRATION_V3_ENABLED`.
 - Implemented a single advisory-lock namespace for autosave, auth preparation, and finalization
@@ -653,3 +675,12 @@ verified in the target environment.
   expose record type, provenance, auth method, canonical IDs, and detected legacy match ID.
 - Pinned the repository to Node 22 after local Node 24 failed inside Next 15's compiled Webpack
   hash implementation; verified the complete production graph with Turbopack in the same tree.
+
+### 13 August 2026
+
+- Prevented Better Auth's tab-focus session refresh from unmounting or re-bootstrapping an active
+  expert wizard, preserving entered values, consent selections, selected files, and the current
+  step when applicants review policies in a new tab.
+- Corrected draft-cookie naming for local HTTP so browsers retain the anonymous draft token and
+  incremental autosave/restore requests remain authorized; production continues using the
+  browser-enforced `__Secure-` prefix.
