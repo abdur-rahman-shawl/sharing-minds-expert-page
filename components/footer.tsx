@@ -13,16 +13,16 @@ const footerGroups = [
   {
     title: "For Experts",
     links: [
-      { label: "How It Works", href: "/#how-it-works" },
+      { label: "How It Works", href: "/service#how-it-works" },
       { label: "Who We Serve", href: "/#who-we-serve" },
       { label: "Become an Expert", href: "/verified-experts" },
-      { label: "Expert Resources", href: "/#resources" },
+      { label: "Expert Resources", href: "/service#strategic-platform" },
     ],
   },
   {
     title: "For Organizations",
     links: [
-      { label: "Solutions", href: "/service" },
+      { label: "Solutions", href: "/service#how-it-works" },
       { label: "Industries", href: "/service#industries" },
       { label: "Use Cases", href: "/service#use-cases" },
       { label: "Success Stories", href: "/service#success-stories" },

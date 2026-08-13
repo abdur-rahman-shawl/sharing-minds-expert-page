@@ -1651,7 +1651,7 @@ export function ExpertApplicationWizard({
           <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Expert application</h1>
-              <p className="mt-2 text-slate-600">A focused application that takes about 8–10 minutes.</p>
+              <p className="mt-2 text-slate-600">A focused application that takes about 5–7 minutes.</p>
             </div>
             <p className="text-sm font-medium text-slate-500">
               Step {step + 1} of {STEPS.length}

@@ -32,7 +32,7 @@ export const foundingExpertProfile = {
   eyebrow: "Expert Profile",
   title: "Senior Strategy Advisor",
   disciplines: "Strategy · Growth · Innovation · Leadership",
-  image: "/professional-mentor-headshot-2.jpg",
+  image: "/founding-expert-generated-headshot.jpg",
   attributes: [
     { label: "Global", icon: MapPin },
     { label: "15+ Years Experience", icon: BriefcaseBusiness },
@@ -60,7 +60,7 @@ export const foundingPathSteps = [
 ] satisfies FoundingPathStep[]
 
 export const foundingCohort = {
-  capacity: 127,
+  capacity: 25,
   label: "Spots Available",
   description: "Building the foundation of a trusted network of leading experts.",
 }

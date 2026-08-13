@@ -190,9 +190,7 @@ This Pricing Policy outlines the fee structure and payment terms for mentors and
 
 All mentors undergo a one-time verification process to ensure credibility and authenticity.
 
-Standard verification fee: INR ₹5,000 (INR)
-
-Waived for Founding Mentors under our early-access program. Applicable against personal invitation only.
+Standard verification fee: Waived off for Founding Mentors under our early-access program. Applicable against personal invitation only.
 
 3. Platform Subscription
 
