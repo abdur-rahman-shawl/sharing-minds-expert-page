@@ -1,12 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
-import { useState } from "react"
+import { Menu } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { BrandLogo } from "@/components/brand-logo"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
-import { cn } from "@/lib/utils"
 
 const navLinks = [
   { href: "/service", label: "Service" },
@@ -35,6 +42,18 @@ function LandingLogo() {
 
 export function LandingHeader() {
   const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1280px)")
+    const closeOnDesktop = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (event.matches) setIsOpen(false)
+    }
+
+    closeOnDesktop(desktopQuery)
+    desktopQuery.addEventListener("change", closeOnDesktop)
+
+    return () => desktopQuery.removeEventListener("change", closeOnDesktop)
+  }, [])
 
   return (
     <header className="sticky inset-x-0 top-0 z-50 border-b border-white/[0.12] bg-[#031426]/90 backdrop-blur-[12px]">
@@ -71,51 +90,77 @@ export function LandingHeader() {
           </Link>
         </div>
 
-        <button
-          type="button"
-          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded border border-white/20 text-white min-[1280px]:hidden"
-        >
-          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded border border-white/20 text-white transition-colors hover:border-white/40 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] min-[1280px]:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </SheetTrigger>
 
-      <div
-        className={cn(
-          "absolute inset-x-0 top-full overflow-hidden border-b border-white/10 bg-[#031426]/98 transition-all duration-300 min-[1280px]:hidden",
-          isOpen ? "max-h-[440px] opacity-100" : "pointer-events-none max-h-0 opacity-0"
-        )}
-      >
-        <nav aria-label="Mobile navigation" className="flex flex-col px-5 py-5">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="border-b border-white/10 py-3.5 text-sm font-medium text-white/[0.85] last:border-0"
+          <SheetContent
+            side="right"
+            className="!w-full !max-w-none overflow-y-auto border-l-0 border-white/10 bg-[#031426] p-0 text-white [&>button]:right-5 [&>button]:top-6 [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded [&>button]:border [&>button]:border-white/20 [&>button]:text-white [&>button]:opacity-100 [&>button>svg]:h-5 [&>button>svg]:w-5 sm:!w-[420px] sm:!max-w-[420px] sm:border-l"
+          >
+            <SheetHeader className="border-b border-white/10 px-5 pb-6 pt-5 text-left sm:px-7">
+              <Link
+                href="/"
+                aria-label="SharingMinds home"
+                onClick={() => setIsOpen(false)}
+                className="flex w-fit min-w-0 items-center pr-14"
+              >
+                <BrandLogo
+                  tone="light"
+                  markClassName="h-10 w-20"
+                  wordmarkClassName="text-[26px]"
+                  taglineClassName="mt-1 text-[8px]"
+                />
+              </Link>
+              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+              <SheetDescription className="sr-only">
+                Navigate SharingMinds or start your expert application.
+              </SheetDescription>
+            </SheetHeader>
+
+            <nav
+              aria-label="Mobile navigation"
+              className="flex min-h-[calc(100dvh-91px)] flex-col px-5 py-7 sm:px-7"
             >
-              {link.label}
-            </Link>
-          ))}
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <Link
-              href="/auth/login"
-              onClick={() => setIsOpen(false)}
-              className="inline-flex h-11 items-center justify-center rounded border border-[#4f769b] text-sm font-semibold text-white"
-            >
-              Log In
-            </Link>
-            <Link
-              href={EXPERT_APPLICATION_PATH}
-              onClick={() => setIsOpen(false)}
-              className="inline-flex min-h-11 items-center justify-center rounded border border-[#229bff] bg-[#0879e4] px-3 py-2 text-center text-xs font-semibold leading-tight text-white shadow-[0_0_18px_rgba(0,142,255,0.55)]"
-            >
-              Start My Expert Application
-            </Link>
-          </div>
-        </nav>
+              <div className="flex flex-col">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="flex min-h-14 items-center border-b border-white/10 text-base font-medium text-white/[0.9] transition-colors hover:text-[#f3bd78] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#65b9ff]"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-auto flex flex-col gap-3 pt-10">
+                <Link
+                  href="/auth/login"
+                  onClick={() => setIsOpen(false)}
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded border border-[#4f769b] px-5 text-sm font-semibold text-white transition-colors hover:border-[#63a9e9] hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff]"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href={EXPERT_APPLICATION_PATH}
+                  onClick={() => setIsOpen(false)}
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded border border-[#229bff] bg-[#0879e4] px-5 py-3 text-center text-sm font-semibold leading-snug text-white shadow-[0_0_18px_rgba(0,142,255,0.55)] transition-colors hover:bg-[#168cf4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff]"
+                >
+                  Start My Expert Application
+                </Link>
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   )
