@@ -49,7 +49,10 @@ import {
   WEEKLY_AVAILABILITY_OPTIONS,
   type MentorApplicationOption,
 } from '@/lib/mentor-application-options'
-import { mentorApplicationDraftFieldsSchema } from '@/lib/validations/mentor-application'
+import {
+  MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH,
+  mentorApplicationDraftFieldsSchema,
+} from '@/lib/validations/mentor-application'
 import type { MentorApplication } from './types'
 
 type AutosaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -464,13 +467,15 @@ function TextareaField({
         <Label htmlFor={id} className="text-base font-semibold text-slate-800">
           {label} <span className="text-red-500">*</span>
         </Label>
-        <span className="text-xs text-slate-400">{value.length}/1000</span>
+        <span className="text-xs text-slate-400">
+          {value.length}/{MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH}
+        </span>
       </div>
       <Textarea
         id={id}
         value={value}
         onChange={event => onChange(event.target.value)}
-        maxLength={1000}
+        maxLength={MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH}
         rows={5}
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
