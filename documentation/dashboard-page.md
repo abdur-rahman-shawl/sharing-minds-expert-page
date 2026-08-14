@@ -37,7 +37,7 @@ User visits /dashboard/*
                           ┌──────────────────────┐
                           │ Status === VERIFIED?  │
                           └──────────────────────┘
-                                   │ No → /vip-lounge
+                                   │ No → /verified-experts
                                    │ Yes
                                    ▼
                             ✅ Render Dashboard
@@ -47,7 +47,7 @@ This gate lives in `layout.tsx` so **all sub-routes are automatically protected*
 
 `AppLayout.tsx` was also updated:
 - Hides global header/footer on `/dashboard` routes (dashboard has its own header)
-- Exempts verified mentors on `/dashboard` from the VIP auto-redirect
+- Leaves dashboard access control to the dashboard layout
 
 ---
 
@@ -169,7 +169,7 @@ All components follow the pattern: `className="bg-gray-50 dark:bg-slate-900"`
 
 The global `AppLayout` hides the header and footer on dashboard routes:
 ```tsx
-const hideChrome = isAuthPage || isVipPage || isDashboardPage
+const hideChrome = isAuthPage || isDashboardPage || isReportPage
 ```
 The dashboard renders its **own standalone header** (inside `layout.tsx`) with the logo, theme toggle, user info, and sign-out. This replaces the global header.
 
@@ -188,7 +188,7 @@ const { resolvedTheme, setTheme } = useTheme()
 
 ## Related Files
 
-- [AppLayout.tsx](file:///c:/Users/Admin/sm-expert-landing-page/app/AppLayout.tsx) — Global layout (hides chrome + VIP redirect exemption)
+- [AppLayout.tsx](file:///c:/Users/Admin/sm-expert-landing-page/app/AppLayout.tsx) — Global layout and chrome visibility
 - [globals.css](file:///c:/Users/Admin/sm-expert-landing-page/app/globals.css) — CSS variables for dark mode (`.dark` block)
 - [Mentor Schema](file:///c:/Users/Admin/sm-expert-landing-page/lib/db/schema/mentors.ts) — Verification status enum + mentor fields
 - [useMentorStatus](file:///c:/Users/Admin/sm-expert-landing-page/hooks/use-mentor-status.ts) — Mentor data fetching hook

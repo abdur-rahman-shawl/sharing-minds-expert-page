@@ -1,41 +1,18 @@
 'use client'
 
-import { Suspense, useEffect, useRef } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { Suspense } from 'react'
+import { usePathname } from 'next/navigation'
 import { Footer } from '@/components/footer'
 import { LandingHeader } from '@/components/landing-header'
-import { useMentorStatus } from '@/hooks/use-mentor-status'
 import { CampaignAttributionTracker } from '@/components/providers/campaign-attribution-tracker'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const router = useRouter()
-  const { isMentor, mentor, isLoading } = useMentorStatus()
-  const hasRedirectedRef = useRef(false)
 
   const isAuthPage = pathname.startsWith('/auth')
-  const isVipPage = pathname.startsWith('/vip-lounge')
   const isDashboardPage = pathname.startsWith('/dashboard')
   const isReportPage = pathname.startsWith('/reports')
-  const hideChrome = isAuthPage || isVipPage || isDashboardPage || isReportPage
-
-  useEffect(() => {
-    if (isLoading) return
-
-    if (isMentor && !hasRedirectedRef.current) {
-      const isVerified = mentor?.verificationStatus === 'VERIFIED'
-
-      // Verified mentors can access the dashboard; all others go to VIP lounge
-      if (!isVipPage && !(isDashboardPage && isVerified)) {
-        hasRedirectedRef.current = true
-        router.replace('/vip-lounge')
-      }
-    }
-
-    if (!isMentor) {
-      hasRedirectedRef.current = false
-    }
-  }, [isLoading, isMentor, mentor, isVipPage, isDashboardPage, router])
+  const hideChrome = isAuthPage || isDashboardPage || isReportPage
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -13,7 +13,7 @@ The app is **not** the main product. It is a standalone recruitment funnel that:
 - Handles user authentication (email, Google, LinkedIn).
 - Collects detailed mentor applications through a multi-step registration form.
 - Tracks each application through a verification pipeline (`YET_TO_APPLY → IN_PROGRESS → VERIFIED / REJECTED / REVERIFICATION`).
-- Provides a status-aware dashboard and an exclusive VIP Lounge for registered mentors.
+- Provides an application-status experience and a dashboard for verified mentors.
 
 ---
 
@@ -44,7 +44,7 @@ The app is **not** the main product. It is a standalone recruitment funnel that:
 sm-expert-landing-page/
 ├── app/                        # Next.js App Router pages & API routes
 │   ├── layout.tsx              # Root layout (providers, fonts, metadata)
-│   ├── AppLayout.tsx           # Client layout (header/footer toggle, mentor redirect)
+│   ├── AppLayout.tsx           # Client layout (header/footer visibility)
 │   ├── page.tsx                # Landing page (/)
 │   ├── about/                  # About Us page
 │   ├── auth/
@@ -56,7 +56,6 @@ sm-expert-landing-page/
 │   ├── registration/           # Multi-step mentor registration form
 │   ├── service/                # Services description page
 │   ├── verify-email/           # OTP email verification page
-│   ├── vip-lounge/             # Exclusive VIP area for registered mentors
 │   └── api/                    # API route handlers
 │       ├── auth/               # Auth endpoints (better-auth catch-all, OTP, sessions)
 │       ├── consents/           # Consent event logging
@@ -73,7 +72,6 @@ sm-expert-landing-page/
 │   ├── auth/                   # Auth-related components
 │   ├── common/                 # Error boundary, reusable components
 │   ├── ui/                     # 51 Radix-based UI primitives (Button, Card, Dialog, etc.)
-│   └── vip/                    # VIP invitation component
 ├── contexts/
 │   └── auth-context.tsx        # Global auth state (session, roles, mentor profile)
 ├── hooks/
@@ -135,13 +133,11 @@ sm-expert-landing-page/
 | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
 | `/dashboard`     | `dashboard/page.tsx`         | **Mentor dashboard** — Displays a status card based on auth state and verification status.       |
 | `/registration`  | `RegistrationForm.tsx`       | **Multi-step mentor application form** — Personal info, professional details, file uploads, legal consents, OTP verification. |
-| `/vip-lounge`    | `vip-lounge/page.tsx`        | **VIP area** — Exclusive page for registered mentors. Shows `VipInvitation` component. Verified mentors can also navigate to dashboard. |
 
 ### 4.4 Navigation & Layout Behaviour
 
 - **`AppLayout.tsx`** wraps all pages and:
-  - Hides the Header & Footer on `/auth/*`, `/vip-lounge`, and `/dashboard/*` routes.
-  - Auto-redirects authenticated mentors to `/vip-lounge` (unless already there).
+  - Hides the Header & Footer on `/auth/*`, `/dashboard/*`, and `/reports/*` routes.
 - The **Header** includes: logo, nav links (Service, About, Contact), auth buttons (Sign In / Dashboard / Sign Out), and a mobile hamburger menu.
 - The **Dashboard** has its own standalone header (inside `layout.tsx`) with logo, section title, dark/light mode toggle, user avatar, and sign out.
 
@@ -329,22 +325,22 @@ Composite primary key: `(user_id, role_id)`.
 This is the core user journey of the application:
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌────────────────────┐     ┌──────────────────┐
-│  Landing    │────▸│  Sign Up /   │────▸│  Registration Form │────▸│   Dashboard      │
-│  Page (/)   │     │  Sign In     │     │  (/registration)   │     │   (/dashboard)   │
-└─────────────┘     └──────────────┘     └────────────────────┘     └──────────────────┘
-                                                │                          │
-                                                │ On submit:               │ Shows status:
-                                                │ 1. Upload files          │ • YET_TO_APPLY
-                                                │ 2. Create mentor record  │ • IN_PROGRESS
-                                                │ 3. Assign mentor role    │ • VERIFIED
-                                                │ 4. Send confirm email    │ • REJECTED
-                                                │ 5. Status → IN_PROGRESS  │ • REVERIFICATION
-                                                ▼                          │
-                                         ┌─────────────┐                   │
-                                         │ VIP Lounge  │◂──────────────────┘
-                                         │(/vip-lounge)│  (auto-redirect for mentors)
-                                         └─────────────┘
+┌─────────────┐     ┌──────────────┐     ┌────────────────────┐
+│  Landing    │────▸│  Sign Up /   │────▸│  Registration Form │
+│  Page (/)   │     │  Sign In     │     │  (/registration)   │
+└─────────────┘     └──────────────┘     └─────────┬──────────┘
+                                                   │
+                                                   ▼
+                                         ┌────────────────────┐
+                                         │ Application Status │
+                                         │ (/verified-experts)│
+                                         └─────────┬──────────┘
+                                                   │ VERIFIED
+                                                   ▼
+                                         ┌────────────────────┐
+                                         │     Dashboard      │
+                                         │    (/dashboard)    │
+                                         └────────────────────┘
 ```
 
 ### 8.1 Registration Form Details
@@ -364,7 +360,7 @@ The registration form (`RegistrationForm.tsx`, ~1240 lines) is a comprehensive m
 | ----------------- | ----------------------------------------------- | ----------------------------------- |
 | `YET_TO_APPLY`    | Mentor record exists but form is incomplete     | Prompt to continue registration     |
 | `IN_PROGRESS`     | Application submitted, under admin review       | Show "under review" message         |
-| `VERIFIED`        | Approved — full platform access                 | Show "Dashboard Coming Soon" + VIP  |
+| `VERIFIED`        | Approved — full platform access                 | Open dashboard                       |
 | `REJECTED`        | Application denied                              | Option to update & reapply          |
 | `REVERIFICATION`  | Needs profile update to maintain verified status| Prompt to update profile            |
 
@@ -422,14 +418,6 @@ The dashboard renders through `layout.tsx` which provides:
 | `StatCard` | `components/dashboard/stat-card.tsx` | Metric card for overview page |
 | `ComingSoonCard` | `components/dashboard/coming-soon-card.tsx` | Placeholder for unreleased sections |
 | `MentorProfileEdit` | `components/dashboard/mentor-profile-edit.tsx` | Full profile editor with file uploads |
-
-### 10.5 VIP Components
-
-| Component          | File                              | Description                               |
-| ------------------ | --------------------------------- | ----------------------------------------- |
-| `VipInvitation`    | `components/vip/vip-invitation`   | Exclusive VIP experience for mentors      |
-
----
 
 ## 11. State Management
 

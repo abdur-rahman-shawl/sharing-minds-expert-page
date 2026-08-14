@@ -197,6 +197,5 @@ export function getMentorAccess(mentor: MentorStatusData) {
 
   return {
     canAccessDashboard: isVerificationComplete,
-    canAccessVipLounge: isVerificationComplete && mentor.isExpert,
   }
 }

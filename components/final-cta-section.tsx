@@ -14,10 +14,6 @@ export function FinalCTASection() {
   const { isMentor, isLoading: mentorStatusLoading } = useMentorStatus()
 
   const handleBecomeMentor = () => {
-    if (isMentor) {
-      router.push('/vip-lounge')
-      return
-    }
     router.push(EXPERT_APPLICATION_PATH)
   }
 
@@ -37,7 +33,7 @@ export function FinalCTASection() {
                 Apply for Expert Verification
               </h2>
               <p className="mb-4 text-lg text-slate-600 leading-relaxed">
-                Priority visibility, private lounge access, and early session requests — for experienced practitioners who prefer curated, high-relevance conversations.
+                Priority visibility and early session requests — for experienced practitioners who prefer curated, high-relevance conversations.
               </p>
               <p className="mb-8 text-sm text-slate-500 leading-relaxed border-l-2 border-indigo-200 pl-3">
                 Founding access includes complimentary Silver membership for the first year{" "}
@@ -66,7 +62,7 @@ export function FinalCTASection() {
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
 
                     <span className="relative z-20 flex items-center justify-center gap-2">
-                      {isMentor ? 'Enter VIP Lounge' : 'Continue Application'}
+                      {isMentor ? 'Review Application Status' : 'Continue Application'}
                       <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                     </span>
                   </Button>

@@ -271,7 +271,6 @@ export default function RegistrationForm() {
         mentor={mentor}
         onNavigateHome={() => router.push('/')}
         onNavigateDashboard={() => router.push('/dashboard')}
-        onNavigateVipLounge={() => router.push('/vip-lounge')}
       />
     )
   }

@@ -31,8 +31,8 @@ export function Header() {
 
   const isActivePath = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
-  const ctaHref = isMentor ? "/vip-lounge" : EXPERT_APPLICATION_PATH
-  const ctaLabel = isMentor ? "VIP Lounge" : "Apply for Verification"
+  const ctaHref = EXPERT_APPLICATION_PATH
+  const ctaLabel = isMentor ? "View Application Status" : "Apply for Verification"
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
