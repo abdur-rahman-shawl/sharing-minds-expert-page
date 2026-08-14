@@ -32,10 +32,10 @@ export function HeroSection() {
       <picture className="absolute inset-0 -z-30">
         <source media="(max-width: 639px)" srcSet="/expert-network-hero-mobile.webp" />
         <img
-          src="/expert-network-hero-v2.webp"
+          src="/expert-network-hero-safe-zone.webp"
           alt=""
           fetchPriority="high"
-          className="h-full w-full object-cover object-center"
+          className="hero-network-art h-full w-full object-cover object-center"
         />
       </picture>
 
@@ -97,40 +97,42 @@ export function HeroSection() {
       </div>
 
       <div
-        className="pointer-events-none absolute left-[67.2%] top-[50%] hidden -translate-x-1/2 -translate-y-1/2 font-serif text-[64px] leading-none text-[#83c7ff] drop-shadow-[0_0_10px_rgba(78,169,255,0.95)] min-[840px]:block"
+        className="hero-network-infinity pointer-events-none absolute left-[67.2%] top-[50%] hidden -translate-x-1/2 -translate-y-1/2 font-serif text-[64px] leading-none text-[#83c7ff] drop-shadow-[0_0_10px_rgba(78,169,255,0.95)] min-[840px]:block"
         aria-hidden="true"
       >
         ∞
       </div>
 
-      <aside className="absolute right-[clamp(20px,3.5vw,56px)] top-[52%] hidden w-[clamp(160px,15vw,215px)] -translate-y-1/2 rounded-[6px] border border-[#7890a5]/40 bg-[#08192c]/82 px-4 py-2 shadow-[0_16px_50px_rgba(0,0,0,0.35)] backdrop-blur-[8px] min-[840px]:block">
-        <h2 className="sr-only">Expert network advantages</h2>
-        {advantages.map((advantage, index) => {
-          const Icon = advantage.icon
+      <div className="hero-network-card-shell pointer-events-none absolute right-[clamp(20px,3.5vw,56px)] top-[52%] z-20 hidden w-[clamp(160px,15vw,215px)] -translate-y-1/2 min-[1100px]:block">
+        <aside className="hero-network-card w-full rounded-[6px] border border-[#7890a5]/45 bg-[#06172a]/95 px-4 py-2 shadow-[0_16px_50px_rgba(0,0,0,0.42)] backdrop-blur-[12px]">
+          <h2 className="sr-only">Expert network advantages</h2>
+          {advantages.map((advantage, index) => {
+            const Icon = advantage.icon
 
-          return (
-            <div
-              key={advantage.label}
-              className={`flex items-center gap-3 py-4 ${
-                index < advantages.length - 1 ? "border-b border-white/[0.14]" : ""
-              }`}
-            >
-              <Icon
-                className="h-[26px] w-[26px] shrink-0 stroke-[1.6] text-[#e6ad60]"
-                aria-hidden="true"
-              />
-              <div>
-                <p className="text-[13px] font-semibold leading-none text-white">
-                  {advantage.label}
-                </p>
-                <p className="mt-2 text-[9px] leading-none text-white/[0.65]">
-                  {advantage.description}
-                </p>
+            return (
+              <div
+                key={advantage.label}
+                className={`hero-network-advantage flex items-center gap-3 py-4 ${
+                  index < advantages.length - 1 ? "border-b border-white/[0.14]" : ""
+                }`}
+              >
+                <Icon
+                  className="hero-network-advantage-icon h-[26px] w-[26px] shrink-0 stroke-[1.6] text-[#e6ad60]"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="hero-network-advantage-title text-[13px] font-semibold leading-none text-white">
+                    {advantage.label}
+                  </p>
+                  <p className="hero-network-advantage-description mt-2 text-[9px] leading-none text-white/[0.65]">
+                    {advantage.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </aside>
+            )
+          })}
+        </aside>
+      </div>
     </section>
   )
 }
