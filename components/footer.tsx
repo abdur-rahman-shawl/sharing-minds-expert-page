@@ -43,7 +43,6 @@ const footerGroups = [
       { label: "Insights", href: "/service" },
       { label: "Webinars", href: "/service" },
       { label: "Help Center", href: "/contact" },
-      { label: "Trust & Safety", href: "/policies#community-conduct-policy" },
     ],
   },
 ]
@@ -174,12 +173,12 @@ export function Footer() {
           <p>© 2025–2026 SharingMinds. All rights reserved.</p>
 
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-7 gap-y-3">
-            <Link href="/policies#privacy-policy" className="transition-colors hover:text-white">
-              Privacy Policy
+            <Link href="/policies" className="transition-colors hover:text-white">
+              Policies
             </Link>
             <span className="hidden h-4 w-px bg-[#758395]/60 sm:block" aria-hidden="true" />
             <Link href="/policies#terms-of-use" className="transition-colors hover:text-white">
-              Terms of Service
+              Application Terms
             </Link>
             <span className="hidden h-4 w-px bg-[#758395]/60 sm:block" aria-hidden="true" />
             <Link href="/policies#cookie-policy" className="transition-colors hover:text-white">

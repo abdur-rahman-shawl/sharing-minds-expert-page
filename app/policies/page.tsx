@@ -115,8 +115,8 @@ export default function PoliciesPage() {
             Policies &amp; Legal
           </h1>
           <p className="max-w-3xl text-lg leading-8 text-slate-600">
-            Review the current SharingMinds terms, privacy, pricing, conduct and cookie
-            policies. Each document is available below in full.
+            Review the SharingMinds 2026 application, membership and engagement terms and
+            Cookie Policy. Both documents are available below in full.
           </p>
           <nav aria-label="Policy documents" className="flex flex-wrap gap-2">
             {legalDocuments.map(document => (
