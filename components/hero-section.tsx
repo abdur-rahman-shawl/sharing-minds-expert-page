@@ -31,7 +31,7 @@ export function HeroSection() {
       className="relative isolate flex min-h-[calc(100svh-88px)] scroll-mt-[88px] items-center overflow-hidden bg-[#031427] text-white sm:min-h-[calc(100svh-104px)] sm:scroll-mt-[104px]"
     >
       <Image
-        src="/expert-network-hero.png"
+        src="/expert-network-hero-v2.webp"
         alt=""
         fill
         priority
