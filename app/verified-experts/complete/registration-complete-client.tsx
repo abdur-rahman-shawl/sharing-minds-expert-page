@@ -117,13 +117,14 @@ export default function ExpertRegistrationCompleteClient() {
         mentor={completion.mentor}
         onNavigateHome={() => router.push('/')}
         onNavigateDashboard={() => router.push('/dashboard')}
-        onNavigateVipLounge={() => router.push('/vip-lounge')}
         contextNotice={
           existingProfile
             ? {
-                title: 'This account already has an expert application',
+                title: 'An application already exists for this email',
                 description:
-                  'The new form was not submitted and your existing expert profile was not changed. Use a different account if this application belongs to another person.',
+                  `We found the expert application previously submitted for ${completion.mentor.email}. ` +
+                  'That existing application is the one currently under review; the form you just ' +
+                  'completed was not submitted again or used to replace it.',
               }
             : undefined
         }

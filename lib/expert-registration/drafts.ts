@@ -11,6 +11,7 @@ import {
   type MentorRegistrationDraft,
   type MentorRegistrationFile,
 } from '@/lib/db/schema'
+import { withTransientDatabaseRetry } from '@/lib/db/retry'
 import type { MentorApplicationPatchInput } from '@/lib/validations/mentor-application'
 
 import { LIVE_EXPERT_REGISTRATION_SCHEMA_VERSION } from './constants'
@@ -115,15 +116,17 @@ export async function saveExpertRegistrationDraft(input: {
 export async function getCurrentExpertRegistrationFiles(
   draftId: string,
 ): Promise<MentorRegistrationFile[]> {
-  return db
-    .select()
-    .from(mentorRegistrationFiles)
-    .where(
-      and(
-        eq(mentorRegistrationFiles.registrationDraftId, draftId),
-        eq(mentorRegistrationFiles.isCurrent, true),
+  return withTransientDatabaseRetry(() =>
+    db
+      .select()
+      .from(mentorRegistrationFiles)
+      .where(
+        and(
+          eq(mentorRegistrationFiles.registrationDraftId, draftId),
+          eq(mentorRegistrationFiles.isCurrent, true),
+        ),
       ),
-    )
+  )
 }
 
 export async function serializeExpertRegistrationDraft(

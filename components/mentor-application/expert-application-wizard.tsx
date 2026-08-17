@@ -33,7 +33,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { legalDocuments, type LegalDocumentId } from '@/lib/legal-documents'
+import {
+  applicationConsentRequirements,
+  type ApplicationConsentDocumentId,
+} from '@/lib/legal-documents'
 import {
   CREDIBILITY_SIGNAL_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
@@ -46,7 +49,10 @@ import {
   WEEKLY_AVAILABILITY_OPTIONS,
   type MentorApplicationOption,
 } from '@/lib/mentor-application-options'
-import { mentorApplicationDraftFieldsSchema } from '@/lib/validations/mentor-application'
+import {
+  MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH,
+  mentorApplicationDraftFieldsSchema,
+} from '@/lib/validations/mentor-application'
 import type { MentorApplication } from './types'
 
 type AutosaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -461,13 +467,15 @@ function TextareaField({
         <Label htmlFor={id} className="text-base font-semibold text-slate-800">
           {label} <span className="text-red-500">*</span>
         </Label>
-        <span className="text-xs text-slate-400">{value.length}/1000</span>
+        <span className="text-xs text-slate-400">
+          {value.length}/{MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH}
+        </span>
       </div>
       <Textarea
         id={id}
         value={value}
         onChange={event => onChange(event.target.value)}
-        maxLength={1000}
+        maxLength={MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH}
         rows={5}
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
@@ -576,9 +584,9 @@ export function ExpertApplicationWizard({
   const [draftUnavailableError, setDraftUnavailableError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [autosaveState, setAutosaveState] = useState<AutosaveState>('idle')
-  const [consents, setConsents] = useState<Record<LegalDocumentId, boolean>>(() =>
-    Object.fromEntries(legalDocuments.map(document => [document.id, false])) as Record<
-      LegalDocumentId,
+  const [consents, setConsents] = useState<Record<ApplicationConsentDocumentId, boolean>>(() =>
+    Object.fromEntries(applicationConsentRequirements.map(document => [document.id, false])) as Record<
+      ApplicationConsentDocumentId,
       boolean
     >,
   )
@@ -874,9 +882,9 @@ export function ExpertApplicationWizard({
       }
     }
     if (currentStep === 7) {
-      for (const document of legalDocuments) {
+      for (const document of applicationConsentRequirements) {
         if (!consents[document.id]) {
-          nextErrors.consents = 'Accept every current policy and declaration'
+          nextErrors.consents = 'Confirm that you have read and understood the terms and declaration'
           break
         }
       }
@@ -954,7 +962,7 @@ export function ExpertApplicationWizard({
       body.append(
         'consents',
         JSON.stringify(
-          legalDocuments.map(document => ({
+          applicationConsentRequirements.map(document => ({
             documentId: document.id,
             version: document.version,
             accepted: consents[document.id],
@@ -1122,7 +1130,7 @@ export function ExpertApplicationWizard({
           </div>
 
           <fieldset className="space-y-4">
-            <legend className="text-base font-semibold text-slate-800">Normalized location *</legend>
+            <legend className="text-base font-semibold text-slate-800">Location *</legend>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Country</Label>
@@ -1564,19 +1572,19 @@ export function ExpertApplicationWizard({
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="font-semibold text-slate-900">Policies and declaration</h3>
+              <h3 className="font-semibold text-slate-900">Terms and declaration</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Accept each current document before submitting.
+                Please review the current terms before submitting your application.
               </p>
             </div>
             <Button type="button" variant="outline" asChild>
-              <a href="/policies" target="_blank" rel="noreferrer">
-                <FileText className="mr-2 h-4 w-4" /> View documents
+              <a href="/policies#terms-of-use" target="_blank" rel="noreferrer">
+                <FileText className="mr-2 h-4 w-4" /> View terms
               </a>
             </Button>
           </div>
           <div className="mt-5 space-y-3">
-            {legalDocuments.map(document => (
+            {applicationConsentRequirements.map(document => (
               <Label
                 key={document.id}
                 htmlFor={`consent-${document.id}`}
@@ -1594,8 +1602,18 @@ export function ExpertApplicationWizard({
                   }}
                   className="mt-0.5"
                 />
-                <span>
-                  I accept the <strong>{document.label}</strong>.
+                <span className="leading-6">
+                  I confirm that I have read and understood the{' '}
+                  <a
+                    href={`/policies#${document.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-indigo-700 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-900"
+                    onClick={event => event.stopPropagation()}
+                  >
+                    Application, Membership &amp; Engagement Terms and declaration
+                  </a>{' '}
+                  and wish to submit my application for consideration by SharingMinds.
                 </span>
               </Label>
             ))}
@@ -1651,7 +1669,7 @@ export function ExpertApplicationWizard({
           <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Expert application</h1>
-              <p className="mt-2 text-slate-600">A focused application that takes about 8–10 minutes.</p>
+              <p className="mt-2 text-slate-600">A focused application that takes about 5–7 minutes.</p>
             </div>
             <p className="text-sm font-medium text-slate-500">
               Step {step + 1} of {STEPS.length}

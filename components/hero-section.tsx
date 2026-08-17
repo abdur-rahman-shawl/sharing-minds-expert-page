@@ -1,229 +1,137 @@
-'use client'
+import Link from "next/link"
+import { BadgeCent, ChartNoAxesCombined, LockKeyhole } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Image from "next/image"
-import { Star, ArrowRight } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { signOut, useSession } from "@/lib/auth-client"
-import { useMentorStatus } from "@/hooks/use-mentor-status"
 import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
-import { getMentorAccess } from "@/lib/mentor-onboarding"
+
+const advantages = [
+  {
+    label: "Influence",
+    description: "Extend your impact",
+    icon: BadgeCent,
+  },
+  {
+    label: "Access",
+    description: "Enter better rooms",
+    icon: LockKeyhole,
+  },
+  {
+    label: "Opportunity",
+    description: "Create real leverage",
+    icon: ChartNoAxesCombined,
+  },
+]
+
+const qualities = ["Curated", "Verified", "Outcome-Driven", "Selective"]
 
 export function HeroSection() {
-  const [reveal, setReveal] = useState(false)
-  const router = useRouter()
-  const { data: session, isPending } = useSession()
-  const { isMentor, mentor, isLoading: mentorStatusLoading } = useMentorStatus()
-  const mentorAccess = mentor ? getMentorAccess(mentor) : null
-
-  const handleRegisterClick = () => {
-    router.push(EXPERT_APPLICATION_PATH)
-  }
-
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-      router.refresh()
-    } catch (error) {
-      console.error("Sign out error:", error)
-    }
-  }
-
-  const getUserInitials = (name?: string | null, email?: string | null) => {
-    if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    }
-    if (email) {
-      return email[0].toUpperCase()
-    }
-    return 'U'
-  }
-
-  useEffect(() => {
-    const t = setTimeout(() => setReveal(true), 1000)
-    return () => clearTimeout(t)
-  }, [])
-
   return (
-    <section className="relative mt-[-80px] flex min-h-[85vh] flex-col justify-center overflow-hidden pt-20 pb-16 sm:mt-[-96px] sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-28">
+    <section
+      id="for-experts"
+      className="relative isolate flex min-h-[calc(100svh-88px)] scroll-mt-[88px] items-start overflow-hidden bg-[#031427] text-white sm:min-h-[calc(100svh-104px)] sm:scroll-mt-[104px] sm:items-center"
+    >
+      <picture className="absolute inset-0 -z-30">
+        <source media="(max-width: 639px)" srcSet="/expert-network-hero-mobile.webp" />
+        <img
+          src="/expert-network-hero-safe-zone-v2.webp"
+          alt=""
+          fetchPriority="high"
+          className="hero-network-art h-full w-full object-cover object-center"
+        />
+      </picture>
 
-      {/* Background image layer */}
-      <div
-        className={`absolute inset-0 z-0 bg-[url('/mentor-background-photo.png')] bg-cover bg-top transition-opacity duration-1000 ${reveal ? "opacity-100" : "opacity-0"
-          }`}
-      />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,17,33,0.99)_0%,rgba(2,17,33,0.95)_52%,rgba(2,17,33,0.82)_78%,rgba(2,17,33,0.58)_100%)] sm:bg-[linear-gradient(90deg,rgba(2,17,33,0.98)_0%,rgba(2,17,33,0.93)_28%,rgba(2,17,33,0.35)_54%,rgba(2,17,33,0.08)_74%,rgba(2,17,33,0.3)_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(1,13,27,0.15)_0%,rgba(1,13,27,0.02)_55%,rgba(1,13,27,0.72)_100%)]" />
 
-      <div
-        className={`relative z-10 mx-auto max-w-5xl text-center px-4 sm:px-6 transition-all duration-1000 ease-out ${reveal ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-      >
-        <div className="inline-flex items-center rounded-full border border-indigo-100 bg-white/50 px-3 py-1 text-sm font-medium text-indigo-800 backdrop-blur-sm mb-6 shadow-sm ring-1 ring-white/50">
-          <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse"></span>
-          Currently Reviewing Expert Applications
-        </div>
+      <div className="relative z-10 mx-auto flex w-full max-w-[1380px] items-center px-5 py-10 sm:px-8 sm:py-12 lg:px-12">
+        <div className="w-full sm:max-w-[clamp(340px,46vw,640px)]">
+          <p className="mb-4 max-w-[34ch] text-[10px] font-semibold uppercase leading-relaxed tracking-[0.14em] text-[#79baff] sm:mb-[clamp(12px,2vh,20px)] sm:max-w-none sm:text-[clamp(10px,min(0.8vw,1.45vh),12px)] sm:tracking-[0.18em]">
+            Founding Expert Applications Are Open
+          </p>
 
-        <h1 className="mb-4 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl drop-shadow-sm">
-          Apply for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Expert Verification</span>
-        </h1>
+          <h1 className="max-w-[620px] text-balance font-serif text-[clamp(30px,8.8vw,40px)] font-normal leading-[1.04] tracking-[-0.025em] text-[#f7f3ed] sm:text-[clamp(32px,min(3vw,5.6vh),58px)] sm:leading-[1.02]">
+            Apply for the SharingMinds
+            <span className="mt-1 block text-[#edb46f]">Verified Expert Network</span>
+          </h1>
 
-        <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-slate-600 sm:text-xl font-medium">
-          SharingMinds is reviewing applications from experienced professionals who have built,
-          led, advised, solved, and scaled in the real world.
-        </p>
+          <p className="mt-6 max-w-[36ch] border-l-2 border-[#dca559]/70 pl-4 text-[14px] leading-[1.65] text-[#e0e7ed] sm:mt-[clamp(18px,3vh,28px)] sm:max-w-[590px] sm:pl-5 sm:text-[clamp(13px,min(0.92vw,1.75vh),17px)]">
+            SharingMinds evaluates experienced professionals for inclusion in a curated network
+            built around credible expertise, practical judgment and measurable professional
+            impact.
+          </p>
 
-        {/* Logic Block */}
-        {isPending ? (
-          <div className="max-w-lg mx-auto mb-10">
-            <Card className="border border-slate-200/60 shadow-lg bg-white/50 backdrop-blur-md">
-              <CardContent className="p-8">
-                <div className="h-12 bg-slate-200/50 rounded mb-4 animate-pulse"></div>
-                <div className="h-4 bg-slate-200/50 rounded w-3/4 mx-auto animate-pulse"></div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : session?.user ? (
-          <div className="max-w-lg mx-auto mb-10">
-            {!mentorStatusLoading && isMentor ? (
-              <div className="relative group perspective-1000">
-                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 border border-white shadow-2xl ring-1 ring-slate-900/5 transition-transform duration-500 group-hover:scale-[1.01]">
-                  <div className="text-center mb-6">
-                    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-indigo-50 flex items-center justify-center">
-                      <Star className="h-7 w-7 text-indigo-600 fill-indigo-600 animate-[spin_10s_linear_infinite]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900">
-                      {mentorAccess?.canAccessDashboard
-                        ? 'Welcome, Verified Expert'
-                        : 'Expert Application Received'}
-                    </h3>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50 rounded-xl p-4 border border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
-                        <AvatarImage src={session.user.image || undefined} />
-                        <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
-                          {getUserInitials(session.user.name, session.user.email)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="text-left">
-                        <p className="font-medium text-slate-900 text-sm">{mentor?.fullName || session.user.name}</p>
-                        <p className="text-xs text-slate-500 font-medium">
-                          {mentor?.verificationStatus.replace(/_/g, ' ')}
-                        </p>
-                      </div>
-                    </div>
-                    {mentorAccess?.canAccessVipLounge && (
-                      <Image
-                        src="/vip-access.jpeg"
-                        alt="VIP Access"
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 rounded-full border border-amber-200/60 object-cover shadow-md shadow-amber-500/30"
-                      />
-                    )}
-                  </div>
-
-                  {mentorAccess?.canAccessDashboard ? (
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => router.push('/dashboard')}
-                        className="group relative w-full overflow-hidden bg-slate-900 hover:bg-slate-800 text-white shadow-lg transition-all duration-300 hover:shadow-indigo-500/25 hover:scale-[1.02]"
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Go to Dashboard <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                        {/* Shine Effect */}
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 ease-in-out" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => router.push(EXPERT_APPLICATION_PATH)}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        View Application Status
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/50 shadow-xl p-6 ring-1 ring-slate-900/5">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 ring-2 ring-white">
-                      <AvatarImage src={session.user.image || undefined} />
-                      <AvatarFallback className="bg-indigo-50 text-indigo-700">
-                        {getUserInitials(session.user.name, session.user.email)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-left">
-                      <p className="text-sm text-slate-500">Logged in as</p>
-                      <p className="font-semibold text-slate-900">{session.user.name || session.user.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    {!isMentor && (
-                      <Button
-                        onClick={handleRegisterClick}
-                        size="sm"
-                        className="flex-1 bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg transition-all"
-                      >
-                        Continue Application
-                      </Button>
-                    )}
-                    <Button onClick={handleSignOut} variant="ghost" size="sm" className="text-slate-500 hover:bg-white/50">
-                      Sign out
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="max-w-md mx-auto mb-12 space-y-4">
-
-            {/* PRIMARY LUXE BUTTON */}
-            <Button
-              onClick={handleRegisterClick}
-              className="group relative w-full h-14 text-base font-semibold text-white bg-slate-900 rounded-lg overflow-hidden transition-all duration-300 shadow-xl hover:shadow-[0_0_40px_-10px_rgba(79,70,229,0.4)] hover:scale-[1.02]"
+          <div className="mt-7 flex flex-col gap-3 sm:mt-[clamp(20px,3.2vh,32px)] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Link
+              href={EXPERT_APPLICATION_PATH}
+              className="inline-flex min-h-[50px] w-full min-w-0 items-center justify-center rounded-[4px] border border-[#1ea6ff] bg-[#087ee8] px-5 py-3 text-center text-[13px] font-semibold text-white shadow-[0_0_20px_rgba(0,143,255,0.85),inset_0_0_14px_rgba(255,255,255,0.13)] transition-all hover:bg-[#168ef5] hover:shadow-[0_0_26px_rgba(0,143,255,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#65b9ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427] sm:w-auto sm:min-w-[225px] sm:text-[clamp(12px,min(0.85vw,1.7vh),13px)]"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800" />
-
-              {/* Shine Animation Layer */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] transition-transform duration-1000 ease-in-out z-10" />
-
-              <span className="relative z-20 flex items-center justify-center gap-2">
-                Apply for Expert Verification
-                <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
-              </span>
-            </Button>
-
-            <p className="text-sm font-medium text-slate-600">
-              Complete your expert profile first, then sign in securely to submit it.
-            </p>
+              Start My Expert Application
+            </Link>
+            <Link
+              href="#who-we-serve"
+              className="inline-flex min-h-[50px] w-full min-w-0 items-center justify-center rounded-[4px] border border-[#4f7ba2] bg-[#071a2e]/72 px-5 py-3 text-center text-[13px] font-semibold text-white backdrop-blur-sm transition-colors hover:border-[#7ba9d0] hover:bg-[#0d2741]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ba9d0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#031427] sm:w-auto sm:min-w-[285px] sm:px-6 sm:text-[clamp(12px,min(0.85vw,1.7vh),13px)]"
+            >
+              Review Eligibility and Selection Process
+            </Link>
           </div>
-        )}
 
-        {/* Social Proof */}
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-4 rounded-full bg-white/40 backdrop-blur-md border border-white/40 p-2 pr-6 shadow-sm transition-transform hover:scale-105 duration-300 cursor-default">
-            <img
-              src="/professional-headshot.png"
-              alt="Ulysses Rodriguez"
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white"
-            />
-            <div className="text-left">
-              <p className="text-sm font-semibold text-slate-900 leading-none">"Helped me connect with amazing talents."</p>
-              <p className="text-[11px] text-slate-500 mt-1 uppercase tracking-wide">Ulysses Rodriguez • Upskill Expert</p>
-            </div>
-          </div>
+          <ul className="mt-7 grid max-w-[330px] grid-cols-2 gap-x-5 gap-y-3 text-[12px] font-medium text-[#e9c591] sm:hidden">
+            {qualities.map((quality) => (
+              <li key={quality} className="flex items-center gap-2.5">
+                <span className="h-1 w-1 shrink-0 rounded-full bg-[#f0b45d]" aria-hidden="true" />
+                {quality}
+              </li>
+            ))}
+          </ul>
+
+          <ul className="mt-[clamp(20px,3.5vh,36px)] hidden flex-wrap items-center text-[clamp(11px,min(0.78vw,1.55vh),12px)] font-medium text-[#e9c591] sm:flex">
+            {qualities.map((quality, index) => (
+              <li key={quality} className="flex items-center">
+                {index > 0 && (
+                  <span className="mx-4 h-1 w-1 rounded-full bg-[#f0b45d]" aria-hidden="true" />
+                )}
+                {quality}
+              </li>
+            ))}
+          </ul>
         </div>
+      </div>
+
+      <div
+        className="hero-network-infinity pointer-events-none absolute left-[76.3%] top-[46.2%] hidden -translate-x-1/2 -translate-y-1/2 font-serif text-[64px] leading-none text-[#83c7ff] drop-shadow-[0_0_10px_rgba(78,169,255,0.95)] min-[840px]:block"
+        aria-hidden="true"
+      >
+        ∞
+      </div>
+
+      <div className="hero-network-card-shell pointer-events-none absolute right-[clamp(20px,3.5vw,56px)] top-[52%] z-20 hidden w-[clamp(160px,15vw,215px)] -translate-y-1/2 min-[1100px]:block">
+        <aside className="hero-network-card w-full rounded-[6px] border border-[#7890a5]/45 bg-[#06172a]/95 px-4 py-2 shadow-[0_16px_50px_rgba(0,0,0,0.42)] backdrop-blur-[12px]">
+          <h2 className="sr-only">Expert network advantages</h2>
+          {advantages.map((advantage, index) => {
+            const Icon = advantage.icon
+
+            return (
+              <div
+                key={advantage.label}
+                className={`hero-network-advantage flex items-center gap-3 py-4 ${
+                  index < advantages.length - 1 ? "border-b border-white/[0.14]" : ""
+                }`}
+              >
+                <Icon
+                  className="hero-network-advantage-icon h-[26px] w-[26px] shrink-0 stroke-[1.6] text-[#e6ad60]"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="hero-network-advantage-title text-[13px] font-semibold leading-none text-white">
+                    {advantage.label}
+                  </p>
+                  <p className="hero-network-advantage-description mt-2 text-[9px] leading-none text-white/[0.65]">
+                    {advantage.description}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </aside>
       </div>
     </section>
   )

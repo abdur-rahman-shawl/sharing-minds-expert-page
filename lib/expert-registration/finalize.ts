@@ -23,7 +23,7 @@ import {
   LANGUAGE_OPTIONS,
   optionLabel,
 } from '@/lib/mentor-application-options'
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentDocuments } from '@/lib/legal-documents'
 import { validateApplicationLocation } from '@/lib/mentor-applications/application'
 import {
   getRequestIpHash,
@@ -59,9 +59,9 @@ function consentDocuments(snapshot: Record<string, unknown> | null) {
     (value): value is Record<string, unknown> =>
       Boolean(value) && typeof value === 'object' && !Array.isArray(value),
   )
-  if (documents.length !== legalDocuments.length) return null
+  if (documents.length !== applicationConsentDocuments.length) return null
 
-  for (const current of legalDocuments) {
+  for (const current of applicationConsentDocuments) {
     const accepted = documents.find(
       document =>
         document.documentId === current.id &&

@@ -10,6 +10,7 @@ import {
   mentorRegistrationDrafts,
   type MentorRegistrationDraft,
 } from '@/lib/db/schema'
+import { withTransientDatabaseRetry } from '@/lib/db/retry'
 
 import {
   EXPERT_REGISTRATION_DRAFT_COOKIE,
@@ -96,26 +97,28 @@ export async function getExpertRegistrationDraftFromRequest(
   const rawToken = request.cookies.get(EXPERT_REGISTRATION_DRAFT_COOKIE)?.value
   if (!rawToken || rawToken.length < 40 || rawToken.length > 100) return null
 
-  const [draft] = await db
-    .select()
-    .from(mentorRegistrationDrafts)
-    .where(
-      and(
-        eq(
-          mentorRegistrationDrafts.accessTokenDigest,
-          digestExpertRegistrationDraftToken(rawToken),
+  const [draft] = await withTransientDatabaseRetry(() =>
+    db
+      .select()
+      .from(mentorRegistrationDrafts)
+      .where(
+        and(
+          eq(
+            mentorRegistrationDrafts.accessTokenDigest,
+            digestExpertRegistrationDraftToken(rawToken),
+          ),
+          gt(mentorRegistrationDrafts.expiresAt, new Date()),
+          inArray(mentorRegistrationDrafts.status, [
+            'DRAFT',
+            'READY_FOR_AUTH',
+            'AUTHENTICATED',
+            'FINALIZING',
+            'COMPLETED',
+          ]),
         ),
-        gt(mentorRegistrationDrafts.expiresAt, new Date()),
-        inArray(mentorRegistrationDrafts.status, [
-          'DRAFT',
-          'READY_FOR_AUTH',
-          'AUTHENTICATED',
-          'FINALIZING',
-          'COMPLETED',
-        ]),
-      ),
-    )
-    .limit(1)
+      )
+      .limit(1),
+  )
 
   return draft || null
 }

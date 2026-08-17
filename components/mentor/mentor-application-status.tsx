@@ -43,9 +43,9 @@ const STATUS_PRESENTATIONS: Record<MentorVerificationStatus, StatusPresentation>
     iconClassName: 'bg-slate-100 text-slate-600',
   },
   IN_PROGRESS: {
-    eyebrow: 'Application under review',
-    title: 'We are reviewing your professional background',
-    description: 'Your application was received successfully. We will contact you after review.',
+    eyebrow: 'APPLICATION RECEIVED',
+    title: 'Your Expert Application is under review',
+    description: 'Thank you for applying to join SharingMinds.',
     icon: Clock3,
     iconClassName: 'bg-amber-100 text-amber-700',
   },
@@ -90,7 +90,6 @@ interface MentorApplicationStatusProps {
   mentor: MentorStatusData
   onNavigateHome: () => void
   onNavigateDashboard: () => void
-  onNavigateVipLounge: () => void
   contextNotice?: {
     title: string
     description: string
@@ -106,7 +105,6 @@ export function MentorApplicationStatus({
   mentor,
   onNavigateHome,
   onNavigateDashboard,
-  onNavigateVipLounge,
   contextNotice,
   onStartAnotherApplication,
   startAnotherLabel = 'Start another application',
@@ -118,6 +116,7 @@ export function MentorApplicationStatus({
   const presentation = STATUS_PRESENTATIONS[mentor.verificationStatus]
   const access = getMentorAccess(mentor)
   const Icon = presentation.icon
+  const isApplicationUnderReview = mentor.verificationStatus === 'IN_PROGRESS'
   const hasInconsistentVerification =
     mentor.verificationStatus === 'VERIFIED' && mentor.isVerified !== true
 
@@ -135,14 +134,27 @@ export function MentorApplicationStatus({
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                 {presentation.eyebrow}
               </p>
-              <Badge variant="outline">
-                {mentor.verificationStatus.replace(/_/g, ' ')}
-              </Badge>
+              {!isApplicationUnderReview && (
+                <Badge variant="outline">
+                  {mentor.verificationStatus.replace(/_/g, ' ')}
+                </Badge>
+              )}
             </div>
             <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
               {presentation.title}
             </h1>
-            <p className="leading-relaxed text-slate-600">{presentation.description}</p>
+            {isApplicationUnderReview ? (
+              <div className="space-y-4 leading-relaxed text-slate-600">
+                <p>{presentation.description}</p>
+                <p>
+                  We’ve received your application successfully. Our team is now reviewing
+                  your professional experience and expertise. We’ll contact you once the
+                  review is complete.
+                </p>
+              </div>
+            ) : (
+              <p className="leading-relaxed text-slate-600">{presentation.description}</p>
+            )}
           </div>
         </div>
 
@@ -172,12 +184,22 @@ export function MentorApplicationStatus({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-          <Badge variant="secondary">Payment: {mentor.paymentStatus.replace(/_/g, ' ')}</Badge>
-          <Badge variant="secondary">
-            Submitted {new Date(mentor.registeredAt).toLocaleDateString()}
-          </Badge>
+        <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 sm:grid-cols-2">
+          <p>
+            <span className="font-semibold text-slate-900">Application Status:</span>{' '}
+            {mentor.verificationStatus.replace(/_/g, ' ')}
+          </p>
+          <p>
+            <span className="font-semibold text-slate-900">Submitted:</span>{' '}
+            {new Date(mentor.registeredAt).toLocaleDateString()}
+          </p>
         </div>
+
+        {isApplicationUnderReview && (
+          <p className="text-sm font-medium text-slate-700">
+            No action is required at this stage.
+          </p>
+        )}
 
         {actionError && (
           <div
@@ -215,14 +237,6 @@ export function MentorApplicationStatus({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          )}
-          {access.canAccessVipLounge && (
-            <Button
-              className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
-              onClick={onNavigateVipLounge}
-            >
-              Open VIP Lounge
-            </Button>
           )}
           {access.canAccessDashboard && (
             <Button className="flex-1" variant="outline" onClick={onNavigateDashboard}>

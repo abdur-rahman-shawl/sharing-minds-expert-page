@@ -9,11 +9,11 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { EXPERT_APPLICATION_PATH } from '@/lib/routes'
 import { getMentorAccess } from '@/lib/mentor-onboarding'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -81,12 +81,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Left: logo + section title */}
                 <div className="flex items-center gap-5">
                     <Link href="/" className="flex items-center shrink-0 hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/sharing-minds-logo.png"
-                            alt="SharingMinds"
-                            width={640}
-                            height={200}
-                            className="h-16 w-auto dark:brightness-0 dark:invert"
+                        <BrandLogo
+                            tone="dark"
+                            showTagline={false}
+                            markClassName="h-12 w-24"
+                            wordmarkClassName="text-[27px] text-slate-950 dark:text-white"
                         />
                     </Link>
                     <Separator orientation="vertical" className="h-8 bg-gray-300 dark:bg-slate-700" />

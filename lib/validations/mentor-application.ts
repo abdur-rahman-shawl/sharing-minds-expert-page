@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentRequirements } from '@/lib/legal-documents'
 import {
   CREDIBILITY_SIGNAL_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
@@ -16,6 +16,7 @@ import {
 
 export const MENTOR_APPLICATION_LEGAL_VERSION = '2025-11'
 export const MENTOR_APPLICATION_SCHEMA_VERSION = 2
+export const MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH = 1500
 
 const employmentTypes = optionValues(EMPLOYMENT_TYPE_OPTIONS)
 const experienceBands = optionValues(EXPERIENCE_BAND_OPTIONS)
@@ -133,22 +134,25 @@ const mentorApplicationV2Fields = {
     .string()
     .trim()
     .min(20, 'Tell us a little more about your professional journey')
-    .max(1000, 'Professional journey must not exceed 1,000 characters'),
+    .max(
+      MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH,
+      'Professional journey must not exceed 1,500 characters',
+    ),
   challengeSolved: z
     .string()
     .trim()
     .min(20, 'Describe one challenge people seek your guidance on')
-    .max(1000),
+    .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH),
   measurableOutcomes: z
     .string()
     .trim()
     .min(20, 'Describe the measurable outcomes you have contributed to')
-    .max(1000),
+    .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH),
   guidanceValueProposition: z
     .string()
     .trim()
     .min(20, 'Explain what makes your guidance distinctive')
-    .max(1000),
+    .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH),
   credibilitySignals: z.array(z.enum(credibilitySignals)).max(14),
   linkedinUrl: linkedinUrlSchema,
   serviceInterests: z
@@ -210,10 +214,22 @@ export const patchMentorApplicationSchema = z
     otherIndustry: z.string().trim().max(160).optional(),
     expertise: z.array(z.enum(expertiseAreas)).max(5).optional(),
     otherExpertise: z.string().trim().max(160).optional(),
-    about: z.string().trim().max(1000).optional(),
-    challengeSolved: z.string().trim().max(1000).optional(),
-    measurableOutcomes: z.string().trim().max(1000).optional(),
-    guidanceValueProposition: z.string().trim().max(1000).optional(),
+    about: z.string().trim().max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH).optional(),
+    challengeSolved: z
+      .string()
+      .trim()
+      .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH)
+      .optional(),
+    measurableOutcomes: z
+      .string()
+      .trim()
+      .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH)
+      .optional(),
+    guidanceValueProposition: z
+      .string()
+      .trim()
+      .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH)
+      .optional(),
     credibilitySignals: z.array(z.enum(credibilitySignals)).max(14).optional(),
     linkedinUrl: z.string().trim().max(2048).optional(),
     serviceInterests: z.array(z.enum(serviceInterests)).max(11).optional(),
@@ -235,10 +251,10 @@ export const mentorApplicationConsentSchema = z.object({
 
 export const mentorApplicationConsentsSchema = z
   .array(mentorApplicationConsentSchema)
-  .length(legalDocuments.length)
+  .length(applicationConsentRequirements.length)
   .superRefine((consents, context) => {
     const expectedVersions = new Map(
-      legalDocuments.map(document => [document.id, document.version]),
+      applicationConsentRequirements.map(document => [document.id, document.version]),
     )
     const receivedIds = new Set(consents.map(consent => consent.documentId))
 

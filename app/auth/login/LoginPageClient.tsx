@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
+import { BrandLogo } from '@/components/brand-logo'
 import styles from './login-page.module.css'
 
 export default function LoginPageClient() {
@@ -35,13 +36,12 @@ export default function LoginPageClient() {
             className={`${styles.brand} inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f8fa]`}
             aria-label="sharingminds home"
           >
-            <Image
-              src="/sharing-minds-logo.png"
-              alt="sharingminds — a human intelligence network"
-              width={285}
-              height={132}
+            <BrandLogo
               priority
-              className="h-auto w-[142px] object-contain sm:w-[154px] xl:w-[164px]"
+              tone="dark"
+              markClassName="h-10 w-20 sm:h-11 sm:w-[88px]"
+              wordmarkClassName="text-[22px] sm:text-[24px]"
+              taglineClassName="text-[7px] sm:text-[8px]"
             />
           </Link>
 

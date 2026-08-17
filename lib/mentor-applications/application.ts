@@ -12,7 +12,7 @@ import {
   type MentorApplication,
   type MentorApplicationSource,
 } from '@/lib/db/schema'
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentDocuments } from '@/lib/legal-documents'
 import {
   INDUSTRY_OPTIONS,
   optionLabel,
@@ -643,7 +643,7 @@ export async function submitMentorApplication(input: {
     }
 
     const legalSnapshot = input.consents.map(consent => {
-      const document = legalDocuments.find(item => item.id === consent.documentId)!
+      const document = applicationConsentDocuments.find(item => item.id === consent.documentId)!
       return {
         documentId: document.id,
         version: document.version,

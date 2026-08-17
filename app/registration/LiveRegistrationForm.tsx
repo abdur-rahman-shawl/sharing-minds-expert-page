@@ -40,7 +40,12 @@ export default function LiveRegistrationForm() {
     let active = true
 
     const bootstrap = async (): Promise<MentorApplication> => {
-      await captureCurrentCampaignVisit()
+      // Preserve attribution when it responds promptly, but never hold the
+      // registration form behind a slow analytics/database request.
+      await Promise.race([
+        captureCurrentCampaignVisit(),
+        new Promise<void>(resolve => window.setTimeout(resolve, 1_500)),
+      ])
       let response = await fetch('/api/expert-registration/drafts/current', {
         credentials: 'include',
         cache: 'no-store',
@@ -118,13 +123,14 @@ export default function LiveRegistrationForm() {
         mentor={statusMentor}
         onNavigateHome={() => router.push('/')}
         onNavigateDashboard={() => router.push('/dashboard')}
-        onNavigateVipLounge={() => router.push('/vip-lounge')}
         contextNotice={
           existingProfile
             ? {
-                title: 'This account already has an expert application',
+                title: 'An application already exists for this email',
                 description:
-                  'The new form was not submitted and your existing expert profile was not changed. Use a different account if this application belongs to another person.',
+                  `We found the expert application previously submitted for ${statusMentor.email}. ` +
+                  'That existing application is the one currently under review; the form you just ' +
+                  'completed was not submitted again or used to replace it.',
               }
             : undefined
         }

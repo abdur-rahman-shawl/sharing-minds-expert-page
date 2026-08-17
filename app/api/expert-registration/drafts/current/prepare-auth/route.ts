@@ -9,13 +9,14 @@ import {
   mentorRegistrationFiles,
   type MentorRegistrationFileKind,
 } from '@/lib/db/schema'
+import { isTransientDatabaseError } from '@/lib/db/retry'
 import {
   ExpertRegistrationDraftError,
   serializeExpertRegistrationDraft,
 } from '@/lib/expert-registration/drafts'
 import { getExpertRegistrationDraftFromRequest } from '@/lib/expert-registration/draft-session'
 import { isLiveExpertRegistrationEnabled } from '@/lib/expert-registration/feature'
-import { legalDocuments } from '@/lib/legal-documents'
+import { applicationConsentDocuments } from '@/lib/legal-documents'
 import { validateApplicationLocation } from '@/lib/mentor-applications/application'
 import {
   MENTOR_APPLICATION_MULTIPART_MAX_BYTES,
@@ -194,7 +195,7 @@ export async function POST(request: NextRequest) {
     }
 
     const legalSnapshot = parsedConsents.data.map(consent => {
-      const document = legalDocuments.find(item => item.id === consent.documentId)!
+      const document = applicationConsentDocuments.find(item => item.id === consent.documentId)!
       return {
         documentId: document.id,
         label: document.label,
@@ -320,6 +321,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: error.message },
         { status: error.status, headers: NO_STORE_HEADERS },
+      )
+    }
+    if (isTransientDatabaseError(error)) {
+      console.warn('[expert-registration] Registration storage is temporarily unavailable')
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Secure registration storage is temporarily unavailable. Your form remains open; please try again.',
+        },
+        {
+          status: 503,
+          headers: { ...NO_STORE_HEADERS, 'Retry-After': '2' },
+        },
       )
     }
     console.error('[expert-registration] Unable to prepare registration', error)

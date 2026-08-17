@@ -1,27 +1,14 @@
 'use client'
-import { HeartHandshake, Target, Users2, CheckCircle2, ArrowRight, ShieldCheck, Quote } from "lucide-react"
+import { HeartHandshake, Target, Users2, CheckCircle2, ShieldCheck } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
-import { useRouter } from "next/navigation"
-import { useSession } from "@/lib/auth-client"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { EXPERT_APPLICATION_PATH } from "@/lib/routes"
 
 export default function AboutPageClient() {
-  const router = useRouter()
-  const { data: session, isPending } = useSession()
-
-  const handleBecomeMentor = () => {
-    router.push(EXPERT_APPLICATION_PATH)
-  }
-
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2)
   const { ref: trustedRef, isVisible: trustedVisible } = useScrollAnimation(0.2)
   const { ref: beliefsRef, isVisible: beliefsVisible } = useScrollAnimation(0.1)
   const { ref: teamRef, isVisible: teamVisible } = useScrollAnimation(0.1)
   const { ref: valuesRef, isVisible: valuesVisible } = useScrollAnimation(0.1)
-  const { ref: signupRef, isVisible: signupVisible } = useScrollAnimation(0.1)
 
   const values = [
     {
@@ -278,93 +265,6 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      {/* --- MENTOR SIGNUP --- */}
-      <section
-        ref={signupRef}
-        className={`px-4 py-24 animate-on-scroll will-change-opacity sm:px-6 lg:px-8 bg-white ${signupVisible ? "animate-fade-in-up" : ""
-          }`}
-      >
-        <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-2xl p-8 text-center sm:p-16">
-
-            {/* Background Texture */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-
-            <div className="relative z-10">
-              {/* Profile Photos Grid - Animated */}
-              <div className="mb-10">
-                <div className="flex flex-wrap justify-center gap-[-12px] isolate">
-                  {[...Array(7)].map((_, i) => (
-                    <div key={i} className="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-md -ml-3 hover:scale-110 hover:z-10 transition-transform duration-300">
-                      <Image
-                        src={`/professional-mentor-headshot-${i + 1}.jpg`}
-                        alt={`Verified Expert ${i + 1}`}
-                        width={60}
-                        height={60}
-                        className="w-full h-full object-cover"
-                        // Fallback logic for demo
-                        onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
-                      />
-                    </div>
-                  ))}
-                  <div className="w-14 h-14 rounded-full bg-indigo-50 border-4 border-white flex items-center justify-center text-xs font-bold text-indigo-600 -ml-3 shadow-md z-10">
-                    +200
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Heading */}
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">From People Who Share Their Experience on SharingMinds</h2>
-
-              {/* Testimonial */}
-              <div className="max-w-2xl mx-auto mb-10">
-                <Quote className="w-8 h-8 text-indigo-200 mx-auto mb-4" />
-                <p className="text-xl text-slate-600 font-light italic">
-                  200+ experienced professionals have joined SharingMinds to engage in thoughtful conversations with founders and business leaders.
-                </p>
-                <p className="mt-4 font-semibold text-slate-900">Not for volume. For meaningful contribution.</p>
-              </div>
-
-              {/* Action Buttons */}
-              {isPending ? (
-                <div className="max-w-md mx-auto h-14 bg-slate-100 rounded-full animate-pulse" />
-              ) : session?.user ? (
-                <div className="max-w-md mx-auto">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-2 shadow-sm inline-flex items-center gap-4 pr-6">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm text-slate-500 font-medium">Signed in as</p>
-                      <p className="text-sm font-bold text-slate-900">{session.user.name}</p>
-                    </div>
-                    <Button
-                      onClick={handleBecomeMentor}
-                      className="ml-4 rounded-full bg-slate-900 text-white hover:bg-slate-800"
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                // FIX 2: Corrected JSX structure for the 'else' block
-                <div className="max-w-md mx-auto space-y-4">
-                  <Button
-                    onClick={handleBecomeMentor}
-                    className="w-full h-14 rounded-xl bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 shadow-xl shadow-indigo-500/20 hover:scale-[1.02] transition-all"
-                  >
-                    Apply for Expert Verification
-                  </Button>
-
-                  <p className="text-sm font-medium text-slate-500">
-                    Complete your expert profile, then connect it securely to your account.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

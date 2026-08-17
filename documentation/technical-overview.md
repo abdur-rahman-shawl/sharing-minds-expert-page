@@ -64,7 +64,6 @@ sm-expert-landing-page/
 │   ├── registration/             # Mentor registration form
 │   ├── service/                  # Service pages
 │   ├── verify-email/             # Email verification flow
-│   ├── vip-lounge/               # VIP member area
 │   ├── globals.css               # Global styles
 │   ├── layout.tsx                # Root layout
 │   ├── page.tsx                  # Home/Landing page
@@ -79,7 +78,6 @@ sm-expert-landing-page/
 │   │   ├── coming-soon-card.tsx  # Placeholder for unreleased sections
 │   │   └── mentor-profile-edit.tsx # Full profile editor
 │   ├── providers/                # Component providers
-│   ├── vip/                      # VIP-specific components
 │   ├── hero-section.tsx          # Landing hero section
 │   ├── benefits-section.tsx      # Benefits showcase
 │   ├── testimonial-section.tsx   # Testimonials carousel

@@ -1,78 +1,103 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { legalDocuments } from "@/lib/legal-documents"
-import { Shield, FileText, Mail } from "lucide-react"
+import { FileText, Mail, Shield } from "lucide-react"
 
-// Parse content into structured elements
 type ContentElement =
-  | { type: 'title'; text: string }
-  | { type: 'subtitle'; text: string }
-  | { type: 'section-heading'; number: string; text: string }
-  | { type: 'emoji-heading'; emoji: string; text: string }
-  | { type: 'bullet'; text: string }
-  | { type: 'contact'; email: string }
-  | { type: 'paragraph'; text: string }
+  | { type: "section"; number: string; text: string }
+  | { type: "subheading"; text: string }
+  | { type: "bullet"; text: string }
+  | { type: "numbered-item"; number: string; text: string }
+  | { type: "contact"; text: string; email: string }
+  | { type: "paragraph"; text: string }
 
-const parseContent = (content: string): ContentElement[] => {
-  const lines = content.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
-  const elements: ContentElement[] = []
+const SPECIAL_HEADINGS = new Set([
+  "Our Commitment",
+  "Expert Application Declaration",
+  "Cookie Preference Statement",
+  "Applicant",
+  "Expert",
+  "Verified Expert",
+  "Founding Expert",
+  "Expert Profile",
+  "Client",
+  "Expert Engagement",
+  "Platform",
+  "Relevant Professional Experience",
+  "Demonstrable Expertise",
+  "Measurable Contribution",
+  "Professional Credibility",
+  "Practical Judgment",
+  "Relevance",
+  "Matching Is a Relevance Assessment, Not a Guarantee",
+  "Responsibility to Assess Suitability",
+  "Technology and AI-Assisted Matching",
+  "Continuous Improvement",
+  "No Guarantee of Engagement Outcome",
+  "A. Strictly Necessary Cookies",
+  "B. Functional and Preference Cookies",
+  "C. Analytics and Performance Cookies",
+  "D. Advertising, Campaign and Attribution Cookies",
+  "First-Party Cookies",
+  "Third-Party Cookies",
+  "Session Cookies",
+  "Persistent Cookies",
+  "Contact",
+])
 
-  // Skip title and effective date (handled in header)
-  let startIdx = 0
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].toLowerCase().startsWith('effective date') ||
-      lines[i].toLowerCase().includes('a product of')) {
-      startIdx = i + 1
-    } else if (i > 2) {
-      break
+function parseContent(content: string): ContentElement[] {
+  const blocks = content
+    .split(/\r?\n\s*\r?\n/)
+    .map(block => block.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .slice(2)
+
+  let isDeclaration = false
+
+  return blocks.map(block => {
+    if (block === "Expert Application Declaration") {
+      isDeclaration = true
+      return { type: "subheading", text: block }
     }
-  }
 
-  for (let i = startIdx; i < lines.length; i++) {
-    const line = lines[i]
-
-    // Numbered section heading (e.g., "1. Title" or "10. Title")
-    const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/)
-    if (numberedMatch) {
-      elements.push({ type: 'section-heading', number: numberedMatch[1], text: numberedMatch[2] })
-      continue
+    const section = block.match(/^(\d+)\.\s+([^\n]+)$/)
+    const emojiSection = block.match(/^(\d)\uFE0F\u20E3\s+(.+)$/)
+    if (emojiSection) {
+      return { type: "section", number: emojiSection[1], text: emojiSection[2] }
     }
 
-    // Emoji numbered heading (e.g., "1️⃣ Title")
-    const emojiMatch = line.match(/^([0-9️⃣]+[️⃣]?)\s+(.+)$/)
-    if (emojiMatch && /[️⃣]/.test(line)) {
-      elements.push({ type: 'emoji-heading', emoji: emojiMatch[1], text: emojiMatch[2] })
-      continue
+    if (section && !isDeclaration) {
+      return { type: "section", number: section[1], text: section[2] }
     }
 
-    // Contact email
-    const emailMatch = line.match(/📧\s*(\S+@\S+)/)
-    if (emailMatch) {
-      elements.push({ type: 'contact', email: emailMatch[1] })
-      continue
+    const numberedItem = block.match(/^(\d+)\.\s+(.+)$/)
+    if (numberedItem) {
+      return { type: "numbered-item", number: numberedItem[1], text: numberedItem[2] }
     }
 
-    // Simple heading (no number, short, ends with specific keywords or is all caps-like)
-    if (line.length < 50 && !line.includes('.') &&
-      (line.endsWith('Terms') || line.endsWith('Policy') ||
-        line.startsWith('Welcome') || line.startsWith('Our Commitment') ||
-        line === 'Contact' || line.endsWith('Conduct'))) {
-      elements.push({ type: 'subtitle', text: line })
-      continue
+    if (block.startsWith("- ")) {
+      return { type: "bullet", text: block.slice(2) }
     }
 
-    // Regular paragraph
-    elements.push({ type: 'paragraph', text: line })
-  }
+    if (SPECIAL_HEADINGS.has(block)) {
+      return { type: "subheading", text: block }
+    }
 
-  return elements
+    const email = block.match(/(?:Email:\s*)?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i)
+    if (email) {
+      return { type: "contact", text: block, email: email[1] }
+    }
+
+    return { type: "paragraph", text: block }
+  })
 }
 
-const getEffectiveDate = (content: string) =>
-  content
+function effectiveDate(content: string) {
+  return content
     .split(/\r?\n/)
     .map(line => line.trim())
-    .find(line => line.toLowerCase().startsWith("effective date"))
+    .find(line => line.toLowerCase().startsWith("effective date:"))
+}
 
 export default function PoliciesPage() {
   return (
@@ -81,115 +106,129 @@ export default function PoliciesPage() {
         <div className="absolute inset-0 -z-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.1),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.12),transparent_35%)]" />
 
-        <section className="mx-auto flex max-w-5xl flex-col gap-4 px-4 pb-10 pt-24 sm:px-6 lg:px-8 lg:pt-28">
+        <header className="mx-auto flex max-w-5xl flex-col gap-4 px-4 pb-10 pt-20 sm:px-6 lg:px-8 lg:pt-24">
           <div className="inline-flex items-center gap-2 self-start rounded-full border border-indigo-100 bg-white/70 px-3 py-1 text-sm font-medium text-indigo-700 shadow-sm backdrop-blur">
-            <Shield className="h-4 w-4" />
-            Trust & Compliance
+            <Shield className="h-4 w-4" aria-hidden="true" />
+            Trust &amp; Compliance
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Policies & Legal
+            Policies &amp; Legal
           </h1>
-          <p className="max-w-3xl text-lg text-slate-600">
-            Review our public policies, including Privacy, Terms, Pricing, and Community Conduct.
-            We keep these documents accessible and transparent for every member of SharingMinds.
+          <p className="max-w-3xl text-lg leading-8 text-slate-600">
+            Review the SharingMinds 2026 application, membership and engagement terms and
+            Cookie Policy. Both documents are available below in full.
           </p>
-          <div className="flex flex-wrap gap-2">
-            {legalDocuments.map(doc => {
-              const effectiveDate = getEffectiveDate(doc.content)
-              return (
-                <a
-                  key={doc.id}
-                  href={`#${doc.id}`}
-                  className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700"
-                >
-                  <FileText className="h-4 w-4 text-slate-400 group-hover:text-indigo-500" />
-                  <span>{doc.label}</span>
-                  {effectiveDate && (
-                    <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
-                      {effectiveDate.replace("Effective Date:", "").trim()}
-                    </Badge>
-                  )}
-                </a>
-              )
-            })}
-          </div>
-        </section>
+          <nav aria-label="Policy documents" className="flex flex-wrap gap-2">
+            {legalDocuments.map(document => (
+              <a
+                key={document.id}
+                href={`#${document.id}`}
+                className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700"
+              >
+                <FileText className="h-4 w-4 text-slate-400 group-hover:text-indigo-500" />
+                <span>{document.label}</span>
+                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
+                  {effectiveDate(document.content)?.replace("Effective Date:", "").trim()}
+                </Badge>
+              </a>
+            ))}
+          </nav>
+        </header>
 
-        <section className="mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
-          <div className="grid gap-6">
-            {legalDocuments.map(doc => {
-              const elements = parseContent(doc.content)
-              const effectiveDate = getEffectiveDate(doc.content)
+        <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
+          <div className="grid gap-8">
+            {legalDocuments.map(document => {
+              const elements = parseContent(document.content)
+              const date = effectiveDate(document.content)
 
               return (
                 <Card
-                  key={doc.id}
-                  id={doc.id}
-                  className="border-slate-200/80 bg-white/90 shadow-lg shadow-indigo-100/50 overflow-hidden"
+                  key={document.id}
+                  id={document.id}
+                  className="scroll-mt-[120px] overflow-hidden border-slate-200/80 bg-white/95 shadow-lg shadow-indigo-100/50"
                 >
-                  <CardHeader className="space-y-3 border-b border-slate-100 bg-gradient-to-r from-white to-indigo-50/60">
+                  <CardHeader className="space-y-3 border-b border-slate-100 bg-gradient-to-r from-white to-indigo-50/60 px-5 sm:px-8">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                        <FileText className="h-5 w-5" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <FileText className="h-5 w-5" aria-hidden="true" />
                       </div>
                       <div>
-                        <CardTitle className="text-2xl text-slate-900">{doc.label}</CardTitle>
-                        {effectiveDate && (
-                          <p className="text-sm text-slate-500">{effectiveDate}</p>
-                        )}
+                        <CardTitle className="text-xl text-slate-900 sm:text-2xl">
+                          {document.label}
+                        </CardTitle>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {date} · Version {document.version}
+                        </p>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="py-6">
-                    <div className="space-y-6">
-                      {elements.map((element, idx) => {
-                        switch (element.type) {
-                          case 'subtitle':
-                            return (
-                              <h3 key={idx} className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2">
+                  <CardContent className="px-5 py-7 sm:px-8 sm:py-9">
+                    <div className="space-y-4">
+                      {elements.map((element, index) => {
+                        if (element.type === "section") {
+                          return (
+                            <div key={index} className="flex items-start gap-3 pb-1 pt-6 first:pt-0">
+                              <span className="flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-100 px-1.5 text-sm font-bold text-indigo-700">
+                                {element.number}
+                              </span>
+                              <h2 className="pt-0.5 text-lg font-semibold text-slate-800">
                                 {element.text}
-                              </h3>
-                            )
-                          case 'section-heading':
-                            return (
-                              <div key={idx} className="flex items-start gap-3 mt-6 first:mt-0">
-                                <span className="flex-shrink-0 flex items-center justify-center h-7 w-7 rounded-lg bg-indigo-100 text-indigo-700 text-sm font-bold">
-                                  {element.number}
-                                </span>
-                                <h4 className="text-lg font-semibold text-slate-800 pt-0.5">
-                                  {element.text}
-                                </h4>
-                              </div>
-                            )
-                          case 'emoji-heading':
-                            return (
-                              <div key={idx} className="flex items-start gap-3 mt-6 first:mt-0">
-                                <span className="text-xl">{element.emoji}</span>
-                                <h4 className="text-lg font-semibold text-slate-800">
-                                  {element.text}
-                                </h4>
-                              </div>
-                            )
-                          case 'contact':
-                            return (
-                              <div key={idx} className="flex items-center gap-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                                <Mail className="h-5 w-5 text-indigo-600" />
+                              </h2>
+                            </div>
+                          )
+                        }
+
+                        if (element.type === "subheading") {
+                          return (
+                            <h3
+                              key={index}
+                              className="border-b border-slate-100 pb-2 pt-5 text-lg font-semibold text-slate-800 first:pt-0"
+                            >
+                              {element.text}
+                            </h3>
+                          )
+                        }
+
+                        if (element.type === "bullet") {
+                          return (
+                            <div key={index} className="flex gap-3 pl-1 sm:pl-10">
+                              <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                              <p className="leading-7 text-slate-600">{element.text}</p>
+                            </div>
+                          )
+                        }
+
+                        if (element.type === "numbered-item") {
+                          return (
+                            <div key={index} className="flex gap-3 rounded-xl bg-slate-50 p-4 sm:ml-10">
+                              <span className="font-semibold text-indigo-700">{element.number}.</span>
+                              <p className="leading-7 text-slate-600">{element.text}</p>
+                            </div>
+                          )
+                        }
+
+                        if (element.type === "contact") {
+                          return (
+                            <div key={index} className="flex items-start gap-3 rounded-xl border border-indigo-100 bg-indigo-50 p-4 sm:ml-10">
+                              <Mail className="mt-1 h-5 w-5 shrink-0 text-indigo-600" />
+                              <p className="leading-7 text-slate-700">
+                                {element.text.replace(element.email, "")}
                                 <a
                                   href={`mailto:${element.email}`}
-                                  className="text-indigo-700 font-medium hover:text-indigo-800 hover:underline"
+                                  className="font-medium text-indigo-700 hover:underline"
                                 >
                                   {element.email}
                                 </a>
-                              </div>
-                            )
-                          case 'paragraph':
-                          default:
-                            return (
-                              <p key={idx} className="text-slate-600 leading-7 pl-0 sm:pl-10">
-                                {element.text}
                               </p>
-                            )
+                            </div>
+                          )
                         }
+
+                        return (
+                          <p key={index} className="leading-7 text-slate-600 sm:pl-10">
+                            {element.text}
+                          </p>
+                        )
                       })}
                     </div>
                   </CardContent>
@@ -197,7 +236,7 @@ export default function PoliciesPage() {
               )
             })}
           </div>
-        </section>
+        </main>
       </div>
     </div>
   )

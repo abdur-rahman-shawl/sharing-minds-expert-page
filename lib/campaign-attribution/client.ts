@@ -10,7 +10,6 @@ const EXCLUDED_ATTRIBUTION_PATHS = [
   '/dashboard',
   '/reports',
   '/verify-email',
-  '/vip-lounge',
 ]
 
 function isPublicAcquisitionPath(pathname: string): boolean {

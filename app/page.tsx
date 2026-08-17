@@ -1,20 +1,17 @@
+import { AudienceCtaSection } from "@/components/audience-cta-section"
 import { HeroSection } from "@/components/hero-section"
-import { BenefitsSection } from "@/components/benefits-section"
-import { TestimonialSection } from "@/components/testimonial-section"
-import { FinalCTASection } from "@/components/final-cta-section"
-import { TrustedEcosystemStrip } from "@/components/trusted-ecosystem-strip"
-import { VerificationSection } from "@/components/verification-section"
+import { EngagementSection } from "@/components/engagement-section"
+import { PositioningSection } from "@/components/positioning-section"
+import { EvaluationCriteriaSection } from "@/components/evaluation-criteria-section"
 
 export default function Page() {
   return (
-    // Removed space-y-12. Added a seamless background base.
-    <div className="min-h-screen w-full bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen w-full bg-slate-50 selection:bg-[#e8b572] selection:text-[#06182a]">
       <HeroSection />
-      <TrustedEcosystemStrip />
-      <VerificationSection />
-      <BenefitsSection />
-      <TestimonialSection />
-      <FinalCTASection />
+      <PositioningSection />
+      <EngagementSection />
+      <EvaluationCriteriaSection />
+      <AudienceCtaSection />
     </div>
   )
 }
