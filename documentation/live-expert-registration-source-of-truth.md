@@ -1,6 +1,6 @@
 # Live Expert Registration v3: Source of Truth and Implementation Plan
 
-Last updated: 13 August 2026
+Last updated: 17 August 2026
 
 Status: Implemented; migration 006 applied and constraint verification confirmed by the database
 owner; production cutover validation remains operational
@@ -17,9 +17,9 @@ The intended experience is:
 
 1. A visitor opens `/verified-experts` and completes the existing eight-step expert form.
 2. The professional form contains no email input and does not ask for an email OTP.
-3. At the final step, the visitor authenticates with Google or email and password.
-4. Email authentication is presented in a modal with Sign in and Create account modes. Create
-   account asks for email, password, and password confirmation.
+3. At the final step, the visitor submits with Google or one unified email action.
+4. The email modal asks only for email, password, and password confirmation and presents the
+   action as `Sign up and submit`. It contains no account-creation explanation or Sign in mode.
 5. After authentication, the server obtains the email exclusively from the authenticated session
    and atomically creates the expert's mentor registration.
 6. New data is written to the canonical `users`, Better Auth `auth_accounts`, `user_roles`,
@@ -41,7 +41,7 @@ Implemented:
 - anonymous, HTTP-only-cookie-bound drafts with seven-day expiry and server-side autosave;
 - complete pre-auth validation and private upload of the required profile image/resume plus
   optional supporting evidence;
-- Google, email sign in, email account creation, and existing-session completion;
+- Google, unified email signup/existing-password authentication, and existing-session completion;
 - locked, idempotent direct creation of the mentor, role, file links, consents, and audit event;
 - explicit live provenance, auth method, schema version, normalized location IDs, and campaign
   attribution on the mentor;
@@ -73,9 +73,10 @@ so the standard Webpack build must be rerun in the pinned Node 22 deployment/run
 - Keep the current form questions, validation, normalized location selectors, files, and five
   legal acknowledgements.
 - Put authentication at the end of the form.
-- Support Google, existing email/password accounts, and new email/password accounts in the public
-  registration UI. Keep the LinkedIn server callback temporarily compatible only for OAuth flows
-  that were already in progress when the UI changed.
+- Support Google and one unified email/password action in the public registration UI. Existing
+  password identities are authenticated transparently after Better Auth rejects the signup as a
+  duplicate. Keep the LinkedIn server callback temporarily compatible only for OAuth flows that
+  were already in progress when the UI changed.
 - Preserve all legacy application data for a later migration.
 - Store new registrations directly against canonical platform users and mentors.
 - Distinguish live production registrations from POC, migrated, platform, and admin-created data.
@@ -139,7 +140,7 @@ flowchart LR
   A["Complete expert form"] --> B["Server-side anonymous draft"]
   B --> C{"Authenticate at final step"}
   C -->|Google| D["Better Auth session"]
-  C -->|Email sign in or sign up| D
+  C -->|Unified email submission| D
   D --> E["Authenticated finalization transaction"]
   E --> F["users and auth_accounts"]
   E --> G["mentors and user_roles"]
@@ -170,28 +171,25 @@ The recommended implementation uses the provider's normal redirect flow. A custo
 is less reliable on mobile browsers and introduces opener/postMessage and popup-blocking failure
 modes. The email experience remains a modal as requested.
 
-### 6.2 Existing email/password account
+### 6.2 Unified email submission
 
-1. Open the email authentication modal on its Sign in tab.
-2. Enter email and password.
-3. Better Auth authenticates the account and establishes the session.
-4. Finalize the draft using the authenticated session email and user ID.
-
-### 6.3 New email/password account
-
-1. Open the modal on its Create account tab.
+1. Open the single `Submit with email` modal.
 2. Enter email, password, and password confirmation.
 3. Validate the email, password policy, and matching confirmation locally.
 4. Call Better Auth `signUp.email` with the professional form's full name, email, and password.
-5. Leave `users.email_verified=false` unless Better Auth has independently verified it.
-6. Finalize using the newly created authenticated session.
+5. If Better Auth reports that the email already exists, internally call `signIn.email` with the
+   same normalized email and submitted password. Do not expose a separate Sign in mode or disclose
+   whether the email exists.
+6. On successful signup or existing-password authentication, finalize using the authenticated
+   session. Leave `users.email_verified=false` unless Better Auth independently verified it.
+7. If either the password does not authenticate the existing identity or signup fails for another
+   reason, show the same neutral failure message. A Google-only identity can continue with Google.
 
-If the email already belongs to an account, offer Sign in without deleting the draft. Passwords,
-provider tokens, raw sessions, and password confirmation must never enter draft storage.
-
-The UI switches directly to Sign in, retains the normalized email, clears both password fields,
-and explains that the account already exists. Better Auth remains the only authority that decides
-whether the email already belongs to a user.
+The unified behavior reduces early-access friction without weakening the server's identity check.
+Passwords, provider tokens, raw sessions, and password confirmation never enter draft storage.
+The finalizer remains authoritative: an existing user without a mentor may complete registration,
+an idempotent retry returns the existing result, and a user who already has a mentor receives
+`EXISTING_PROFILE` without any duplicate or overwrite.
 
 ### 6.4 Already-authenticated visitor
 
@@ -377,12 +375,13 @@ or a partially committed profile.
 | Condition at finalization | Required behavior |
 |---|---|
 | New user, no mentor, no legacy application | Create the mentor normally. |
-| Existing user, no mentor | Create the mentor after successful sign-in. |
+| Existing user, no mentor | Authenticate the submitted password internally, then create the mentor. |
 | User already has the mentor created from this draft | Return idempotent success. |
 | User already has a mentor from another source | Do not overwrite it; return `EXISTING_PROFILE`, show the existing status, and preserve the new draft for account switching. |
 | Exact-email legacy application exists, no mentor | Create from the new live form, record the legacy match on the draft, and leave the old application untouched. |
 | Legacy application is approved/rejected/in review | Do not inherit or overwrite its decision during v3 finalization. Flag it for future reconciliation. |
-| Email/password signup uses an existing user email | Preserve the draft and ask the person to sign in. |
+| Email signup uses an existing password identity | Authenticate internally with the same submitted password; never expose a separate Sign in mode. |
+| Existing password cannot be authenticated or identity is Google-only | Preserve the draft, show the same neutral failure, and allow Google as the alternative. |
 | Required `mentor` role does not exist | Fail finalization without creating a partial mentor. |
 
 The current auth-session hook automatically claims a verified `mentor_applications` row by email.
@@ -435,8 +434,8 @@ Implemented UI behavior:
 - remove `application.email` as a required wizard prop and validation input;
 - replace the step-eight Submit button with an authentication panel;
 - add Google and Email buttons; request Google's account chooser for shared-device safety;
-- implement the email Sign in/Create account modal with accessible tabs, validation, loading,
-  provider errors, password visibility controls, and focus management;
+- implement one email signup-and-submit modal with validation, neutral non-enumerating failures,
+  loading, password visibility controls, and focus management;
 
 ### 11.2 Repeat registration and terminal draft lifecycle
 
@@ -582,8 +581,8 @@ mentors, drafts, consent records, or additive columns created while v3 was activ
 ### Phase C: final-step authentication — implemented; provider-console verification pending
 
 - Build the reusable authentication panel and accessible email modal.
-- Configure and test Google, email sign-in, and email sign-up callbacks against the
-  exact deployed origin.
+- Configure and test Google plus unified email signup/existing-password authentication against
+  the exact deployed origin.
 - Add the OAuth completion/retry page and bind it to the server draft cookie.
 - Gate every legacy claim/reconciliation entry point independently before enabling v3.
 
@@ -636,7 +635,8 @@ available in the same deployment.
 
 ### Browser/E2E tests
 
-- Desktop and mobile completion for Google, email sign in, and email sign up.
+- Desktop and mobile completion for Google, a new email, an existing email with the correct
+  password, an existing email with the wrong password, and a Google-only email.
 - OAuth cancellation, popup/modal dismissal, callback error, expired session, and retry.
 - Browser refresh at every step without loss of server-saved text or uploaded files.
 - Accessible keyboard/focus behavior and error announcements.
@@ -743,3 +743,15 @@ verified in the target environment.
 - Added shared-device `Start another application` and `Use a different account` actions plus
   concurrent-tab terminal-state recovery. No database migration was required for this lifecycle
   correction.
+
+### 17 August 2026
+
+- Replaced the visible email Sign in/Create account tabs with one `Sign up and submit` action and
+  removed account-creation language from the applicant-facing final step.
+- Added signup-first authentication: a new email is registered normally, while Better Auth's
+  existing-email result triggers an internal password authentication attempt using the same
+  normalized credentials.
+- Applied one neutral applicant-facing failure for duplicate-password, Google-only identity, and
+  other registration failures so the interface does not disclose whether an email is registered.
+- Kept canonical conflict handling unchanged: finalization creates no duplicate mentor and never
+  overwrites an existing mentor. No database migration was required.
