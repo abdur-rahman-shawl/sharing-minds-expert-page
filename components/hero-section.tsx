@@ -32,7 +32,7 @@ export function HeroSection() {
       <picture className="absolute inset-0 -z-30">
         <source media="(max-width: 639px)" srcSet="/expert-network-hero-mobile.webp" />
         <img
-          src="/expert-network-hero-safe-zone.webp"
+          src="/expert-network-hero-safe-zone-v2.webp"
           alt=""
           fetchPriority="high"
           className="hero-network-art h-full w-full object-cover object-center"
