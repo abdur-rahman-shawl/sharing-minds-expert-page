@@ -97,7 +97,7 @@ export function HeroSection() {
       </div>
 
       <div
-        className="hero-network-infinity pointer-events-none absolute left-[67.2%] top-[50%] hidden -translate-x-1/2 -translate-y-1/2 font-serif text-[64px] leading-none text-[#83c7ff] drop-shadow-[0_0_10px_rgba(78,169,255,0.95)] min-[840px]:block"
+        className="hero-network-infinity pointer-events-none absolute left-[76.3%] top-[46.2%] hidden -translate-x-1/2 -translate-y-1/2 font-serif text-[64px] leading-none text-[#83c7ff] drop-shadow-[0_0_10px_rgba(78,169,255,0.95)] min-[840px]:block"
         aria-hidden="true"
       >
         ∞
