@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   description:
     'Apply for expert verification and connect with professionals seeking guidance on SharingMinds.',
   generator: 'v0.app',
+  icons: {
+    icon: '/brand/sharingminds-infinity.png',
+    shortcut: '/brand/sharingminds-infinity.png',
+    apple: '/brand/sharingminds-infinity.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
