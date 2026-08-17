@@ -1627,7 +1627,7 @@ export function ExpertApplicationWizard({
             <p>
               Your application will be reviewed within approximately 5–10 business days.
               {isLiveRegistration
-                ? ' You will securely sign in before the application is submitted.'
+                ? ' Continue when you are ready to submit your application for review.'
                 : ' Submission does not create a platform account or guarantee selection.'}
             </p>
           </div>
@@ -1816,12 +1816,12 @@ export function ExpertApplicationWizard({
                   >
                     {isSubmitting
                       ? isLiveRegistration
-                        ? 'Preparing secure sign in...'
+                        ? 'Preparing application submission...'
                         : 'Submitting application...'
                       : application.status === 'CHANGES_REQUESTED'
                         ? 'Resubmit application'
                         : isLiveRegistration
-                          ? 'Continue to secure sign in'
+                          ? 'Continue to submit application'
                           : 'Submit application'}
                     {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
                   </Button>
