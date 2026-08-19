@@ -51,6 +51,7 @@ import {
 } from '@/lib/mentor-application-options'
 import {
   MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH,
+  MENTOR_APPLICATION_PHONE_LENGTH,
   mentorApplicationDraftFieldsSchema,
 } from '@/lib/validations/mentor-application'
 import type { MentorApplication } from './types'
@@ -159,7 +160,7 @@ function createInitialForm(application: MentorApplication): ExpertApplicationFor
   const storedPhone = splitStoredPhone(application.phone)
   return {
     fullName: application.fullName || '',
-    phone: storedPhone.phone,
+    phone: storedPhone.phone.replace(/\D/g, '').slice(0, MENTOR_APPLICATION_PHONE_LENGTH),
     phoneCountryCode:
       application.phoneCountryCode?.replace(/^\+/, '') || storedPhone.phoneCountryCode,
     countryId: application.countryId?.toString() || '',
@@ -1114,8 +1115,16 @@ export function ExpertApplicationWizard({
                   <Input
                     id="phone"
                     inputMode="tel"
+                    maxLength={MENTOR_APPLICATION_PHONE_LENGTH}
                     value={form.phone}
-                    onChange={event => updateForm('phone', event.target.value.replace(/\D/g, ''))}
+                    onChange={event =>
+                      updateForm(
+                        'phone',
+                        event.target.value
+                          .replace(/\D/g, '')
+                          .slice(0, MENTOR_APPLICATION_PHONE_LENGTH),
+                      )
+                    }
                     aria-invalid={Boolean(errors.phone)}
                     aria-describedby={errors.phone ? 'phone-error' : undefined}
                     className={cn(

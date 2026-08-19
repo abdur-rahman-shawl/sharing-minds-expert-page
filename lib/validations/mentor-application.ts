@@ -17,6 +17,7 @@ import {
 export const MENTOR_APPLICATION_LEGAL_VERSION = '2025-11'
 export const MENTOR_APPLICATION_SCHEMA_VERSION = 2
 export const MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH = 1500
+export const MENTOR_APPLICATION_PHONE_LENGTH = 10
 
 const employmentTypes = optionValues(EMPLOYMENT_TYPE_OPTIONS)
 const experienceBands = optionValues(EXPERIENCE_BAND_OPTIONS)
@@ -102,7 +103,10 @@ export const verifyMentorApplicationOtpSchema = z.object({
 
 const mentorApplicationV2Fields = {
   fullName: z.string().trim().min(2, 'Full name is required').max(120),
-  phone: z.string().trim().regex(/^\+\d{1,4}-\d{6,15}$/, 'Invalid phone number format'),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\+\d{1,4}-\d{10}$/, 'Enter a 10-digit mobile number'),
   countryId: z.string().trim().regex(/^\d+$/, 'Country is required'),
   stateId: z.string().trim().regex(/^\d+$/, 'State is required'),
   cityId: z.string().trim().regex(/^\d+$/, 'City is required'),

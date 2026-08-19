@@ -62,6 +62,21 @@ describe('mentor application validation boundaries', () => {
     expect(result.success).toBe(true)
   })
 
+  it('requires an exact 10-digit mobile number', () => {
+    expect(
+      mentorApplicationDraftFieldsSchema.safeParse({
+        ...validApplication,
+        phone: '+91-987654321',
+      }).success,
+    ).toBe(false)
+    expect(
+      mentorApplicationDraftFieldsSchema.safeParse({
+        ...validApplication,
+        phone: '+91-98765432101',
+      }).success,
+    ).toBe(false)
+  })
+
   it('normalizes a LinkedIn URL entered without a protocol', () => {
     const result = mentorApplicationDraftFieldsSchema.safeParse({
       ...validApplication,
