@@ -163,12 +163,12 @@ const mentorApplicationV2Fields = {
     .array(z.enum(serviceInterests))
     .min(1, 'Select at least one mentoring interest'),
   preferredSessionMode: z.enum(sessionModes, {
-    required_error: 'Preferred session mode is required',
+    errorMap: () => ({ message: 'Please select a preferred session mode' }),
   }),
   languages: z.array(z.enum(languages)).min(1, 'Select at least one language'),
   otherLanguage: z.string().trim().max(100),
   weeklyAvailabilityBand: z.enum(weeklyAvailabilityBands, {
-    required_error: 'Weekly availability is required',
+    errorMap: () => ({ message: 'Please select your weekly availability' }),
   }),
 }
 

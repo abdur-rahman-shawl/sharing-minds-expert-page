@@ -77,6 +77,25 @@ describe('mentor application validation boundaries', () => {
     ).toBe(false)
   })
 
+  it('shows clear messages when availability selections are missing', () => {
+    const result = mentorApplicationDraftFieldsSchema.safeParse({
+      ...validApplication,
+      preferredSessionMode: '',
+      weeklyAvailabilityBand: '',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors
+      expect(errors.preferredSessionMode?.[0]).toBe(
+        'Please select a preferred session mode',
+      )
+      expect(errors.weeklyAvailabilityBand?.[0]).toBe(
+        'Please select your weekly availability',
+      )
+    }
+  })
+
   it('normalizes a LinkedIn URL entered without a protocol', () => {
     const result = mentorApplicationDraftFieldsSchema.safeParse({
       ...validApplication,
