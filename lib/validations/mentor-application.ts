@@ -119,20 +119,28 @@ const mentorApplicationV2Fields = {
   company: z.string().trim().min(2, 'Current organization is required').max(160),
   websiteUrl: optionalUrlSchema,
   employmentType: z.enum(employmentTypes, {
-    required_error: 'Employment type is required',
+    errorMap: () => ({ message: 'Please select your employment type' }),
   }),
   experienceBand: z.enum(experienceBands, {
-    required_error: 'Experience range is required',
+    errorMap: () => ({ message: 'Please select your total experience' }),
   }),
   industries: z
-    .array(z.enum(industries))
-    .min(1, 'Select at least one industry')
-    .max(10, 'Select no more than 10 industries'),
+    .array(
+      z.enum(industries, {
+        errorMap: () => ({ message: 'Please select valid industries' }),
+      }),
+    )
+    .min(1, 'Please select at least one industry')
+    .max(10, 'Please select no more than 10 industries'),
   otherIndustry: z.string().trim().max(160),
   expertise: z
-    .array(z.enum(expertiseAreas))
-    .min(1, 'Select at least one area of expertise')
-    .max(5, 'Select no more than five areas of expertise'),
+    .array(
+      z.enum(expertiseAreas, {
+        errorMap: () => ({ message: 'Please select valid areas of expertise' }),
+      }),
+    )
+    .min(1, 'Please select at least one area of expertise')
+    .max(5, 'Please select no more than five areas of expertise'),
   otherExpertise: z.string().trim().max(160),
   about: z
     .string()
@@ -157,15 +165,31 @@ const mentorApplicationV2Fields = {
     .trim()
     .min(20, 'Explain what makes your guidance distinctive')
     .max(MENTOR_APPLICATION_LONG_ANSWER_MAX_LENGTH),
-  credibilitySignals: z.array(z.enum(credibilitySignals)).max(14),
+  credibilitySignals: z
+    .array(
+      z.enum(credibilitySignals, {
+        errorMap: () => ({ message: 'Please select valid credibility signals' }),
+      }),
+    )
+    .max(14, 'Please select no more than 14 credibility signals'),
   linkedinUrl: linkedinUrlSchema,
   serviceInterests: z
-    .array(z.enum(serviceInterests))
-    .min(1, 'Select at least one mentoring interest'),
+    .array(
+      z.enum(serviceInterests, {
+        errorMap: () => ({ message: 'Please select valid areas of interest' }),
+      }),
+    )
+    .min(1, 'Please select at least one area of interest'),
   preferredSessionMode: z.enum(sessionModes, {
     errorMap: () => ({ message: 'Please select a preferred session mode' }),
   }),
-  languages: z.array(z.enum(languages)).min(1, 'Select at least one language'),
+  languages: z
+    .array(
+      z.enum(languages, {
+        errorMap: () => ({ message: 'Please select valid languages' }),
+      }),
+    )
+    .min(1, 'Please select at least one language'),
   otherLanguage: z.string().trim().max(100),
   weeklyAvailabilityBand: z.enum(weeklyAvailabilityBands, {
     errorMap: () => ({ message: 'Please select your weekly availability' }),

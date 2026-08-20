@@ -96,6 +96,32 @@ describe('mentor application validation boundaries', () => {
     }
   })
 
+  it('uses plain-language messages for every required single-choice field', () => {
+    const result = mentorApplicationDraftFieldsSchema.safeParse({
+      ...validApplication,
+      employmentType: '',
+      experienceBand: '',
+      preferredSessionMode: '',
+      weeklyAvailabilityBand: '',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors
+      expect(errors.employmentType?.[0]).toBe('Please select your employment type')
+      expect(errors.experienceBand?.[0]).toBe('Please select your total experience')
+      expect(errors.preferredSessionMode?.[0]).toBe(
+        'Please select a preferred session mode',
+      )
+      expect(errors.weeklyAvailabilityBand?.[0]).toBe(
+        'Please select your weekly availability',
+      )
+      expect(result.error.issues.map(issue => issue.message).join(' ')).not.toMatch(
+        /invalid enum|expected|received/i,
+      )
+    }
+  })
+
   it('normalizes a LinkedIn URL entered without a protocol', () => {
     const result = mentorApplicationDraftFieldsSchema.safeParse({
       ...validApplication,

@@ -144,6 +144,44 @@ const STEP_FIELDS = [
   new Set<string>(),
 ] as const
 
+const FIELD_VALIDATION_FALLBACKS: Record<string, string> = {
+  fullName: 'Please enter your full name',
+  phone: 'Please enter a valid 10-digit mobile number',
+  countryId: 'Please select your country',
+  stateId: 'Please select your state',
+  cityId: 'Please select your city',
+  professionalHeadline: 'Please enter your professional headline',
+  linkedinUrl: 'Please enter a valid LinkedIn profile URL',
+  websiteUrl: 'Please enter a valid website or portfolio URL',
+  title: 'Please enter your current designation',
+  company: 'Please enter your current organization',
+  employmentType: 'Please select your employment type',
+  experienceBand: 'Please select your total experience',
+  industries: 'Please select at least one industry',
+  otherIndustry: 'Please specify your industry',
+  expertise: 'Please select at least one area of expertise',
+  otherExpertise: 'Please specify your area of expertise',
+  about: 'Please tell us about your professional journey',
+  challengeSolved: 'Please describe a challenge people seek your advice on',
+  measurableOutcomes: 'Please describe the outcomes you have contributed to',
+  guidanceValueProposition: 'Please explain what makes your guidance distinctive',
+  credibilitySignals: 'Please review your credibility selections',
+  serviceInterests: 'Please select at least one area of interest',
+  preferredSessionMode: 'Please select a preferred session mode',
+  languages: 'Please select at least one language',
+  otherLanguage: 'Please specify the language',
+  weeklyAvailabilityBand: 'Please select your weekly availability',
+}
+
+const TECHNICAL_VALIDATION_MESSAGE =
+  /invalid enum|invalid_type|invalid literal|^invalid input|expected .+ received|unrecognized key|string must contain|array must contain|required$/i
+
+function userFacingValidationMessage(field: string, message: string) {
+  return TECHNICAL_VALIDATION_MESSAGE.test(message)
+    ? FIELD_VALIDATION_FALLBACKS[field] || 'Please review this field and try again'
+    : message
+}
+
 const PROFILE_IMAGE_MAX_BYTES = 5 * 1024 * 1024
 const RESUME_MAX_BYTES = 2 * 1024 * 1024
 const SUPPORTING_DOCUMENT_MAX_BYTES = 5 * 1024 * 1024
@@ -842,7 +880,7 @@ export function ExpertApplicationWizard({
       for (const issue of result.error.issues) {
         const field = String(issue.path[0] || '')
         if (STEP_FIELDS[currentStep].has(field) && !nextErrors[field]) {
-          nextErrors[field] = issue.message
+          nextErrors[field] = userFacingValidationMessage(field, issue.message)
         }
       }
     }
@@ -921,7 +959,7 @@ export function ExpertApplicationWizard({
           !nextErrors[field] &&
           (targetStep < 0 || STEP_FIELDS[targetStep].has(field))
         ) {
-          nextErrors[field] = issue.message
+          nextErrors[field] = userFacingValidationMessage(field, issue.message)
         }
       }
       setErrors(nextErrors)
@@ -1009,8 +1047,9 @@ export function ExpertApplicationWizard({
         onSubmitted?.(submittedRecord as MentorApplication)
       }
     } catch (error) {
+      console.error('Expert application submission failed', error)
       setSubmissionError(
-        error instanceof Error ? error.message : 'Unable to submit the application',
+        'We could not submit your application. Please try again. If the problem continues, contact SharingMinds support.',
       )
     } finally {
       setIsSubmitting(false)
@@ -1663,7 +1702,7 @@ export function ExpertApplicationWizard({
                 : autosaveState === 'saved'
                   ? 'Draft saved'
                   : autosaveState === 'error'
-                    ? 'Draft save failed'
+                    ? 'Draft could not be saved. Please check your connection.'
                     : 'Secure application'}
             </span>
           </div>
