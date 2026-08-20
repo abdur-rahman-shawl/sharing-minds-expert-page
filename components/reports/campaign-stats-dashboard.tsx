@@ -6,6 +6,7 @@ import {
   BarChart3,
   CheckCircle2,
   Clock3,
+  Download,
   Eye,
   FilePenLine,
   Loader2,
@@ -14,6 +15,7 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ReportDateTimePicker } from '@/components/reports/report-date-time-picker'
@@ -258,15 +260,26 @@ export default function CampaignStatsDashboard() {
                 across UTM sources, campaigns, or individual ad variations.
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="relative flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold">Live data</p>
-                <p className="text-xs text-slate-400">Refreshes every 60 seconds</p>
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                <span className="relative flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">Live data</p>
+                  <p className="text-xs text-slate-400">
+                    Refreshes every 60 seconds
+                  </p>
+                </div>
               </div>
+              <Link
+                href="/reports/expert-applications/download"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-sm font-bold text-slate-950 transition hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Download applications
+              </Link>
             </div>
           </div>
         </header>

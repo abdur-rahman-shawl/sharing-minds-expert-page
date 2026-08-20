@@ -14,6 +14,7 @@ import {
   MentorApplicationSecurityError,
 } from '@/lib/mentor-applications/security'
 import { getApplicationAdmin } from '@/lib/mentor-applications/auth'
+import { hasExpertReportAccess } from '@/lib/reports/expert-report-access'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -29,9 +30,10 @@ export async function POST(request: NextRequest) {
   try {
     assertTrustedOrigin(request)
     const admin = await getApplicationAdmin(request)
-    if (!admin) {
+    const hasReportAccess = hasExpertReportAccess(request)
+    if (!admin && !hasReportAccess) {
       return NextResponse.json(
-        { success: false, error: 'Administrator access is required' },
+        { success: false, error: 'Report access is required' },
         { status: 403, headers: NO_STORE_HEADERS },
       )
     }
@@ -83,7 +85,8 @@ export async function POST(request: NextRequest) {
     new Uint8Array(responseBody).set(workbook)
 
     console.info('[expert-application-report] Generated admin report', {
-      adminId: admin.id,
+      adminId: admin?.id || null,
+      accessType: admin ? 'admin' : 'report-session',
       startAt: range.startAt.toISOString(),
       endAt: range.endAt.toISOString(),
       rows: report.rows.length,

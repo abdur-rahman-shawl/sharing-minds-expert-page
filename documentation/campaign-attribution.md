@@ -77,13 +77,10 @@ submission or approval happened later.
 
 ## Reporting
 
-The administrator-only `/reports/expert-applications` page supports grouping by
-source, campaign, or creative. It displays visits, application views, OTP
-starts, applications, drafts, submissions, approvals, and conversion rates.
-
-The aggregate-only `/campaign-stats` dashboard can be made publicly accessible
-with `PUBLIC_CAMPAIGN_STATS_ENABLED=true`. It accepts start and end date-times
-in IST, refreshes once per minute while visible, and supports comparison by:
+The aggregate-only `/reports/expert-applications` and `/campaign-stats` pages
+are publicly accessible when `PUBLIC_CAMPAIGN_STATS_ENABLED=true`. They accept
+start and end date-times in IST, refresh once per minute while visible, and
+support comparison by:
 
 - Source and medium (`utm_source` + `utm_medium`)
 - Campaign (`utm_campaign`)
@@ -106,7 +103,11 @@ cookie identifiers. Responses are not stored and requests are rate limited.
 The route is excluded from attribution capture so viewing the dashboard does
 not inflate acquisition traffic.
 
-The Excel workbook contains:
+The public dashboards link to the protected applicant-level Excel export at
+`/reports/expert-applications/download`. Access requires the server-configured
+report credentials or an existing verified administrator session at the API
+layer. Credentials remain server-only, and a successful report login creates a
+signed, HTTP-only session cookie. Its workbook contains:
 
 - `Summary`
 - `Applications`, including marketing attribution columns
@@ -124,7 +125,8 @@ The Excel workbook contains:
 6. Set `PUBLIC_CAMPAIGN_STATS_ENABLED=true` only when aggregate KPIs may be
    viewed by anyone who knows the dashboard or API URL.
 7. Run a tagged test visit through OTP verification, draft save, and submission.
-8. Verify `/campaign-stats` in source, campaign, and ad-variation views.
+8. Verify `/reports/expert-applications` and `/campaign-stats` in source,
+   campaign, and ad-variation views.
 9. Record the enablement timestamp; earlier applications remain explicitly
    unattributed.
 

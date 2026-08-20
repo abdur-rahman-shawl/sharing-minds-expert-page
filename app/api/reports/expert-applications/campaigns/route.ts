@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { getApplicationAdmin } from '@/lib/mentor-applications/auth'
+import { hasExpertReportAccess } from '@/lib/reports/expert-report-access'
 import {
   assertTrustedOrigin,
   MentorApplicationSecurityError,
@@ -33,9 +34,10 @@ export async function POST(request: NextRequest) {
   try {
     assertTrustedOrigin(request)
     const admin = await getApplicationAdmin(request)
-    if (!admin) {
+    const hasReportAccess = hasExpertReportAccess(request)
+    if (!admin && !hasReportAccess) {
       return NextResponse.json(
-        { success: false, error: 'Administrator access is required' },
+        { success: false, error: 'Report access is required' },
         { status: 403, headers: NO_STORE_HEADERS },
       )
     }

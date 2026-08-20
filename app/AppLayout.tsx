@@ -11,8 +11,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const isAuthPage = pathname.startsWith('/auth')
   const isDashboardPage = pathname.startsWith('/dashboard')
-  const isReportPage = pathname.startsWith('/reports')
-  const hideChrome = isAuthPage || isDashboardPage || isReportPage
+  const isExpertReportDownload = pathname.startsWith(
+    '/reports/expert-applications/download',
+  )
+  const hideChrome = isAuthPage || isDashboardPage || isExpertReportDownload
 
   return (
     <div className="flex min-h-screen flex-col">

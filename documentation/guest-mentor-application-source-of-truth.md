@@ -214,7 +214,9 @@ current API, or promoted for new applications.
 | `POST` | `/api/internal/mentor-applications/reconcile` | Internal service bearer secret | Retry approved, linked, unpromoted applications in bounded batches |
 | `POST` | `/api/attribution/visit` | Public + trusted origin | Capture or continue a first-party acquisition visit and refresh signed attribution cookies |
 | `GET` | `/api/public/campaign-performance` | Public when enabled + rate limits | Return aggregate-only campaign funnel KPIs for an IST acquisition range |
-| `POST` | `/api/reports/expert-applications/campaigns` | Verified admin | Return source, campaign, or creative funnel comparisons for an acquisition cohort |
+| `POST`, `DELETE` | `/api/reports/expert-applications/access` | Public login + trusted origin + rate limits | Create or clear a signed, HTTP-only applicant-report session |
+| `POST` | `/api/reports/expert-applications/campaigns` | Verified admin or applicant-report session | Return source, campaign, or creative funnel comparisons for an acquisition cohort |
+| `POST` | `/api/reports/expert-applications/export` | Verified admin or applicant-report session | Generate the applicant-level Excel workbook for an IST registration range |
 
 The server derives the applicant email from the scoped session. Client-supplied email is
 never accepted as proof of identity.
@@ -376,18 +378,23 @@ application approval; it is not an authentication error or a dependency of exper
 - The temporary route is marked `noindex, nofollow`; it may be made indexable only when the
   production client-access experience and its canonical metadata are approved.
 
-### Administrator expert-application reporting
+### Expert-application reporting
 
-`/reports/expert-applications` is the administrator-only reporting utility for comparing
-campaign performance and downloading expert registrations as an Excel workbook. It accepts a
-start and end date-time in `Asia/Kolkata`.
+`/reports/expert-applications` is a public, aggregate-only campaign performance dashboard. It
+uses the same safe data contract as `/campaign-stats` and accepts a start and end date-time in
+`Asia/Kolkata`. Its download action links to `/reports/expert-applications/download`, where
+server-configured report credentials protect applicant-level data.
 
 - Both range boundaries use an explicit calendar plus hour, minute, and AM/PM selectors. The
   interface does not depend on the browser's inconsistent native date-time input or require
   operators to type a date. The selected wall-clock values remain in IST through validation and
   export.
-- Both the page and report APIs require an active, verified, unblocked SharingMinds user with the
-  `admin` role. Trusted-origin validation and private no-store responses remain mandatory.
+- The page requires no account or administrator role while `PUBLIC_CAMPAIGN_STATS_ENABLED=true`.
+  Its public API returns aggregate KPIs only, applies rate limits, and uses no-store responses.
+- The Excel export and private campaign API accept either an active, verified, unblocked
+  SharingMinds administrator or a valid signed applicant-report session. Report sign-in is rate
+  limited, the session cookie is HTTP-only and expires after eight hours, and trusted-origin
+  validation plus private no-store responses remain mandatory.
 - Registration filtering uses `mentor_applications.created_at`, with an inclusive start and an
   exclusive end. An application row is created only after successful application-email OTP
   verification, so the filtered population represents verified registrations rather than raw
@@ -427,8 +434,9 @@ ON mentor_applications (created_at DESC);
 
 ### Public campaign KPI dashboard
 
-`/campaign-stats` is an unlisted, non-indexable dashboard for near-real-time aggregate campaign
-performance. It has no authentication requirement while `PUBLIC_CAMPAIGN_STATS_ENABLED=true`.
+`/campaign-stats` and `/reports/expert-applications` are unlisted, non-indexable views of the
+same near-real-time aggregate campaign dashboard. Neither requires authentication while
+`PUBLIC_CAMPAIGN_STATS_ENABLED=true`.
 
 - Operators choose inclusive start and exclusive end date-times in `Asia/Kolkata`; public ranges
   are limited to 90 days.
@@ -440,7 +448,7 @@ performance. It has no authentication requirement while `PUBLIC_CAMPAIGN_STATS_E
 - Applicant identity, application fields, statuses beyond the displayed aggregate lifecycle
   counts, review data, visitor IDs, visit IDs, click IDs, and cookies are never returned.
 - The endpoint returns no-store responses and applies a best-effort per-instance limit of 30
-  requests per IP per 10 minutes. `/campaign-stats` is excluded from acquisition capture so
+  requests per IP per 10 minutes. Both dashboard paths are excluded from acquisition capture so
   dashboard traffic cannot contaminate campaign KPIs.
 - Disable `PUBLIC_CAMPAIGN_STATS_ENABLED` to immediately close both the page's data feed and the
   public API. The page remains non-indexable but anyone with its URL can open it while enabled.
@@ -489,6 +497,8 @@ performance. It has no authentication requirement while `PUBLIC_CAMPAIGN_STATS_E
 | `CAMPAIGN_ATTRIBUTION_ENABLED` | Campaign rollout | Enable first-party visit capture and application attribution after migration 005 |
 | `CAMPAIGN_ATTRIBUTION_SECRET` | Campaign rollout | Independent server-only secret used to sign attribution cookie identifiers |
 | `PUBLIC_CAMPAIGN_STATS_ENABLED` | Optional public reporting | Expose aggregate campaign KPIs without authentication; requires campaign attribution to be enabled |
+| `EXPERT_REPORT_AUTH_EMAIL` | Protected applicant reporting | Server-only email permitted to open applicant-level reports |
+| `EXPERT_REPORT_AUTH_PASSWORD` | Protected applicant reporting | Server-only report password of at least 12 characters |
 | `SUPABASE_MENTOR_APPLICATIONS_BUCKET` | No | Private bucket name; defaults to `mentor-applications` |
 | `APP_BASE_URL` | Production | Trusted origin for mutation checks, email CTAs, and hosted email assets |
 | `GMAIL_APP_USER` | Yes | OTP and transactional-email sender address |

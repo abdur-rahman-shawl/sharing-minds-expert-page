@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   BarChart3,
@@ -11,6 +12,7 @@ import {
   Download,
   FileSpreadsheet,
   Loader2,
+  LogOut,
   ShieldCheck,
 } from 'lucide-react'
 
@@ -40,7 +42,12 @@ function downloadFilename(contentDisposition: string | null): string {
   )
 }
 
-export default function ExpertApplicationReportForm() {
+export default function ExpertApplicationReportForm({
+  showLogout = false,
+}: {
+  showLogout?: boolean
+}) {
+  const router = useRouter()
   const [startAt, setStartAt] = useState('')
   const [endAt, setEndAt] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
@@ -51,6 +58,7 @@ export default function ExpertApplicationReportForm() {
   const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(false)
   const [groupBy, setGroupBy] =
     useState<CampaignPerformanceGroupBy>('campaign')
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   useEffect(() => {
     const end = new Date()
@@ -178,6 +186,18 @@ export default function ExpertApplicationReportForm() {
     }
   }
 
+  async function handleLogout() {
+    setIsLoggingOut(true)
+    try {
+      await fetch('/api/reports/expert-applications/access', {
+        method: 'DELETE',
+      })
+      router.refresh()
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f5f7fb] text-slate-950">
       <div
@@ -209,14 +229,32 @@ export default function ExpertApplicationReportForm() {
           />
         </Link>
 
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          <span className="hidden sm:inline">Return home</span>
-          <span className="sm:hidden">Back</span>
-        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/reports/expert-applications"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-4"
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            <span className="hidden sm:inline">Campaign reports</span>
+            <span className="sm:hidden">Back</span>
+          </Link>
+          {showLogout ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => void handleLogout()}
+              disabled={isLoggingOut}
+              className="min-h-11 rounded-full px-3 text-sm font-semibold text-slate-600 hover:text-slate-950"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+              )}
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
+          ) : null}
+        </div>
       </header>
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-12 pt-4 sm:px-8 sm:pb-16 lg:px-10 lg:py-12">
@@ -386,8 +424,8 @@ export default function ExpertApplicationReportForm() {
             </form>
 
             <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-              Administrator access is required. Downloaded files contain personal
-              application information and must be handled responsibly.
+              Protected report access is required. Downloaded files contain
+              personal application information and must be handled responsibly.
             </p>
           </div>
         </section>

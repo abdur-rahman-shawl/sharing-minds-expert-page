@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import CampaignStatsDashboard from './campaign-stats-dashboard'
+import CampaignStatsDashboard from '@/components/reports/campaign-stats-dashboard'
 
 export const dynamic = 'force-dynamic'
 
