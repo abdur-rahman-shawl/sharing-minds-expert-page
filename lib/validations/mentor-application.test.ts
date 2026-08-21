@@ -56,6 +56,45 @@ describe('mentor application validation boundaries', () => {
     ).toBe(false)
   })
 
+  it('rejects numeric names with a clear validation message', () => {
+    const result = mentorApplicationDraftFieldsSchema.safeParse({
+      ...validApplication,
+      fullName: '1234567890',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.fullName?.[0]).toBe(
+        'Full name should only contain letters',
+      )
+    }
+  })
+
+  it('requires at least two actual letters in a full name', () => {
+    for (const fullName of ['A', 'A.', "A'"]) {
+      const result = mentorApplicationDraftFieldsSchema.safeParse({
+        ...validApplication,
+        fullName,
+      })
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.flatten().fieldErrors.fullName?.[0]).toBe(
+          'Full name must contain at least 2 letters',
+        )
+      }
+    }
+  })
+
+  it('accepts common punctuation and international letters in names', () => {
+    const result = mentorApplicationDraftFieldsSchema.safeParse({
+      ...validApplication,
+      fullName: "María O’Connor-Silva",
+    })
+
+    expect(result.success).toBe(true)
+  })
+
   it('accepts an expert with fewer than ten years of experience', () => {
     const result = mentorApplicationDraftFieldsSchema.safeParse(validApplication)
 

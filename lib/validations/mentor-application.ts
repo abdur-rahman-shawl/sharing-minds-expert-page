@@ -102,7 +102,19 @@ export const verifyMentorApplicationOtpSchema = z.object({
 })
 
 const mentorApplicationV2Fields = {
-  fullName: z.string().trim().min(2, 'Full name is required').max(120),
+  fullName: z
+    .string()
+    .trim()
+    .min(1, 'Full name is required')
+    .max(120, 'Full name must be 120 characters or fewer')
+    .regex(
+      /^(?=.*\p{L})[\p{L}\p{M} .'’-]+$/u,
+      'Full name should only contain letters',
+    )
+    .refine(
+      value => (value.match(/\p{L}/gu)?.length || 0) >= 2,
+      'Full name must contain at least 2 letters',
+    ),
   phone: z
     .string()
     .trim()
