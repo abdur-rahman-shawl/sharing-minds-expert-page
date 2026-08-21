@@ -16,8 +16,26 @@ const openSans = Open_Sans({
   variable: '--font-open-sans',
 })
 
+function getMetadataBase() {
+  const configuredUrl =
+    process.env.APP_BASE_URL ||
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL
+
+  if (configuredUrl) return new URL(configuredUrl)
+
+  const vercelUrl =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL
+  if (vercelUrl) return new URL(`https://${vercelUrl}`)
+
+  return new URL('http://localhost:3000')
+}
+
+const socialImage = '/social/sharingminds-expert-network.png'
+
 export const metadata: Metadata = {
-  title: 'SharingMinds - Apply for Expert Verification',
+  metadataBase: getMetadataBase(),
+  title: 'Apply for the SharingMinds Verified Expert Network',
   description:
     'Apply for expert verification and connect with professionals seeking guidance on SharingMinds.',
   generator: 'v0.app',
@@ -25,6 +43,29 @@ export const metadata: Metadata = {
     icon: '/brand/sharingminds-infinity.png',
     shortcut: '/brand/sharingminds-infinity.png',
     apple: '/brand/sharingminds-infinity.png',
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: 'SharingMinds',
+    title: 'Apply for the SharingMinds Verified Expert Network',
+    description:
+      'Apply for expert verification and connect with professionals seeking guidance on SharingMinds.',
+    images: [
+      {
+        url: socialImage,
+        width: 1897,
+        height: 908,
+        alt: 'SharingMinds Verified Expert Network application',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Apply for the SharingMinds Verified Expert Network',
+    description:
+      'Apply for expert verification and connect with professionals seeking guidance on SharingMinds.',
+    images: [socialImage],
   },
 }
 
